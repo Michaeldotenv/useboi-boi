@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Michaeldotenv/useboi-boi/backend/api/payments"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
-	"github.com/Michaeldotenv/useboi-boi/backend/utils"
+	"backend/api/payments"
+	"backend/internal/data"
+	"backend/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
