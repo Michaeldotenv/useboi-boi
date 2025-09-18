@@ -2,7 +2,7 @@ package utils
 
 import (
 	"log/slog"
-	"skulpoint-backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
 
 	"firebase.google.com/go/messaging"
 	"github.com/gin-gonic/gin"

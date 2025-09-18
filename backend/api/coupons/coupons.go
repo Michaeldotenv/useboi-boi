@@ -3,8 +3,8 @@ package coupons
 import (
 	"log/slog"
 	"net/http"
-	"skulpoint-backend/internal/data"
-	"skulpoint-backend/utils"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

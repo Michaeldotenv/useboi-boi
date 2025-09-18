@@ -4,11 +4,12 @@ import (
 	"context"
 	"log/slog"
 	"os"
-	"skulpoint-backend/api"
-	"skulpoint-backend/api/admin"
-	"skulpoint-backend/internal/data"
 
-	_ "skulpoint-backend/cmd/app/docs"
+	"github.com/Michaeldotenv/useboi-boi/backend/api"
+	"github.com/Michaeldotenv/useboi-boi/backend/api/admin"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+
+	_ "github.com/Michaeldotenv/useboi-boi/backend/cmd/app/docs"
 
 	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"

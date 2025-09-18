@@ -6,10 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"skulpoint-backend/internal/data"
-	"skulpoint-backend/utils"
 	"strings"
 	"time"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -26,10 +27,10 @@ func doesUserExist(userId string, c *gin.Context, db *mongo.Database) bool {
 		return false
 	}
 	userFilter := bson.M{"_id": id, "$or": []bson.M{
-        {"status": "active"},
-        {"status": ""},
+		{"status": "active"},
+		{"status": ""},
 		{"status": nil},
-    }}
+	}}
 	result := userCollection.FindOne(c, userFilter)
 
 	existingUser := data.User{}
@@ -64,7 +65,6 @@ func PaystackWebhooktMiddleware() gin.HandlerFunc {
 		c.Abort()
 	}
 }
-
 
 func AdminMiddleware(db *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -124,7 +124,6 @@ func AdminMiddleware(db *mongo.Database) gin.HandlerFunc {
 	}
 }
 
-
 func AuthMiddleware(db *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -176,8 +175,6 @@ func AuthMiddleware(db *mongo.Database) gin.HandlerFunc {
 		c.Next()
 	}
 }
-
-
 
 type responseBodyWriter struct {
 	gin.ResponseWriter

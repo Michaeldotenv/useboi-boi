@@ -3,7 +3,7 @@ package items
 import (
 	"log/slog"
 	"net/http"
-	"skulpoint-backend/utils"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"

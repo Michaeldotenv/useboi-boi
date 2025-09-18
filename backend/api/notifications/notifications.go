@@ -2,8 +2,8 @@ package notifications
 
 import (
 	"net/http"
-	"skulpoint-backend/internal/data"
-	"skulpoint-backend/utils"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"

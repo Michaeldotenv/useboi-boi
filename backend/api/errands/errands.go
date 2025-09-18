@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"skulpoint-backend/internal/data"
-	"skulpoint-backend/utils"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 	"strconv"
 	"time"
 

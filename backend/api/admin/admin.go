@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"skulpoint-backend/api/inventories"
-	"skulpoint-backend/internal/data"
-	"skulpoint-backend/utils"
+	"github.com/Michaeldotenv/useboi-boi/backend/api/inventories"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"

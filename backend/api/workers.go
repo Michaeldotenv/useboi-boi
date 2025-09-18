@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"log/slog"
-	"skulpoint-backend/api/payments"
-	"skulpoint-backend/internal/data"
-	"skulpoint-backend/utils"
+	"github.com/Michaeldotenv/useboi-boi/backend/api/payments"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
