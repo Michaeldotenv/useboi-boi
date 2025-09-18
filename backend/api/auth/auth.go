@@ -3,9 +3,9 @@ package auth
 import (
 	"fmt"
 	"net/http"
-	"github.com/Michaeldotenv/useboi-boi/backend/api/payments"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
-	"github.com/Michaeldotenv/useboi-boi/backend/utils"
+	"boiboi-backend/api/payments"
+	"boiboi-backend/internal/data"
+	"boiboi-backend/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"

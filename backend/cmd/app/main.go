@@ -5,11 +5,11 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/Michaeldotenv/useboi-boi/backend/api"
-	"github.com/Michaeldotenv/useboi-boi/backend/api/admin"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"boiboi-backend/api"
+	"boiboi-backend/api/admin"
+	"boiboi-backend/internal/data"
 
-	_ "github.com/Michaeldotenv/useboi-boi/backend/cmd/app/docs"
+	_ "boiboi-backend/cmd/app/docs"
 
 	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"

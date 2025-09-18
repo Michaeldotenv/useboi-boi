@@ -2,8 +2,8 @@ package notifications
 
 import (
 	"net/http"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
-	"github.com/Michaeldotenv/useboi-boi/backend/utils"
+	"boiboi-backend/internal/data"
+	"boiboi-backend/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"

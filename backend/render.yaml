@@ -3,8 +3,9 @@ services:
     name: boiboi-backend
     env: go
     plan: starter
-    buildCommand: cd backend && go build -o main cmd/app/main.go
-    startCommand: cd backend && ./main
+    buildCommand: go build -o main cmd/app/main.go
+    startCommand: ./main
+    rootDir: backend
     envVars:
       - key: APP_ENV
         value: production

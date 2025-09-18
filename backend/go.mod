@@ -1,4 +1,4 @@
-module github.com/Michaeldotenv/useboi-boi/backend
+module boiboi-backend
 
 go 1.22.0
 

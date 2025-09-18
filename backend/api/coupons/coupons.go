@@ -3,8 +3,8 @@ package coupons
 import (
 	"log/slog"
 	"net/http"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
-	"github.com/Michaeldotenv/useboi-boi/backend/utils"
+	"boiboi-backend/internal/data"
+	"boiboi-backend/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

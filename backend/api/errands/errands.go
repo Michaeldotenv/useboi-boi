@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
-	"github.com/Michaeldotenv/useboi-boi/backend/utils"
+	"boiboi-backend/internal/data"
+	"boiboi-backend/utils"
 	"strconv"
 	"time"
 

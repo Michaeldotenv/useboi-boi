@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"github.com/Michaeldotenv/useboi-boi/backend/api/inventories"
-	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
-	"github.com/Michaeldotenv/useboi-boi/backend/utils"
+	"boiboi-backend/api/inventories"
+	"boiboi-backend/internal/data"
+	"boiboi-backend/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
