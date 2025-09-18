@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: boiboi-backend
+    env: go
+    plan: starter
+    buildCommand: go build -o main cmd/app/main.go
+    startCommand: ./main
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: 8082
+      - key: DB_NAME
+        value: boiboi-prod
+      - key: MONGODB_URI
+        fromDatabase:
+          name: boiboi-mongodb
+          property: connectionString
+      - key: JWT_SIGNING_KEY
+        generateValue: true
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_PREFERRED_BANK
+        value: titan-paystack
+      - key: BOIBOI_MAIL_PASSWORD
+        sync: false
+      - key: IMGBB_API_KEY
+        sync: false
+      - key: ADMIN_KEY
+        sync: false
+      - key: PING_URL
+        value: https://boiboi-backend.onrender.com/api/ping
+      - key: SERVER_URL
+        value: https://boiboi-backend.onrender.com
+
+databases:
+  - name: boiboi-mongodb
+    plan: starter
+    databaseName: boiboi-prod
