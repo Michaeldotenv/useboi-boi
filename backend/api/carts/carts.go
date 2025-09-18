@@ -3,8 +3,9 @@ package carts
 import (
 	"log/slog"
 	"net/http"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"

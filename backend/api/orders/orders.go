@@ -8,10 +8,11 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
 	"strconv"
 	"time"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"firebase.google.com/go/messaging"
 	"github.com/gin-gonic/gin"

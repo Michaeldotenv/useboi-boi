@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
 	"strconv"
 	"strings"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"

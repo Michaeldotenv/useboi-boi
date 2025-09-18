@@ -3,7 +3,8 @@ package items
 import (
 	"log/slog"
 	"net/http"
-	"boiboi-backend/utils"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -27,14 +28,12 @@ func GetStoreItems(c *gin.Context, db *mongo.Database) {
 
 	cursor, err := itemCollection.Find(c, filter)
 	if err != nil {
-		
+
 	}
 
 	defer cursor.Close(c)
 
-	// items := 
+	// items :=
 	// cursor.All(c, )
-
-
 
 }

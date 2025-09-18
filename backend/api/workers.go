@@ -3,10 +3,11 @@ package api
 import (
 	"context"
 	"log/slog"
-	"boiboi-backend/api/payments"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
 	"time"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/api/payments"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

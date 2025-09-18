@@ -9,11 +9,12 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"

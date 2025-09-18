@@ -5,10 +5,11 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"boiboi-backend/api/inventories"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
 	"time"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/api/inventories"
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"

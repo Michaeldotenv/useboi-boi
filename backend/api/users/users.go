@@ -7,8 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,27 +38,27 @@ func GetUser(c *gin.Context, db *mongo.Database) {
 	}
 
 	type ResponseVirtualBankAccount struct {
-        data.VirtualBankAccount
-        AccountName string `json:"accountName"`
+		data.VirtualBankAccount
+		AccountName   string `json:"accountName"`
 		AccountNumber string `json:"accountNumber"`
-    }
+	}
 
-    type ResponseUser struct {
-        data.User
-        VirtualBankAccount *ResponseVirtualBankAccount `json:"virtualBankAccount,omitempty"`
-    }
-    
-    responseUser := ResponseUser{
-        User: user,
-    }
+	type ResponseUser struct {
+		data.User
+		VirtualBankAccount *ResponseVirtualBankAccount `json:"virtualBankAccount,omitempty"`
+	}
 
-    if user.VirtualBankAccount != nil {
-        responseUser.VirtualBankAccount = &ResponseVirtualBankAccount{
-            VirtualBankAccount: *user.VirtualBankAccount,
-            AccountName:        user.VirtualBankAccount.AccountName, 
-			AccountNumber: user.VirtualBankAccount.AccountNumber,
-        }
-    }
+	responseUser := ResponseUser{
+		User: user,
+	}
+
+	if user.VirtualBankAccount != nil {
+		responseUser.VirtualBankAccount = &ResponseVirtualBankAccount{
+			VirtualBankAccount: *user.VirtualBankAccount,
+			AccountName:        user.VirtualBankAccount.AccountName,
+			AccountNumber:      user.VirtualBankAccount.AccountNumber,
+		}
+	}
 
 	c.JSON(http.StatusOK, responseUser)
 
@@ -83,27 +84,27 @@ func GetMe(c *gin.Context, db *mongo.Database) {
 	}
 
 	type ResponseVirtualBankAccount struct {
-        data.VirtualBankAccount
-        AccountName string `json:"accountName"`
+		data.VirtualBankAccount
+		AccountName   string `json:"accountName"`
 		AccountNumber string `json:"accountNumber"`
-    }
+	}
 
-    type ResponseUser struct {
-        data.User
-        VirtualBankAccount *ResponseVirtualBankAccount `json:"virtualBankAccount,omitempty"`
-    }
-    
-    responseUser := ResponseUser{
-        User: user,
-    }
+	type ResponseUser struct {
+		data.User
+		VirtualBankAccount *ResponseVirtualBankAccount `json:"virtualBankAccount,omitempty"`
+	}
 
-    if user.VirtualBankAccount != nil {
-        responseUser.VirtualBankAccount = &ResponseVirtualBankAccount{
-            VirtualBankAccount: *user.VirtualBankAccount,
-            AccountName:        user.VirtualBankAccount.AccountName, 
-			AccountNumber: user.VirtualBankAccount.AccountNumber,
-        }
-    }
+	responseUser := ResponseUser{
+		User: user,
+	}
+
+	if user.VirtualBankAccount != nil {
+		responseUser.VirtualBankAccount = &ResponseVirtualBankAccount{
+			VirtualBankAccount: *user.VirtualBankAccount,
+			AccountName:        user.VirtualBankAccount.AccountName,
+			AccountNumber:      user.VirtualBankAccount.AccountNumber,
+		}
+	}
 
 	c.JSON(http.StatusOK, responseUser)
 }

@@ -2,9 +2,10 @@ package notifications
 
 import (
 	"net/http"
-	"boiboi-backend/internal/data"
-	"boiboi-backend/utils"
 	"time"
+
+	"github.com/Michaeldotenv/useboi-boi/backend/internal/data"
+	"github.com/Michaeldotenv/useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -12,7 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
 
 type DeviceRequest struct {
 	Token string `bson:"token" json:"token" validate:"required,min=16"`
@@ -55,10 +55,10 @@ func RegisterDevice(c *gin.Context, db *mongo.Database) {
 	}
 
 	newToken := data.DeviceToken{
-		ID: primitive.NewObjectID(),
-		UserId: userId,
-		Type: request.Type,
-		Token: request.Token,
+		ID:        primitive.NewObjectID(),
+		UserId:    userId,
+		Type:      request.Type,
+		Token:     request.Token,
 		CreatedAt: time.Now(),
 	}
 
