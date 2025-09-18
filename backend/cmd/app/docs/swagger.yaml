@@ -1,0 +1,1124 @@
+basePath: /api
+definitions:
+  admin.AdminLoginRequest:
+    properties:
+      key:
+        type: string
+    type: object
+  admin.StoreUpdate:
+    properties:
+      status:
+        type: string
+    type: object
+  auth.EmailRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+    type: object
+  auth.ResetRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: newPassword123
+        type: string
+      token:
+        example: abc123
+        type: string
+    type: object
+  data.Assignment:
+    properties:
+      account_type:
+        type: string
+      assigned_at:
+        type: string
+      assignee_id:
+        type: integer
+      assignee_type:
+        type: string
+      expired:
+        type: boolean
+      integration:
+        type: integer
+    type: object
+  data.Category:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      storeId:
+        type: string
+    type: object
+  data.Customer:
+    properties:
+      customer_code:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone:
+        type: string
+      risk_action:
+        type: string
+    type: object
+  data.DeliveryService:
+    properties:
+      adminId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      signupCode:
+        type: string
+      status:
+        type: string
+      virtualBankAccount:
+        $ref: '#/definitions/data.VirtualBankAccount'
+    type: object
+  data.Error:
+    properties:
+      error:
+        type: string
+    type: object
+  data.Item:
+    properties:
+      category:
+        type: string
+      categoryId:
+        type: string
+      createdAt:
+        type: string
+      currentInventory:
+        type: integer
+      desc:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      status:
+        description: active, deleted, inactive
+        type: string
+      storeId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  data.JWTResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  data.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  data.MerchantSignupRequest:
+    properties:
+      confirmPassword:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      nameOfStore:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      storeDescription:
+        type: string
+    type: object
+  data.OtpRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    type: object
+  data.RiderSignupRequest:
+    properties:
+      confirmPassword:
+        type: string
+      deliveryServiceCode:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    type: object
+  data.SignupRequest:
+    properties:
+      confirmPassword:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    type: object
+  data.Store:
+    properties:
+      address:
+        type: string
+      availableDays:
+        items:
+          type: string
+        type: array
+      categories:
+        items:
+          type: string
+        type: array
+      closingTime:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      items:
+        items:
+          type: string
+        type: array
+      likedByUserIds:
+        items:
+          type: string
+        type: array
+      mapLocation:
+        type: string
+      name:
+        type: string
+      openingTime:
+        type: string
+      ratings:
+        type: number
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  data.VirtualBankAccount:
+    properties:
+      account_name:
+        type: string
+      account_number:
+        type: string
+      active:
+        type: boolean
+      assigned:
+        type: boolean
+      assignment:
+        $ref: '#/definitions/data.Assignment'
+      balance:
+        type: number
+      created_at:
+        type: string
+      currency:
+        type: string
+      customer:
+        $ref: '#/definitions/data.Customer'
+      id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  vendors.StoreImageRequest:
+    properties:
+      image:
+        type: string
+      storeId:
+        type: string
+    required:
+    - image
+    - storeId
+    type: object
+info:
+  contact: {}
+  description: Boiboi API Documentation.
+  title: Boiboi Backend API
+  version: "1.0"
+paths:
+  /admin/deliveryServices:
+    get:
+      description: Fetch a list of delivery services, optionally filtered by status
+      parameters:
+      - description: Status filter
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of delivery services
+          schema:
+            items:
+              $ref: '#/definitions/data.DeliveryService'
+            type: array
+        "400":
+          description: Invalid filter or parameters
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Get delivery services
+      tags:
+      - Admin
+  /admin/deliveryServices/{id}:
+    get:
+      description: Retrieves a specific delivery service using its ID
+      parameters:
+      - description: Delivery Service ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/data.DeliveryService'
+        "400":
+          description: Invalid ID or No Delivery Service Found
+          schema:
+            $ref: '#/definitions/data.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Get a delivery service by ID
+      tags:
+      - Admin
+  /admin/orders:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all orders with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+              page:
+                type: integer
+              pageSize:
+                type: integer
+              totalCount:
+                type: integer
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all orders
+      tags:
+      - Admin
+  /admin/orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a single order with full details by its ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get an order by ID
+      tags:
+      - Admin
+  /admin/store/{id}/inventories:
+    post:
+      consumes:
+      - application/json
+      description: Admin adds a new item to a store's inventory
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Item object
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/data.Item'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/data.Item'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Add item to store inventory (Admin)
+      tags:
+      - Admin
+      - Inventories
+  /admin/stores:
+    get:
+      description: Fetch a list of stores, optionally filtered by status
+      parameters:
+      - description: Status filter
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of stores
+          schema:
+            items:
+              $ref: '#/definitions/data.Store'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Get a list of stores
+      tags:
+      - Admin
+  /admin/stores/{id}:
+    get:
+      description: Fetch a single store using the provided ID
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Store details
+          schema:
+            $ref: '#/definitions/data.Store'
+        "400":
+          description: Invalid ID or store not found
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Get a store by ID
+      tags:
+      - Admin
+  /auth/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Allows admin to log in using their admin key and receive a JWT
+        token
+      parameters:
+      - description: Admin login request body
+        in: body
+        name: adminLoginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/admin.AdminLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            $ref: '#/definitions/data.JWTResponse'
+        "400":
+          description: Invalid request or wrong admin key
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Admin login and JWT token generation
+      tags:
+      - Admin
+  /auth/forgotPassword:
+    post:
+      consumes:
+      - application/json
+      description: Send password reset link to user's email address
+      parameters:
+      - description: Email address for password reset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset email sent successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid email format
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error - user not found or email sending failed
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Request password reset
+      tags:
+      - Authentication
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password, return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with JWT token and user data
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid credentials or rider not approved
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: User login
+      tags:
+      - Authentication
+  /auth/merchantSignup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new merchant account with store information and email
+        verification via OTP
+      parameters:
+      - description: Merchant registration details including store information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.MerchantSignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP sent successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - validation error or email already exists
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Register a new merchant account
+      tags:
+      - Authentication
+  /auth/resetPassword:
+    post:
+      consumes:
+      - application/json
+      description: Reset user password using email and reset token
+      parameters:
+      - description: Password reset details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successful
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid request format
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error - invalid token or user not found
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Reset user password
+      tags:
+      - Authentication
+  /auth/riderSignup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new rider account with delivery service code and email
+        verification via OTP
+      parameters:
+      - description: Rider registration details including delivery service code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.RiderSignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP sent successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - validation error or email already exists
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Register a new rider account
+      tags:
+      - Authentication
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new base user account with email verification via OTP
+      parameters:
+      - description: User registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP sent successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - validation error or email already exists
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Register a new user account
+      tags:
+      - Authentication
+  /auth/verifyMerchantSignup:
+    post:
+      consumes:
+      - application/json
+      description: Verify the OTP code sent to merchant's email and complete the registration
+        process including store creation
+      parameters:
+      - description: OTP verification details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Merchant and store created successfully with JWT token
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid OTP or validation error
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Verify merchant signup with OTP
+      tags:
+      - Authentication
+  /auth/verifyRiderSignup:
+    post:
+      consumes:
+      - application/json
+      description: Verify the OTP code sent to rider's email and complete the registration
+        process
+      parameters:
+      - description: OTP verification details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Rider created successfully with JWT token or pending status
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid OTP or validation error
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Verify rider signup with OTP
+      tags:
+      - Authentication
+  /auth/verifySignup:
+    post:
+      consumes:
+      - application/json
+      description: Verify the OTP code sent to user's email and complete the registration
+        process
+      parameters:
+      - description: OTP verification details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created successfully with JWT token
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid OTP or validation error
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/data.Error'
+      summary: Verify user signup with OTP
+      tags:
+      - Authentication
+  /deliveryServices/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Updates the status of a delivery service based on the provided
+        ID.
+      parameters:
+      - description: DeliveryService ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: DeliveryService status update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/data.DeliveryService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated delivery service
+          schema:
+            $ref: '#/definitions/data.DeliveryService'
+        "400":
+          description: Invalid request body or ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update delivery service status
+      tags:
+      - Admin
+  /inventories/categories/:
+    post:
+      consumes:
+      - application/json
+      description: Create a new category for a store
+      parameters:
+      - description: Category object
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/data.Category'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/data.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a new category
+      tags:
+      - Inventories
+  /inventories/items/:
+    post:
+      consumes:
+      - application/json
+      description: Add a new item to a store's inventory
+      parameters:
+      - description: Item object
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/data.Item'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/data.Item'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/data.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Add item to store inventory
+      tags:
+      - Inventories
+  /inventories/items/{id}:
+    delete:
+      description: Soft delete an item from a store's inventory by ID
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/data.Error'
+      security:
+      - BearerAuth: []
+      summary: Remove item from store inventory
+      tags:
+      - Inventories
+  /stores/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Updates the status of a store based on the provided ID.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Store status update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.StoreUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated store
+          schema:
+            $ref: '#/definitions/data.Store'
+        "400":
+          description: Invalid request body or ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update store status
+      tags:
+      - Admin
+  /vendors:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all active vendors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of active vendors
+          schema:
+            items:
+              $ref: '#/definitions/data.Store'
+            type: array
+        "500":
+          description: Failed to decode stores
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all vendors
+      tags:
+      - Vendors
+  /vendors/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a single vendor by its ID
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Vendor object
+          schema:
+            $ref: '#/definitions/data.Store'
+        "400":
+          description: Invalid vendor ID
+          schema:
+            type: object
+        "500":
+          description: Error fetching store
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a vendor by ID
+      tags:
+      - Vendors
+    put:
+      consumes:
+      - application/json
+      description: Update an existing vendor's information by its ID
+      parameters:
+      - description: Vendor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Vendor update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/data.Store'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated vendor object
+          schema:
+            $ref: '#/definitions/data.Store'
+        "400":
+          description: Invalid request body or invalid vendor ID
+          schema:
+            type: object
+        "500":
+          description: Failed to update store
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a vendor by ID
+      tags:
+      - Vendors
+  /vendors/image:
+    post:
+      consumes:
+      - application/json
+      description: Update the image of a specific store
+      parameters:
+      - description: Store image update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/vendors.StoreImageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated store image
+          schema:
+            type: object
+        "400":
+          description: Invalid request body or failed to create upload request
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update store image
+      tags:
+      - Vendors
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

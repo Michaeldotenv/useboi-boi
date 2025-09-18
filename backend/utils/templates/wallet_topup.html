@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Successful Wallet Top-Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #5438dc;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #777;
+            background-color: #f1f1f1;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            color: #fff;
+            background-color: #4caf50;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Successful Wallet Top-Up</h1>
+        </div>
+        <div class="content">
+            <p>Hi <strong>{{customer_name}}</strong>,</p>
+            <p>We’re thrilled to let you know that your wallet has been successfully credited!</p>
+            <h3>Details of Your Transaction:</h3>
+            <ul>
+                <li><strong>Amount:</strong> ₦{{amount}}</li>
+                <li><strong>Reference:</strong> {{reference}}</li>
+            </ul>
+            <p>Your new wallet balance is <strong>₦{{balance}}</strong>.</p>
+
+            <p>If you have any questions, feel free to contact us at <a href="mailto:hey@useboiboi.com">hey@useboiboi.com</a>.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; <span id="year"></span> Boiboi. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
