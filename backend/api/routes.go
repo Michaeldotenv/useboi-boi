@@ -262,6 +262,15 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 		public.GetCustomerAppVersion(ctx, db)
 	})
 
+	// Health check endpoint
+	r.GET("/api/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "ok",
+			"message":   "Boiboi Backend is running",
+			"timestamp": time.Now().Unix(),
+		})
+	})
+
 	go WithdrawalProcessor(db)
 
 	go VirtualAccountProcessor(db)
