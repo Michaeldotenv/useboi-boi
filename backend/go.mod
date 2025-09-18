@@ -1,8 +1,8 @@
 module boiboi-backend
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.23.3
+toolchain go1.25.1
 
 require (
 	github.com/swaggo/files v1.0.1
