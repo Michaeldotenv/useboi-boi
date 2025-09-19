@@ -123,6 +123,8 @@ go.work
 
 # Firebase service account key
 boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json
+backend/useboiboi.json
+backend/*-firebase-adminsdk-*.json
 
 # IDE files
 *.iml
