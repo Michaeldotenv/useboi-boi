@@ -24,6 +24,8 @@
 - [ ] `ADMIN_KEY` (secure admin access key)
 - [ ] `PING_URL=https://your-app-name.onrender.com/api/ping`
 - [ ] `SERVER_URL=https://your-app-name.onrender.com`
+ - [ ] `FIREBASE_PROJECT_ID` (your Firebase project ID)
+ - [ ] `GOOGLE_APPLICATION_CREDENTIALS` (optional: path to service account JSON)
 
 ### **3. External Services Setup**
 - [ ] **MongoDB**: Atlas cluster created or Render MongoDB configured
@@ -121,7 +123,7 @@ curl -X POST https://your-app-name.onrender.com/api/auth/signup \
 
 4. **Firebase Issues**
    - Verify service account JSON file is uploaded
-   - Check Firebase project configuration
+   - Ensure `FIREBASE_PROJECT_ID` is set and matches the project
    - Ensure Cloud Messaging is enabled
 
 ## 📊 **Monitoring**

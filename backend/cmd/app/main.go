@@ -40,20 +40,29 @@ func main() {
 	slog.SetDefault(logger)
 
 	var opt option.ClientOption
-	if os.Getenv("APP_ENV") == "development" {
-		opt = option.WithCredentialsFile("boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json")
-	} else {
-		opt = option.WithCredentialsFile("../../boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json")
+	credPath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	if credPath == "" {
+		if os.Getenv("APP_ENV") == "development" {
+			credPath = "boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json"
+		} else {
+			credPath = "../../boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json"
+		}
+	}
+	opt = option.WithCredentialsFile(credPath)
+
+	projectID := os.Getenv("FIREBASE_PROJECT_ID")
+	if projectID == "" {
+		slog.Warn("FIREBASE_PROJECT_ID is not set; FCM will fail to initialize")
 	}
 
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	app, err := firebase.NewApp(context.Background(), &firebase.Config{ProjectID: projectID}, opt)
 	if err != nil {
 		panic(err)
 	}
 
 	notificationClient, err := app.Messaging(context.Background())
 	if err != nil {
-		slog.Error("error", "error initializing messaging client: %v\n", err)
+		slog.Error("error initializing messaging client", "err", err)
 		panic(err)
 	}
 
