@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"backend/utils"
+	"useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"

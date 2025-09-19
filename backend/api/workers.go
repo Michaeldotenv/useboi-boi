@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"time"
 
-	"backend/api/payments"
-	"backend/internal/data"
-	"backend/utils"
+	"useboi-boi/backend/api/payments"
+	"useboi-boi/backend/internal/data"
+	"useboi-boi/backend/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

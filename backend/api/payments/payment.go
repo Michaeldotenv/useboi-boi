@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	"backend/internal/data"
-	"backend/utils"
+	"useboi-boi/backend/internal/data"
+	"useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"

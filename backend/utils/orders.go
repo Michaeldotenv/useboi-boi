@@ -3,7 +3,7 @@ package utils
 import (
 	"log/slog"
 
-	"backend/internal/data"
+	"useboi-boi/backend/internal/data"
 
 	"firebase.google.com/go/messaging"
 	"github.com/gin-gonic/gin"

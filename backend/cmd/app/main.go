@@ -5,11 +5,11 @@ import (
 	"log/slog"
 	"os"
 
-	"backend/api"
-	"backend/api/admin"
-	"backend/internal/data"
+	"useboi-boi/backend/api"
+	"useboi-boi/backend/api/admin"
+	"useboi-boi/backend/internal/data"
 
-	_ "backend/cmd/app/docs"
+	_ "useboi-boi/backend/cmd/app/docs"
 
 	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"

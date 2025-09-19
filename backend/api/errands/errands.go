@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"time"
 
-	"backend/internal/data"
-	"backend/utils"
+	"useboi-boi/backend/internal/data"
+	"useboi-boi/backend/utils"
 
 	"firebase.google.com/go/messaging"
 	"github.com/gin-gonic/gin"

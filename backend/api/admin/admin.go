@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"backend/api/inventories"
-	"backend/internal/data"
-	"backend/utils"
+	"useboi-boi/backend/api/inventories"
+	"useboi-boi/backend/internal/data"
+	"useboi-boi/backend/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"

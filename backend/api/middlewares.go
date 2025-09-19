@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"backend/internal/data"
-	"backend/utils"
+	"useboi-boi/backend/internal/data"
+	"useboi-boi/backend/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"

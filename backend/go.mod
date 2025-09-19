@@ -1,4 +1,4 @@
-module backend
+module useboi-boi/backend
 
 go 1.23.0
 
