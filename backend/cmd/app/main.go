@@ -45,7 +45,8 @@ func main() {
 		if os.Getenv("APP_ENV") == "development" {
 			credPath = "boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json"
 		} else {
-			credPath = "../../boiboi-775e3-firebase-adminsdk-whdew-ee9f66987e.json"
+			slog.Error("GOOGLE_APPLICATION_CREDENTIALS is not set in production; cannot initialize Firebase")
+			panic("GOOGLE_APPLICATION_CREDENTIALS not set")
 		}
 	}
 	opt = option.WithCredentialsFile(credPath)

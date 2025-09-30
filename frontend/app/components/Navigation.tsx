@@ -17,11 +17,18 @@ import {
   VStack,
   IconButton,
   useBreakpointValue,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Badge,
+  Avatar,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, CloseIcon, SearchIcon, BellIcon } from "@chakra-ui/icons";
+import { FiShoppingCart, FiUser, FiHeart, FiMapPin } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface NavigationProps {
   variant?: "default" | "transparent";
@@ -146,389 +153,432 @@ export default function Navigation({ variant = "default" }: NavigationProps) {
         position="sticky"
         zIndex="1000"
         top="0"
-        bg={navbarBg}
-        backdropFilter={isScrolled ? "blur(10px)" : "none"}
-        borderBottom={isScrolled ? "1px solid" : "none"}
-        borderColor="gray.200"
-        transition="all 0.3s ease"
-        py={headerPadding?.py}
-        px={headerPadding?.px}
-        boxShadow={isScrolled ? "0 2px 10px rgba(0, 0, 0, 0.1)" : "none"}
+        bg={isScrolled ? "rgba(255, 255, 255, 0.95)" : "white"}
+        backdropFilter={isScrolled ? "blur(20px)" : "none"}
+        borderBottom="1px solid"
+        borderColor={isScrolled ? "rgba(226, 232, 240, 0.8)" : "gray.100"}
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        py={3}
+        px={6}
+        boxShadow={isScrolled ? "0 8px 32px -8px rgba(0, 0, 0, 0.12)" : "0 4px 16px -4px rgba(0, 0, 0, 0.06)"}
         w="100%"
-        minH={{ base: "56px", sm: "62px", md: "68px", lg: "72px" }}
+        minH="72px"
       >
         <Flex
-          maxW={{ base: "100%", sm: "100%", md: "6xl", lg: "7xl", xl: "8xl" }}
+          maxW="7xl"
           mx="auto"
-          px={{ base: 1, xs: 2, sm: 3, md: 4, lg: 6, xl: 8 }}
           justify="space-between"
           align="center"
-          gap={{ base: 1, xs: 2, sm: 3, md: 4 }}
+          gap={4}
           wrap="nowrap"
           h="full"
         >
           {/* Logo - Always visible */}
-          <Box 
-            cursor="pointer" 
-            onClick={() => router.push("/")}
-            flexShrink={0}
-            display="flex"
-            alignItems="center"
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <Image
-              src="/Boiboi (Palatinate blue).png"
-              alt="BoiBoi Logo"
-              width={logoSize?.width}
-              height={logoSize?.height}
-              maxH={{ base: "48px", sm: "54px", md: "58px", lg: "62px", xl: "66px" }}
-              objectFit="contain"
-              transition="transform 0.2s ease"
-              _hover={{ transform: "scale(1.05)" }}
-              loading="eager"
-            />
-          </Box>
-
-          {/* Full Desktop Navigation - XL screens and up */}
-          {showFullNav && (
-            <HStack
-              spacing={{ xl: 6, "2xl": 8 }}
-              align="center"
-              flex={1}
-              justify="center"
-              maxW={{ xl: "600px", "2xl": "700px" }}
-              mx={6}
-            >
-              {navigationItems.map((item) => (
-                <Text
-                  key={item.label}
-                  color="text.primary"
-                  fontWeight="600"
-                  fontSize={{ xl: "md", "2xl": "lg" }}
-                  cursor="pointer"
-                  transition="all 0.3s ease"
-                  _hover={{
-                    color: "brand.primary",
-                    transform: "translateY(-1px)",
-                    bg: "gray.50",
-                  }}
-                  onClick={item.onClick}
-                  whiteSpace="nowrap"
-                  px={3}
-                  py={2}
-                  borderRadius="md"
-                >
-                  {item.label}
-                </Text>
-              ))}
-            </HStack>
-          )}
-
-          {/* Partial Navigation - Large screens only */}
-          {showPartialNav && (
-            <HStack 
-              spacing={3}
-              align="center" 
-              flex={1} 
-              justify="center" 
-              mx={4}
-              maxW="400px"
-            >
-              {navigationItems.slice(0, 3).map((item) => (
-                <Text
-                  key={item.label}
-                  color="text.primary"
-                  fontWeight="600"
-                  fontSize="sm"
-                  cursor="pointer"
-                  transition="all 0.3s ease"
-                  _hover={{
-                    color: "brand.primary",
-                    transform: "translateY(-1px)",
-                    bg: "gray.50",
-                  }}
-                  onClick={item.onClick}
-                  whiteSpace="nowrap"
-                  px={2}
-                  py={1}
-                  borderRadius="md"
-                >
-                  {item.label}
-                </Text>
-              ))}
-            </HStack>
-          )}
-
-          {/* CTA Buttons - Medium screens and up */}
-          {showCTAButtons && (
-            <HStack
-              spacing={{ md: 1, lg: 2, xl: 3 }}
-              align="center"
+            <Box 
+              cursor="pointer" 
+              onClick={() => router.push("/")}
               flexShrink={0}
-              wrap="nowrap"
+              display="flex"
+              alignItems="center"
             >
-              {/* Login button - hidden on medium to save space */}
-              {(showPartialNav || showFullNav) && (
-                <Button
-                  variant="ghost"
-                  color="text.primary"
-                  onClick={handleLogin}
-                  size={buttonSize}
-                  fontSize={{ lg: "sm", xl: "md" }}
-                  px={{ lg: 3, xl: 4 }}
-                  _hover={{
-                    color: "brand.primary",
-                    bg: "gray.50",
-                    transform: "translateY(-1px)",
-                  }}
-                  display={{ base: "none", lg: "flex" }}
-                >
-                  Login
-                </Button>
-              )}
-              
-              <Button
-                variant="outline"
-                borderColor="brand.primary"
-                color="brand.primary"
-                onClick={handleSignUp}
-                size={buttonSize}
-                fontSize={{ md: "xs", lg: "sm", xl: "md" }}
-                px={{ md: 2, lg: 3, xl: 4 }}
-                _hover={{
-                  bg: "brand.primary",
-                  color: "white",
-                  transform: "translateY(-1px)",
+              <Image
+                src="/Boiboi (Palatinate blue).png"
+                alt="BoiBoi Logo"
+                width="160px"
+                height="46px"
+                objectFit="contain"
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                _hover={{ 
+                  transform: "scale(1.05)",
+                  filter: "drop-shadow(0 8px 24px rgba(82, 52, 229, 0.3))"
                 }}
-                display={{ base: "none", md: "flex" }}
-              >
-                Sign Up
-              </Button>
-              
-              <Button
-                variant="primary"
-                size={buttonSize}
-                onClick={() => router.push("/waitlist")}
-                px={{ md: 2, lg: 3, xl: 4 }}
-                fontSize={{ md: "xs", lg: "sm", xl: "md" }}
-                _hover={{
-                  transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(82, 52, 229, 0.3)",
-                }}
-                whiteSpace="nowrap"
-                display={{ base: "none", md: "flex" }}
-              >
-                {waitlistLabel}
-              </Button>
-            </HStack>
-          )}
+                loading="eager"
+              />
+            </Box>
+          </motion.div>
 
-          {/* Mobile Menu Button - Always visible when nav items are hidden */}
-          {(!showCTAButtons || !showFullNav) && (
+          {/* Location & Search Bar - Desktop */}
+          <Flex
+            flex={1}
+            maxW="600px"
+            mx={8}
+            display={{ base: "none", md: "flex" }}
+            align="center"
+            gap={4}
+          >
+            {/* Location */}
+            <HStack
+              spacing={3}
+              px={4}
+              py={3}
+              bg="gray.50"
+              borderRadius="xl"
+              cursor="pointer"
+              transition="all 0.3s ease"
+              _hover={{ 
+                bg: "gray.100",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+              }}
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              <Box
+                bg="brand.primary"
+                borderRadius="full"
+                p={1.5}
+              >
+                <FiMapPin color="white" size={14} />
+              </Box>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="gray.500" fontWeight="500">Deliver to</Text>
+                <Text fontSize="sm" fontWeight="700" color="gray.800">Lagos, Nigeria</Text>
+              </VStack>
+            </HStack>
+
+            {/* Search Bar */}
+            <InputGroup flex={1} maxW="400px">
+              <InputLeftElement pointerEvents="none" pl={4}>
+                <SearchIcon color="gray.400" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search for food, restaurants..."
+                bg="gray.50"
+                border="2px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                fontSize="sm"
+                pl={12}
+                py={3}
+                h="48px"
+                _focus={{
+                  bg: "white",
+                  borderColor: "brand.primary",
+                  boxShadow: "0 0 0 3px rgba(82, 52, 229, 0.1)"
+                }}
+                _hover={{
+                  bg: "gray.100",
+                  borderColor: "gray.300"
+                }}
+                transition="all 0.3s ease"
+              />
+            </InputGroup>
+          </Flex>
+
+          {/* Action Buttons - Desktop */}
+          <HStack
+            spacing={2}
+            display={{ base: "none", md: "flex" }}
+            align="center"
+          >
+            {/* Cart Button */}
+            <IconButton
+              aria-label="Shopping Cart"
+              icon={<FiShoppingCart />}
+              variant="ghost"
+              size="lg"
+              borderRadius="xl"
+              position="relative"
+              bg="gray.50"
+              _hover={{ 
+                bg: "gray.100",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+              }}
+              transition="all 0.3s ease"
+            >
+              <Badge
+                position="absolute"
+                top="-2"
+                right="-2"
+                bg="red.500"
+                color="white"
+                borderRadius="full"
+                fontSize="xs"
+                minW="22px"
+                h="22px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontWeight="600"
+                boxShadow="0 2px 8px rgba(239, 68, 68, 0.3)"
+              >
+                3
+              </Badge>
+            </IconButton>
+
+            {/* Notifications */}
+            <IconButton
+              aria-label="Notifications"
+              icon={<BellIcon />}
+              variant="ghost"
+              size="lg"
+              borderRadius="xl"
+              position="relative"
+              bg="gray.50"
+              _hover={{ 
+                bg: "gray.100",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+              }}
+              transition="all 0.3s ease"
+            >
+              <Badge
+                position="absolute"
+                top="-2"
+                right="-2"
+                bg="orange.500"
+                color="white"
+                borderRadius="full"
+                fontSize="xs"
+                minW="20px"
+                h="20px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontWeight="600"
+                boxShadow="0 2px 8px rgba(245, 158, 11, 0.3)"
+              >
+                2
+              </Badge>
+            </IconButton>
+
+            {/* Profile/Auth */}
+            <Button
+              leftIcon={<FiUser />}
+              variant="outline"
+              size="md"
+              borderRadius="xl"
+              borderColor="brand.primary"
+              color="brand.primary"
+              fontWeight="600"
+              px={6}
+              py={3}
+              h="48px"
+              _hover={{
+                bg: "brand.primary",
+                color: "white",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(82, 52, 229, 0.2)"
+              }}
+              transition="all 0.3s ease"
+              onClick={handleLogin}
+            >
+              Login
+            </Button>
+          </HStack>
+
+          {/* Mobile Search & Menu */}
+          <HStack spacing={2} display={{ base: "flex", md: "none" }}>
+            {/* Mobile Search */}
+            <IconButton
+              aria-label="Search"
+              icon={<SearchIcon />}
+              variant="ghost"
+              size="md"
+              borderRadius="lg"
+              _hover={{ bg: "gray.100" }}
+            />
+
+            {/* Mobile Cart */}
+            <IconButton
+              aria-label="Shopping Cart"
+              icon={<FiShoppingCart />}
+              variant="ghost"
+              size="md"
+              borderRadius="lg"
+              position="relative"
+              _hover={{ bg: "gray.100" }}
+            >
+              <Badge
+                position="absolute"
+                top="-1"
+                right="-1"
+                bg="red.500"
+                color="white"
+                borderRadius="full"
+                fontSize="xs"
+                minW="18px"
+                h="18px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                3
+              </Badge>
+            </IconButton>
+          {/* Mobile Menu Button */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+          >
             <IconButton
               aria-label="Open menu"
               icon={<HamburgerIcon />}
               variant="ghost"
-              size={{ base: "sm", xs: "sm", sm: "md" }}
+              size="md"
+              borderRadius="lg"
               onClick={onOpen}
-              color="text.primary"
-              minW={{ base: "32px", xs: "36px", sm: "40px" }}
-              h={{ base: "32px", xs: "36px", sm: "40px" }}
-              borderRadius="md"
+              color="gray.600"
+              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
               _hover={{
-                bg: "gray.50",
+                bg: "gray.100",
                 transform: "scale(1.05)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
               }}
               _active={{
-                bg: "gray.100",
-                transform: "scale(0.95)",
+                transform: "scale(0.95)"
               }}
-              flexShrink={0}
             />
-          )}
+          </motion.div>
+          </HStack>
         </Flex>
       </Box>
 
-      {/* Mobile & Tablet Drawer */}
+      {/* Mobile Drawer */}
       <Drawer 
         isOpen={isOpen} 
         placement="right" 
         onClose={onClose} 
-        size={{ base: "full", xs: "full", sm: "full", md: "md", lg: "sm" }}
+        size="full"
         blockScrollOnMount={false}
       >
         <DrawerOverlay 
-          bg="rgba(0, 0, 0, 0.5)" 
-          backdropFilter="blur(4px)" 
+          bg="rgba(0, 0, 0, 0.4)" 
+          backdropFilter="blur(8px)" 
         />
-        <DrawerContent maxW={{ base: "100vw", xs: "90vw", sm: "85vw" }}>
+        <DrawerContent>
           <DrawerHeader 
             borderBottom="1px solid" 
-            borderColor="gray.200"
-            py={{ base: 3, xs: 4, sm: 5, md: 6 }}
-            px={{ base: 3, xs: 4, sm: 5, md: 6 }}
+            borderColor="gray.100"
+            py={4}
+            px={6}
+            bg="white"
           >
             <Flex justify="space-between" align="center">
               <Image
                 src="/Boiboi (Palatinate blue).png"
                 alt="BoiBoi Logo"
-                width={{ base: "120px", xs: "140px", sm: "150px", md: "120px" }}
-                height={{ base: "35px", xs: "40px", sm: "42px", md: "35px" }}
+                width="120px"
+                height="35px"
                 objectFit="contain"
               />
               <DrawerCloseButton 
-                size={{ base: "md", xs: "lg", md: "lg" }} 
+                size="md"
                 position="relative"
                 top={0}
                 right={0}
                 _hover={{ bg: "gray.100" }}
-                fontSize={{ base: "18px", xs: "20px", md: "18px" }}
               />
             </Flex>
           </DrawerHeader>
           
           <DrawerBody 
-            py={{ base: 4, xs: 5, sm: 6, md: 8 }} 
-            px={{ base: 3, xs: 4, sm: 5, md: 6 }}
+            py={6} 
+            px={6}
+            bg="gray.50"
             overflowY="auto"
           >
-            <VStack spacing={{ base: 4, xs: 5, sm: 6, md: 8 }} align="stretch" h="full">
-              {/* Navigation Items */}
-              <VStack spacing={{ base: 2, xs: 3, sm: 3, md: 4 }} align="stretch">
-                {navigationItems.map((item) => (
-                  <Button
-                    key={item.label}
-                    variant="ghost"
-                    justifyContent="flex-start"
-                    size={{ base: "md", xs: "md", sm: "lg", md: "lg" }}
-                    onClick={item.onClick}
-                    fontSize={{ base: "md", xs: "md", sm: "lg", md: "lg" }}
-                    fontWeight="600"
-                    h={{ base: "45px", xs: "50px", sm: "55px", md: "60px" }}
-                    borderRadius="12px"
-                    _hover={{
-                      bg: "brand.primary",
-                      color: "white",
-                      transform: "translateX(4px)",
-                    }}
-                    transition="all 0.2s ease"
-                    borderLeft="4px solid transparent"
-                    _active={{
-                      bg: "brand.primary",
-                      color: "white",
-                      borderLeftColor: "brand.primary",
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </VStack>
-              
-              {/* Divider */}
-              <Box 
-                h="1px" 
-                bg="gray.200" 
-                my={{ base: 3, xs: 4, sm: 5, md: 6 }}
-              />
-              
-              {/* CTA Buttons */}
-              <VStack spacing={{ base: 2, xs: 3, sm: 3, md: 4 }} align="stretch">
-                <Text 
-                  fontSize={{ base: "sm", xs: "sm", sm: "md", md: "md" }} 
-                  fontWeight="600" 
-                  color="text.secondary"
-                  textAlign="center"
-                  mb={{ base: 1, xs: 2 }}
+            <VStack spacing={6} align="stretch">
+              {/* Location Section */}
+              <Box bg="white" p={4} borderRadius="xl" boxShadow="sm">
+                <HStack spacing={3}>
+                  <FiMapPin color="#666" size={20} />
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="sm" color="gray.500">Deliver to</Text>
+                    <Text fontSize="md" fontWeight="600" color="gray.800">Lagos, Nigeria</Text>
+                  </VStack>
+                </HStack>
+              </Box>
+
+              {/* Menu Items */}
+              <VStack spacing={3} align="stretch">
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  size="lg"
+                  fontSize="md"
+                  fontWeight="600"
+                  h="50px"
+                  borderRadius="lg"
+                  _hover={{ bg: "white" }}
+                  leftIcon={<FiShoppingCart />}
                 >
-                  Get Started
-                </Text>
+                  My Orders
+                </Button>
                 
                 <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  size="lg"
+                  fontSize="md"
+                  fontWeight="600"
+                  h="50px"
+                  borderRadius="lg"
+                  _hover={{ bg: "white" }}
+                  leftIcon={<FiHeart />}
+                >
+                  Favorites
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  size="lg"
+                  fontSize="md"
+                  fontWeight="600"
+                  h="50px"
+                  borderRadius="lg"
+                  _hover={{ bg: "white" }}
+                  leftIcon={<FiUser />}
+                >
+                  Profile
+                </Button>
+              </VStack>
+              
+              {/* Auth Buttons */}
+              <VStack spacing={3} align="stretch" mt={6}>
+                <Button
                   variant="outline"
-                  size={{ base: "md", xs: "md", sm: "lg", md: "lg" }}
-                  width="full"
-                  onClick={handleLogin}
-                  h={{ base: "40px", xs: "45px", sm: "48px", md: "50px" }}
-                  borderRadius="12px"
-                  borderColor="brand.primary"
-                  color="brand.primary"
-                  fontSize={{ base: "sm", xs: "sm", sm: "md", md: "md" }}
+                  size="lg"
+                  fontSize="md"
+                  fontWeight="600"
+                  h="50px"
+                  borderRadius="lg"
+                  borderColor="gray.300"
+                  color="gray.700"
                   _hover={{
-                    bg: "brand.primary",
-                    color: "white",
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(82, 52, 229, 0.3)",
+                    bg: "white",
+                    borderColor: "gray.400"
                   }}
-                  transition="all 0.2s ease"
+                  onClick={handleLogin}
                 >
                   Login
                 </Button>
                 
                 <Button
-                  variant="primary"
-                  size={{ base: "md", xs: "md", sm: "lg", md: "lg" }}
-                  width="full"
-                  onClick={handleSignUp}
-                  h={{ base: "40px", xs: "45px", sm: "48px", md: "50px" }}
-                  borderRadius="12px"
-                  fontSize={{ base: "sm", xs: "sm", sm: "md", md: "md" }}
+                  bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                  color="white"
+                  size="lg"
+                  fontSize="md"
+                  fontWeight="600"
+                  h="50px"
+                  borderRadius="lg"
                   _hover={{
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(82, 52, 229, 0.4)",
+                    transform: "translateY(-1px)",
+                    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
                   }}
-                  transition="all 0.2s ease"
+                  onClick={handleSignUp}
                 >
                   Sign Up
                 </Button>
-                
-                <Button
-                  variant="secondary"
-                  size={{ base: "md", xs: "md", sm: "lg", md: "lg" }}
-                  width="full"
-                  onClick={() => {
-                    router.push("/waitlist");
-                    onClose();
-                  }}
-                  h={{ base: "40px", xs: "45px", sm: "48px", md: "50px" }}
-                  borderRadius="12px"
-                  fontSize={{ base: "sm", xs: "sm", sm: "md", md: "md" }}
-                  _hover={{
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(255, 107, 53, 0.4)",
-                  }}
-                  transition="all 0.2s ease"
-                >
-                  Join Waitlist
-                </Button>
               </VStack>
-
-              {/* Contact Info for Mobile */}
-              <Box 
-                mt={{ base: 4, xs: 5, sm: 6, md: 8 }} 
-                p={{ base: 3, xs: 4, sm: 4, md: 4 }} 
-                bg="gray.50" 
-                borderRadius="12px"
-                display={{ base: "block", xl: "none" }}
-              >
-                <VStack spacing={{ base: 2, xs: 2, sm: 3, md: 3 }} align="start">
-                  <Text 
-                    fontSize={{ base: "sm", xs: "sm", sm: "md", md: "sm" }} 
-                    fontWeight="600" 
-                    color="text.primary"
-                  >
-                    Contact Us
-                  </Text>
-                  <Text 
-                    fontSize={{ base: "xs", xs: "sm", sm: "sm", md: "sm" }} 
-                    color="text.secondary"
-                    wordBreak="break-word"
-                  >
-                    📧 boiboi.nigeria@gmail.com
-                  </Text>
-                  <Text fontSize={{ base: "xs", xs: "sm", sm: "sm", md: "sm" }} color="text.secondary">
-                    📱 Available 24/7
-                  </Text>
-                </VStack>
-              </Box>
             </VStack>
           </DrawerBody>
         </DrawerContent>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import Preloader from "./components/Preloader";
+import { Suspense } from "react";
 // import ClientSetup from "./components/ClientSetup";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,10 +24,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>{children}
-            {/* <ClientSetup /> */}
+        <Providers>
+          <Suspense fallback={<Preloader />}>{children}</Suspense>
         </Providers>
-        </body>
+      </body>
     </html>
   );
 }

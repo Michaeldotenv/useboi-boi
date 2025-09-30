@@ -16,6 +16,7 @@ import (
 	"useboi-boi/backend/api/orders"
 	"useboi-boi/backend/api/payments"
 	"useboi-boi/backend/api/public"
+	"useboi-boi/backend/api/support"
 	"useboi-boi/backend/api/users"
 	"useboi-boi/backend/api/vendors"
 
@@ -154,6 +155,17 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 		vendors.GetVendorItems(ctx, db)
 	})
 
+	// Saved vendors (likes)
+	mainRoute.POST("/vendors/:id/like", func(ctx *gin.Context) {
+		vendors.LikeStore(ctx, db)
+	})
+	mainRoute.DELETE("/vendors/:id/like", func(ctx *gin.Context) {
+		vendors.UnlikeStore(ctx, db)
+	})
+	mainRoute.GET("/vendors/saved/me", func(ctx *gin.Context) {
+		vendors.GetSavedStores(ctx, db)
+	})
+
 	// Vendor Inventories
 	mainRoute.GET("/inventories/", func(ctx *gin.Context) {
 		inventories.GetStoreItems(ctx, db)
@@ -233,6 +245,14 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	// Notifications
 	mainRoute.POST("/notifications/registerDevice", func(ctx *gin.Context) {
 		notifications.RegisterDevice(ctx, db)
+	})
+
+	// Support
+	mainRoute.GET("/support/tickets", func(ctx *gin.Context) {
+		support.GetMyTickets(ctx, db)
+	})
+	mainRoute.POST("/support/tickets", func(ctx *gin.Context) {
+		support.CreateTicket(ctx, db)
 	})
 
 	// User

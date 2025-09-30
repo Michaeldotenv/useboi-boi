@@ -1,8 +1,9 @@
 package data
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
@@ -125,6 +126,16 @@ type Store struct {
 	OpeningTime    string               `bson:"openingTime,omitempty" json:"openingTime,omitempty"`
 	ClosingTime    string               `bson:"closingTime,omitempty" json:"closingTime,omitempty"`
 	AvailableDays  []string             `bson:"availableDays,omitempty" json:"availableDays,omitempty"`
+}
+
+type SupportTicket struct {
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	UserID    primitive.ObjectID `bson:"userId" json:"userId"`
+	Subject   string             `bson:"subject" json:"subject"`
+	Message   string             `bson:"message" json:"message"`
+	Status    string             `bson:"status" json:"status"` // open, in_progress, closed
+	CreatedAt time.Time          `bson:"createdAt" json:"createdAt"`
+	UpdatedAt time.Time          `bson:"updatedAt" json:"updatedAt"`
 }
 
 type OrderTransaction struct {

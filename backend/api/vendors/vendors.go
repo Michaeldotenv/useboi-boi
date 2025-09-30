@@ -62,6 +62,83 @@ func GetAllVendors(c *gin.Context, db *mongo.Database) {
 
 }
 
+// Like a store (save)
+func LikeStore(c *gin.Context, db *mongo.Database) {
+	userIdStr := c.GetString("userId")
+	storeIdStr := c.Param("id")
+
+	userId, err := primitive.ObjectIDFromHex(userIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+	storeId, err := primitive.ObjectIDFromHex(storeIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid store id"})
+		return
+	}
+
+	storeCollection := db.Collection(utils.STORE)
+	update := bson.M{"$addToSet": bson.M{"likedByUserIds": userId}}
+	if _, err := storeCollection.UpdateByID(c, storeId, update); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to like store. " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "liked"})
+}
+
+// Unlike a store (unsave)
+func UnlikeStore(c *gin.Context, db *mongo.Database) {
+	userIdStr := c.GetString("userId")
+	storeIdStr := c.Param("id")
+
+	userId, err := primitive.ObjectIDFromHex(userIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+	storeId, err := primitive.ObjectIDFromHex(storeIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid store id"})
+		return
+	}
+
+	storeCollection := db.Collection(utils.STORE)
+	update := bson.M{"$pull": bson.M{"likedByUserIds": userId}}
+	if _, err := storeCollection.UpdateByID(c, storeId, update); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to unlike store. " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "unliked"})
+}
+
+// List saved stores for current user
+func GetSavedStores(c *gin.Context, db *mongo.Database) {
+	userIdStr := c.GetString("userId")
+	userId, err := primitive.ObjectIDFromHex(userIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	storeCollection := db.Collection(utils.STORE)
+
+	cursor, err := storeCollection.Find(c, bson.M{"likedByUserIds": userId, "status": "active"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch saved stores. " + err.Error()})
+		return
+	}
+	defer cursor.Close(c)
+
+	stores := []data.Store{}
+	if err := cursor.All(c, &stores); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode stores. " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, stores)
+}
+
 type StoreImageRequest struct {
 	StoreId string `json:"storeId" validate:"required"`
 	Image   string `json:"image" validate:"required"`

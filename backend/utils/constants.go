@@ -26,6 +26,7 @@ const (
 	ADMIN_ACCOUNT           = "AdminAccount"
 	RESET_PASSWORD_TOKEN    = "ResetPasswordToken"
 	APP_VERSION             = "AppVersion"
+	SUPPORT_TICKET          = "SupportTicket"
 	COUPON                  = "Coupon"
 )
 
