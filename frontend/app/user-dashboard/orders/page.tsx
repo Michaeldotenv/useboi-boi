@@ -120,7 +120,7 @@ export default function OrdersPage() {
                   </HStack>
                   <Link 
                     as={NextLink} 
-                    href={`/dashboard/orders/${o._id}`} 
+                    href={`/user-dashboard/orders/${o._id}`} 
                     color="brand.primary"
                     transition="color 0.2s ease"
                     _hover={{

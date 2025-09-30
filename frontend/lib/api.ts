@@ -67,6 +67,8 @@ export const api = {
   initTopup: (body: any) => apiFetch(`/api/wallet/initializeTransaction`, { method: "POST", body }),
   registerDevice: (token: string) => apiFetch(`/api/notifications/registerDevice`, { method: "POST", body: { token } }),
   updateUser: (id: string, body: any) => apiFetch(`/api/user/${id}`, { method: "PATCH", body }),
+  searchItems: (query: string) => apiFetch(`/api/items/search?q=${encodeURIComponent(query)}`),
+  allVendorsWithItems: () => apiFetch(`/api/vendors/with-items`),
 };
 
 

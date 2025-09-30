@@ -27,6 +27,7 @@ function BoiboiWebApp() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("overview");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const carouselRef = useRef<HTMLDivElement>(null);
   let touchStartX = 0;
@@ -53,6 +54,72 @@ function BoiboiWebApp() {
     ? (vendors as any).data
     : (Array.isArray(vendors) ? (vendors as any) : []) as any[];
 
+  // Map category IDs to readable names
+  const getCategoryName = (vendor: any): string => {
+    // Check if category is already a readable string
+    if (typeof vendor.category === 'string' && !vendor.category.match(/^[0-9a-f]{24}$/i)) {
+      return vendor.category;
+    }
+    
+    // Check for category name field
+    if (vendor.categoryName) {
+      return vendor.categoryName;
+    }
+    
+    // Check for category object with name
+    if (vendor.category && typeof vendor.category === 'object' && vendor.category.name) {
+      return vendor.category.name;
+    }
+    
+    // Check for business type or other category fields
+    if (vendor.businessType) {
+      return vendor.businessType;
+    }
+    
+    // Default fallback categories based on common patterns
+    const categoryMap: { [key: string]: string } = {
+      '67d582619dfc3452b04e4c77': 'Restaurant',
+      '68035daf79fd624e59299358': 'Grocery',
+      '68035dd9f2c01460883c9e14': 'Supermarket',
+      // Add more mappings as needed
+    };
+    
+    if (vendor.category && categoryMap[vendor.category]) {
+      return categoryMap[vendor.category];
+    }
+    
+    // Final fallback
+    return 'Store';
+  };
+
+  // Debug: Log vendor data structure to help identify ID field
+  if (vendorList.length > 0) {
+    console.log("First vendor data structure:", vendorList[0]);
+    console.log("Available ID fields:", {
+      _id: vendorList[0]._id,
+      id: vendorList[0].id,
+      ID: vendorList[0].ID
+    });
+    console.log("Category information:", {
+      category: vendorList[0].category,
+      categoryName: vendorList[0].categoryName,
+      businessType: vendorList[0].businessType,
+      resolvedCategory: getCategoryName(vendorList[0])
+    });
+  }
+
+  // Filter vendors based on search query
+  const filteredVendorList = vendorList.filter((v: any) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      (v.businessName && v.businessName.toLowerCase().includes(query)) ||
+      (v.name && v.name.toLowerCase().includes(query)) ||
+      (v.Name && v.Name.toLowerCase().includes(query)) ||
+      (getCategoryName(v).toLowerCase().includes(query))
+    );
+  });
+
   // Get store image
   const getStoreImage = (v: any): string => {
     return (
@@ -70,7 +137,7 @@ function BoiboiWebApp() {
         return (
           <>
             {/* Header Section */}
-            <Box bg="#6C3FE8" position={"relative"} w={"100%"} pt={4} pb={20}>
+            <Box bg="#6C3FE8" w={"100%"} py={4}>
               <Wrapper>
                 <Flex justifyContent={"space-between"} alignItems={"center"} mb={4}>
                   <HStack spacing={1}>
@@ -84,12 +151,12 @@ function BoiboiWebApp() {
                   <Icon as={FaBell} color="#fff" fontSize="20px" />
                 </Flex>
 
-                <InputGroup mb={4}>
+                <InputGroup>
                   <InputLeftElement pointerEvents="none" h="44px">
                     {<SearchIcon ml={"10px"} width={"18px"} h={"18px"} color={"#8E8E93"} />}
                   </InputLeftElement>
                   <Input
-                    placeholder="Search bar"
+                    placeholder="Search stores and items..."
                     width={"100%"}
                     fontSize={"17px"}
                     bg={"#fff"}
@@ -99,16 +166,16 @@ function BoiboiWebApp() {
                     color={"#000"}
                     _placeholder={{ color: "#8E8E93" }}
                     border="none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </InputGroup>
               </Wrapper>
             </Box>
 
             <Wrapper>
-              {/* Overlapping Section */}
-              <Box mt={"-60px"} position="relative" zIndex={1}>
-                <Box w="100%" h="135px" bg="purple.500" borderRadius={"12px"} mb={4} />
-
+              {/* Content Section */}
+              <Box py={4}>
                 {/* Category Grid */}
                 <Grid templateColumns={{ base: "repeat(3, 1fr)" }} gap={3} mb={6}>
                   {["Grocery", "Supermarket", "Restaurant", "Send package", "Market runs", "More"].map(
@@ -119,7 +186,8 @@ function BoiboiWebApp() {
                         borderRadius={"10px"}
                         py={3}
                         spacing={2}
-                        boxShadow="0px 0px 1px rgba(0,0,0,0.1)"
+                        border="1px solid"
+                        borderColor="gray.200"
                         cursor="pointer"
                       >
                         <Box w="32px" h="32px" bg="#1DA169" borderRadius="4px" />
@@ -146,6 +214,12 @@ function BoiboiWebApp() {
                   <HStack justifyContent="center" py={10}>
                     <Spinner />
                   </HStack>
+                ) : filteredVendorList.length === 0 ? (
+                  <Box textAlign="center" py={10}>
+                    <Text color="#8E8E93" fontSize="14px">
+                      {searchQuery ? `No stores found for "${searchQuery}"` : "No stores available"}
+                    </Text>
+                  </Box>
                 ) : (
                   <Box position="relative">
                     <Box
@@ -160,12 +234,19 @@ function BoiboiWebApp() {
                         animate={{ x: `-${activeIndex * 100}%` }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                       >
-                        {vendorList.map((v: any, idx: number) => (
+                        {filteredVendorList.map((v: any, idx: number) => (
                           <Box
-                            key={v._id}
+                            key={v._id || v.id}
                             flex="0 0 100%"
                             px={1}
-                            onClick={() => router.push(`/dashboard/stores/${v._id}`)}
+                            onClick={() => {
+                              const storeId = v._id || v.id;
+                              if (storeId) {
+                                router.push(`/user-dashboard/stores/${storeId}`);
+                              } else {
+                                console.error("Store ID is missing:", v);
+                              }
+                            }}
                             cursor="pointer"
                           >
                             <Box
@@ -196,7 +277,7 @@ function BoiboiWebApp() {
                                   {v.businessName || v.name || v.Name}
                                 </Text>
                                 <Text fontSize="11px" fontWeight="400" color="#8E8E93">
-                                  {(v.distance || "0.6") + "km"} • {v.category || "Spaghetti"}
+                                  {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
                                 </Text>
                               </Box>
                               <HStack spacing={0.5}>
@@ -213,7 +294,7 @@ function BoiboiWebApp() {
 
                     {/* Pagination Dots */}
                     <Flex justify="center" gap={2} mt={4}>
-                      {vendorList.map((_, index) => (
+                      {filteredVendorList.map((_, index) => (
                         <Box
                           key={index}
                           w={activeIndex === index ? "20px" : "6px"}
@@ -244,6 +325,12 @@ function BoiboiWebApp() {
                   <HStack justifyContent="center" py={10}>
                     <Spinner />
                   </HStack>
+                ) : filteredVendorList.length === 0 ? (
+                  <Box textAlign="center" py={10}>
+                    <Text color="#8E8E93" fontSize="14px">
+                      {searchQuery ? `No stores found for "${searchQuery}"` : "No stores available"}
+                    </Text>
+                  </Box>
                 ) : (
                   <Box position="relative">
                     <Box overflow="hidden" w="100%">
@@ -252,19 +339,27 @@ function BoiboiWebApp() {
                         animate={{ x: `-${activeIndex * 100}%` }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                       >
-                        {vendorList.map((v: any) => (
+                        {filteredVendorList.map((v: any) => (
                           <Box
-                            key={v._id}
+                            key={v._id || v.id}
                             flex="0 0 100%"
                             px={1}
-                            onClick={() => router.push(`/dashboard/stores/${v._id}`)}
+                            onClick={() => {
+                              const storeId = v._id || v.id;
+                              if (storeId) {
+                                router.push(`/user-dashboard/stores/${storeId}`);
+                              } else {
+                                console.error("Store ID is missing:", v);
+                              }
+                            }}
                             cursor="pointer"
                           >
                             <Box
                               bg="white"
                               borderRadius="12px"
                               overflow="hidden"
-                              boxShadow="0px 0px 2px rgba(0,0,0,0.1)"
+                              border="1px solid"
+                              borderColor="gray.200"
                             >
                               <Box
                                 w="100%"
@@ -280,7 +375,7 @@ function BoiboiWebApp() {
                                       {v.businessName || v.name || v.Name}
                                     </Text>
                                     <Text fontSize="11px" fontWeight="400" color="#8E8E93">
-                                      {(v.distance || "0.6") + "km"} • {v.category || "Groceries"}
+                                      {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
                                     </Text>
                                   </Box>
                                   <HStack spacing={0.5}>
@@ -309,6 +404,12 @@ function BoiboiWebApp() {
                   <HStack justifyContent="center" py={10}>
                     <Spinner />
                   </HStack>
+                ) : filteredVendorList.length === 0 ? (
+                  <Box textAlign="center" py={10}>
+                    <Text color="#8E8E93" fontSize="14px">
+                      {searchQuery ? `No stores found for "${searchQuery}"` : "No stores available"}
+                    </Text>
+                  </Box>
                 ) : (
                   <Box position="relative">
                     <Box overflow="hidden" w="100%">
@@ -317,13 +418,14 @@ function BoiboiWebApp() {
                         animate={{ x: `-${activeIndex * 100}%` }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                       >
-                        {vendorList.map((v: any) => (
-                          <Box key={v._id} flex="0 0 100%" px={1}>
+                        {filteredVendorList.map((v: any) => (
+                          <Box key={v._id || v.id} flex="0 0 100%" px={1}>
                             <Box
                               bg="white"
                               borderRadius="12px"
                               overflow="hidden"
-                              boxShadow="0px 0px 2px rgba(0,0,0,0.1)"
+                              border="1px solid"
+                              borderColor="gray.200"
                             >
                               <Box
                                 w="100%"
@@ -356,7 +458,7 @@ function BoiboiWebApp() {
                                       {v.businessName || v.name || v.Name}
                                     </Text>
                                     <Text fontSize="11px" fontWeight="400" color="#8E8E93">
-                                      {(v.distance || "0.6") + "km"} • {v.category || "Groceries"}
+                                      {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
                                     </Text>
                                   </Box>
                                   <HStack spacing={0.5}>
@@ -387,14 +489,22 @@ function BoiboiWebApp() {
                   </HStack>
                 ) : (
                   <VStack spacing={3} align="stretch">
-                    {vendorList.slice(0, 3).map((v: any) => (
+                    {filteredVendorList.slice(0, 3).map((v: any) => (
                       <Box
-                        key={v._id}
+                        key={v._id || v.id}
                         bg="white"
                         borderRadius="12px"
                         p={3}
-                        boxShadow="0px 0px 2px rgba(0,0,0,0.1)"
-                        onClick={() => router.push(`/dashboard/stores/${v._id}`)}
+                        border="1px solid"
+                        borderColor="gray.200"
+                        onClick={() => {
+                          const storeId = v._id || v.id;
+                          if (storeId) {
+                            router.push(`/user-dashboard/stores/${storeId}`);
+                          } else {
+                            console.error("Store ID is missing:", v);
+                          }
+                        }}
                         cursor="pointer"
                       >
                         <Box
@@ -412,7 +522,7 @@ function BoiboiWebApp() {
                               {v.businessName || v.name || v.Name}
                             </Text>
                             <Text fontSize="11px" fontWeight="400" color="#8E8E93">
-                              {(v.distance || "0.6") + "km"} • {v.category || "Groceries"}
+                              {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
                             </Text>
                           </Box>
                           <HStack spacing={0.5}>
@@ -469,9 +579,69 @@ function BoiboiWebApp() {
 
       case "saved":
         return (
-          <Wrapper>
-            <SavedVendors />
-          </Wrapper>
+          <>
+            <Wrapper>
+              <Box mb={"2em"}>
+                <Flex justifyContent={"space-between"} mt={"3em"} mb={"1em"}>
+                  <Text fontSize="20px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>
+                    Saved
+                  </Text>
+                </Flex>
+                <Box w="100%" h={"200px"} textAlign="center" position={"relative"}>
+                  <Box
+                    flex="0 0 100%"
+                    p={10}
+                    w="100%"
+                    h="200px"
+                    borderRadius="16px"
+                    bgImage={"Food-item-3.jpg"}
+                    bgSize="cover"
+                    bgPosition="center"
+                  >
+                    <Text
+                      fontSize="17px"
+                      fontWeight="700"
+                      position={"absolute"}
+                      left={"5"}
+                      bottom="5"
+                      borderRadius={"16px"}
+                      color={"#000"}
+                      bg={"#fff"}
+                      px={"12px"}
+                      py={"4px"}
+                    >
+                      40 min
+                    </Text>
+                    <Icon
+                      aria-label="Like"
+                      as={GoHeartFill}
+                      color={"rgba(240, 81, 147, 1)"}
+                      borderRadius={"50%"}
+                      opacity={1}
+                      position="absolute"
+                      top={5}
+                      right={5}
+                      fontSize="24px"
+                    />
+                  </Box>
+                </Box>
+                <Flex justifyContent={"space-between"} mt={"1em"}>
+                  <Text fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>
+                    Thicc Shakes
+                  </Text>
+                  <HStack spacing={1}>
+                    <Image src="/Star.png" alt="Rating" width={"20px"} height={"20px"} />
+                    <Text fontSize={"14px"} fontWeight={"700"} lineHeight={"18px"} letterSpacing={"-0.08px"}>
+                      4.8
+                    </Text>
+                  </HStack>
+                </Flex>
+                <Text fontSize="15px" fontWeight="400" color={"Gray"} mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>
+                  Wapda Town
+                </Text>
+              </Box>
+            </Wrapper>
+          </>
         );
 
       case "notifications":
@@ -480,13 +650,6 @@ function BoiboiWebApp() {
             <Text fontSize="20px" fontWeight="700" mt={8}>
               Notifications
             </Text>
-          </Wrapper>
-        );
-
-      case "support":
-        return (
-          <Wrapper>
-            <SupportTickets />
           </Wrapper>
         );
 
@@ -503,56 +666,6 @@ function BoiboiWebApp() {
         return null;
     }
   };
-
-  function SavedVendors() {
-    const { data: saved, isLoading } = useQuery({ queryKey: ["saved-vendors"], queryFn: api.savedVendors });
-    const list: any[] = Array.isArray((saved as any)?.data) ? (saved as any).data : (Array.isArray(saved) ? (saved as any) : []) as any[];
-    if (isLoading) return (<HStack justifyContent="center" py={10}><Spinner /></HStack>);
-    if (list.length === 0) return (<Text fontSize="14px" color="#8E8E93" mt={6}>No saved stores yet.</Text>);
-    return (
-      <VStack spacing={3} align="stretch" mt={4}>
-        {list.map((v: any) => (
-          <Box key={v._id || v.id} bg="white" borderRadius="12px" p={3} boxShadow="0px 0px 2px rgba(0,0,0,0.1)" onClick={() => router.push(`/dashboard/stores/${v._id || v.id}`)} cursor="pointer">
-            <Box w="100%" h="150px" borderRadius="12px" bgImage={getStoreImage(v)} bgSize="cover" bgPosition="center" mb={2} />
-            <Flex justifyContent={"space-between"} alignItems="center">
-              <Box>
-                <Text fontSize="13px" fontWeight="600" color="#000">{v.businessName || v.name || v.Name}</Text>
-                <Text fontSize="11px" fontWeight="400" color="#8E8E93">{(v.distance || "0.6") + "km"} • {v.category || "Groceries"}</Text>
-              </Box>
-              <HStack spacing={0.5}>
-                <Image src="/Star.png" alt="Rating" width={"14px"} height={"14px"} />
-                <Text fontSize={"12px"} fontWeight={"600"} color="#000">{v.rating ?? v.Ratings ?? "4.5"}</Text>
-              </HStack>
-            </Flex>
-          </Box>
-        ))}
-      </VStack>
-    );
-  }
-
-  function SupportTickets() {
-    const { data: tickets, isLoading } = useQuery({ queryKey: ["support-tickets"], queryFn: api.mySupportTickets });
-    const list: any[] = Array.isArray((tickets as any)?.data) ? (tickets as any).data : (Array.isArray(tickets) ? (tickets as any) : []) as any[];
-    return (
-      <Box>
-        <Text fontSize="20px" fontWeight="700" mt={8}>Support</Text>
-        {isLoading ? (
-          <HStack justifyContent="center" py={10}><Spinner /></HStack>
-        ) : (
-          <VStack spacing={3} mt={4} align="stretch">
-            {list.map((t: any) => (
-              <Box key={t.id || t._id} bg="white" p={3} borderRadius="12px" boxShadow="0 0 2px rgba(0,0,0,0.1)">
-                <Text fontSize="14px" fontWeight="600">{t.subject}</Text>
-                <Text fontSize="12px" color="#8E8E93">{t.status}</Text>
-                <Text fontSize="13px" mt={1}>{t.message}</Text>
-              </Box>
-            ))}
-            {list.length === 0 && <Text fontSize="14px" color="#8E8E93">No tickets yet.</Text>}
-          </VStack>
-        )}
-      </Box>
-    );
-  }
 
   return (
     <Box minH="100vh" bg="#F2F2F7">
