@@ -23,42 +23,62 @@ import (
 )
 
 // @Summary Get all vendors
-// @Description Get a list of all active vendors
+// @Description Get a list of all active vendors with resolved category names
 // @Tags Vendors
 // @Accept json
 // @Produce json
-// @Success 200 {array} data.Store "List of active vendors"
+// @Success 200 {array} object "List of active vendors with resolved categories"
 // @Failure 500 {object} object "Failed to decode stores"
 // @Router /vendors [get]
 // @Security BearerAuth
 func GetAllVendors(c *gin.Context, db *mongo.Database) {
 
-	vendorsCollection := db.Collection(utils.STORE)
+	storeCollection := db.Collection(utils.STORE)
 
-	cursor, err := vendorsCollection.Find(c, bson.M{"status": "active"})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode stores. " + err.Error()})
-		slog.Info("failed to decode stores", "error", err)
+	// Use aggregation pipeline to resolve category IDs to category names for all active stores
+	pipeline := []bson.M{
+		{"$match": bson.M{"status": "active"}},
+		{"$lookup": bson.M{
+			"from":         "Category",
+			"localField":   "categories",
+			"foreignField": "_id",
+			"as":           "resolvedCategories",
+		}},
+		{"$project": bson.M{
+			"_id":             1,
+			"status":          1,
+			"name":            1,
+			"image":           1,
+			"description":     1,
+			"address":         1,
+			"categories":      "$resolvedCategories",
+			"items":           1,
+			"likedByUserIds":  1,
+			"mapLocation":     1,
+			"ratings":         1,
+			"type":            1,
+			"openingTime":     1,
+			"closingTime":     1,
+			"availableDays":   1,
+		}},
 	}
 
+	cursor, err := storeCollection.Aggregate(c, pipeline)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get stores. " + err.Error()})
+		slog.Info("failed to get stores", "error", err)
+		return
+	}
 	defer cursor.Close(c)
 
-	vendors := []data.Store{}
-	for cursor.Next(c) {
-		var vendor data.Store
-		if err := cursor.Decode(&vendor); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		vendors = append(vendors, vendor)
-	}
-
-	if err := cursor.Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	var stores []bson.M
+	if err := cursor.All(c, &stores); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode stores. " + err.Error()})
+		slog.Info("failed to decode stores", "error", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, vendors)
+	c.JSON(http.StatusOK, stores)
 
 }
 
@@ -112,7 +132,7 @@ func UnlikeStore(c *gin.Context, db *mongo.Database) {
 	c.JSON(http.StatusOK, gin.H{"message": "unliked"})
 }
 
-// List saved stores for current user
+// List saved stores for current user with resolved category names
 func GetSavedStores(c *gin.Context, db *mongo.Database) {
 	userIdStr := c.GetString("userId")
 	userId, err := primitive.ObjectIDFromHex(userIdStr)
@@ -123,14 +143,42 @@ func GetSavedStores(c *gin.Context, db *mongo.Database) {
 
 	storeCollection := db.Collection(utils.STORE)
 
-	cursor, err := storeCollection.Find(c, bson.M{"likedByUserIds": userId, "status": "active"})
+	// Use aggregation pipeline to resolve category IDs to category names for saved stores
+	pipeline := []bson.M{
+		{"$match": bson.M{"likedByUserIds": userId, "status": "active"}},
+		{"$lookup": bson.M{
+			"from":         "Category",
+			"localField":   "categories",
+			"foreignField": "_id",
+			"as":           "resolvedCategories",
+		}},
+		{"$project": bson.M{
+			"_id":             1,
+			"status":          1,
+			"name":            1,
+			"image":           1,
+			"description":     1,
+			"address":         1,
+			"categories":      "$resolvedCategories",
+			"items":           1,
+			"likedByUserIds":  1,
+			"mapLocation":     1,
+			"ratings":         1,
+			"type":            1,
+			"openingTime":     1,
+			"closingTime":     1,
+			"availableDays":   1,
+		}},
+	}
+
+	cursor, err := storeCollection.Aggregate(c, pipeline)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch saved stores. " + err.Error()})
 		return
 	}
 	defer cursor.Close(c)
 
-	stores := []data.Store{}
+	var stores []bson.M
 	if err := cursor.All(c, &stores); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode stores. " + err.Error()})
 		return
@@ -245,12 +293,12 @@ func UpdateStoreImage(c *gin.Context, db *mongo.Database) {
 }
 
 // @Summary Get a vendor by ID
-// @Description Get a single vendor by its ID
+// @Description Get a single vendor by its ID with resolved category names
 // @Tags Vendors
 // @Accept json
 // @Produce json
 // @Param id path string true "Vendor ID"
-// @Success 200 {object} data.Store "Vendor object"
+// @Success 200 {object} data.Store "Vendor object with resolved categories"
 // @Failure 400 {object} object "Invalid vendor ID"
 // @Failure 500 {object} object "Error fetching store"
 // @Router /vendors/{id} [get]
@@ -263,25 +311,55 @@ func GetVendor(c *gin.Context, db *mongo.Database) {
 		return
 	}
 
-	vendorsCollection := db.Collection(utils.STORE)
+	storeCollection := db.Collection(utils.STORE)
 
-	result := vendorsCollection.FindOne(c, bson.M{"_id": id})
+	// Use aggregation pipeline to resolve category IDs to category names
+	pipeline := []bson.M{
+		{"$match": bson.M{"_id": id}},
+		{"$lookup": bson.M{
+			"from":         "Category",
+			"localField":   "categories",
+			"foreignField": "_id",
+			"as":           "resolvedCategories",
+		}},
+		{"$project": bson.M{
+			"_id":             1,
+			"status":          1,
+			"name":            1,
+			"image":           1,
+			"description":     1,
+			"address":         1,
+			"categories":      "$resolvedCategories",
+			"items":           1,
+			"likedByUserIds":  1,
+			"mapLocation":     1,
+			"ratings":         1,
+			"type":            1,
+			"openingTime":     1,
+			"closingTime":     1,
+			"availableDays":   1,
+		}},
+	}
 
-	store := data.Store{}
-	err = result.Decode(&store)
+	cursor, err := storeCollection.Aggregate(c, pipeline)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching store " + err.Error()})
 		return
 	}
+	defer cursor.Close(c)
 
-	if !store.ID.IsZero() {
-		c.JSON(http.StatusOK, store)
-		return
-	} else {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "No store found with this id"})
+	var stores []bson.M
+	if err := cursor.All(c, &stores); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error decoding store " + err.Error()})
 		return
 	}
 
+	if len(stores) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No store found with this id"})
+		return
+	}
+
+	c.JSON(http.StatusOK, stores[0])
 }
 
 // @Summary Update a vendor by ID
