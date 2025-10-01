@@ -112,8 +112,8 @@ function Login() {
         position: "top"
       });
 
-      // Redirect to unified mobile dashboard
-      router.push("/dashboard");
+      // Redirect to user dashboard
+      router.push("/user-dashboard");
     } catch (error: any) {
       toast({
         title: "Login failed",
