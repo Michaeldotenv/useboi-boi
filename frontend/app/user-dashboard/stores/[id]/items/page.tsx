@@ -10,7 +10,6 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { FaBell, FaArrowLeft } from "react-icons/fa";
 import { FiStar, FiShoppingCart, FiEye, FiFilter } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { getRandomProductImage } from "@/lib/imageService";
 import Wrapper from "../../../../components/Wrapper";
 
 export default function StoreItemsPage() {
@@ -110,36 +109,18 @@ export default function StoreItemsPage() {
     }
   }, [categories, selectedCategory]);
 
-  // Load product images when data is ready
+  // Use backend-provided item images (e.g., imgbb URLs) when data is ready
   useEffect(() => {
     if (items.length > 0) {
-      const loadImages = async () => {
-        const imagePromises = items.map(async (item: any) => {
-          try {
-            const image = await getRandomProductImage(item.name, item.category || 'product');
-            return {
-              id: item.id || item._id,
-              imageUrl: image?.urls?.regular || image?.urls?.small || null
-            };
-          } catch (error) {
-            return {
-              id: item.id || item._id,
-              imageUrl: null
-            };
-          }
-        });
-
-        const images = await Promise.all(imagePromises);
-        const imageMap: {[key: string]: string} = {};
-        images.forEach(img => {
-          if (img.imageUrl) {
-            imageMap[img.id] = img.imageUrl;
-          }
-        });
-        setProductImages(imageMap);
-      };
-
-      loadImages();
+      const imageMap: { [key: string]: string } = {};
+      items.forEach((item: any) => {
+        const id = item.id || item._id;
+        const img = item.image || item.Image; // prefer backend image if present
+        if (id && typeof img === 'string' && img.trim()) {
+          imageMap[id] = img;
+        }
+      });
+      setProductImages(imageMap);
 
       const timer = setTimeout(() => setIsLoaded(true), 100);
       return () => clearTimeout(timer);
@@ -395,7 +376,7 @@ export default function StoreItemsPage() {
                   bg="white"
                 >
                   {/* Product Image */}
-                  <Box position="relative" h="200px" overflow="hidden">
+                  <Box position="relative" h="140px" overflow="hidden">
                     {productImages[it.id || it._id] ? (
                       <Image
                         src={productImages[it.id || it._id]}
@@ -403,10 +384,6 @@ export default function StoreItemsPage() {
                         w="full"
                         h="full"
                         objectFit="cover"
-                        transition="transform 0.3s ease"
-                        _groupHover={{
-                          transform: "scale(1.05)"
-                        }}
                       />
                     ) : (
                       <Box
@@ -417,7 +394,7 @@ export default function StoreItemsPage() {
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <Icon as={FiShoppingCart} boxSize={8} color="white" opacity={0.3} />
+                        <Icon as={FiShoppingCart} boxSize={7} color="white" opacity={0.35} />
                       </Box>
                     )}
 

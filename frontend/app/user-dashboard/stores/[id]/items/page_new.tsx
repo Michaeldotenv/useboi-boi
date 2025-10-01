@@ -28,6 +28,7 @@ export default function StoreItemsPage() {
   });
 
   const items = useMemo(() => (data as any)?.data || data || [], [data]);
+  const [productImages, setProductImages] = useState<{[key: string]: string}>({});
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -63,6 +64,20 @@ export default function StoreItemsPage() {
 
     return filtered;
   }, [items, selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      const imageMap: { [key: string]: string } = {};
+      items.forEach((item: any) => {
+        const id = item.id || item._id;
+        const img = item.image || item.Image;
+        if (id && typeof img === 'string' && img.trim()) {
+          imageMap[id] = img;
+        }
+      });
+      setProductImages(imageMap);
+    }
+  }, [items]);
 
   const formatCurrency = (value: number) => {
     try {
@@ -164,40 +179,43 @@ export default function StoreItemsPage() {
               <Box
                 key={it.id || it._id}
                 bg="white"
-                borderRadius="12px"
+                borderRadius="10px"
                 overflow="hidden"
-                boxShadow="0px 0px 2px rgba(0,0,0,0.1)"
+                boxShadow="0px 0px 2px rgba(0,0,0,0.08)"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ boxShadow: "0px 4px 12px rgba(0,0,0,0.15)" }}
+                _hover={{ boxShadow: "0px 4px 12px rgba(0,0,0,0.12)" }}
               >
-                <Flex gap={3} p={3}>
-                  {/* Item Image */}
+                <Flex gap={3} p={3} align="center">
                   <Box
-                    w="100px"
-                    h="100px"
+                    w="88px"
+                    h="88px"
                     borderRadius="8px"
-                    bg="linear-gradient(135deg, #6B2A8F 0%, #8a46b5 100%)"
+                    overflow="hidden"
+                    bg="#6B2A8F"
                     flexShrink={0}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Icon as={FiShoppingCart} boxSize={8} color="white" opacity={0.6} />
+                    {productImages[it.id || it._id] ? (
+                      <Image src={productImages[it.id || it._id]} alt={it.name} w="full" h="full" objectFit="cover" />
+                    ) : (
+                      <Icon as={FiShoppingCart} boxSize={7} color="white" opacity={0.4} />
+                    )}
                   </Box>
                   
-                  {/* Item Info */}
                   <Box flex={1}>
-                    <Heading size="sm" color="#000" fontWeight="600" mb={1} noOfLines={1}>
+                    <Heading size="sm" color="#000" fontWeight="700" mb={1} noOfLines={1}>
                       {it.name}
                     </Heading>
                     {it.desc && (
-                      <Text fontSize="11px" color="#8E8E93" mb={2} noOfLines={2}>
+                      <Text fontSize="12px" color="#8E8E93" mb={2} noOfLines={2}>
                         {it.desc}
                       </Text>
                     )}
                     
-                    <HStack spacing={2} mb={2}>
+                    <HStack spacing={2} mb={1}>
                       <HStack spacing={0.5}>
                         <Icon as={FiStar} color="yellow.400" boxSize={3} />
                         <Text fontSize="11px" fontWeight="600" color="#000">4.5</Text>
@@ -208,23 +226,9 @@ export default function StoreItemsPage() {
                           <Text fontSize="11px" color="#8E8E93">{it.category}</Text>
                         </>
                       )}
-                      {it.currentInventory !== undefined && (
-                        <>
-                          <Text fontSize="11px" color="#8E8E93">•</Text>
-                          <Badge 
-                            colorScheme={it.currentInventory > 10 ? "green" : it.currentInventory > 0 ? "orange" : "red"}
-                            fontSize="9px"
-                            px={2}
-                            py={0.5}
-                            borderRadius="full"
-                          >
-                            {it.currentInventory} left
-                          </Badge>
-                        </>
-                      )}
                     </HStack>
                     
-                    <Text fontSize="16px" fontWeight="700" color="#6B2A8F">
+                    <Text fontSize="16px" fontWeight="800" color="#6B2A8F">
                       {formatCurrency(it.price)}
                     </Text>
                   </Box>
