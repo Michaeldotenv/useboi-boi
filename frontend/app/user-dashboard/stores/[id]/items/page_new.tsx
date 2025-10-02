@@ -175,63 +175,145 @@ export default function StoreItemsPage() {
           </Box>
         ) : (
           <VStack align="stretch" spacing={3}>
-            {filteredItems.map((it: any) => (
+            {filteredItems.map((it: any, index: number) => (
               <Box
                 key={it.id || it._id}
-                bg="white"
-                borderRadius="10px"
+                bg="linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)"
+                borderRadius="20px"
                 overflow="hidden"
-                boxShadow="0px 0px 2px rgba(0,0,0,0.08)"
+                border="none"
+                boxShadow="0 8px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)"
                 cursor="pointer"
-                transition="all 0.2s"
-                _hover={{ boxShadow: "0px 4px 12px rgba(0,0,0,0.12)" }}
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                _hover={{
+                  transform: "translateY(-4px) scale(1.02)",
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
+                  bg: "linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)"
+                }}
+                position="relative"
               >
-                <Flex gap={3} p={3} align="center">
+                {/* Subtle gradient overlay */}
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  bg="linear-gradient(135deg, rgba(107, 42, 143, 0.02) 0%, rgba(124, 58, 237, 0.01) 100%)"
+                  pointerEvents="none"
+                  zIndex={0}
+                />
+
+                <Flex gap={4} p={4} align="stretch" position="relative" zIndex={1}>
                   <Box
-                    w="88px"
-                    h="88px"
-                    borderRadius="8px"
+                    w={{ base: "110px", sm: "120px" }}
+                    h={{ base: "90px", sm: "96px" }}
+                    borderRadius="16px"
                     overflow="hidden"
-                    bg="#6B2A8F"
+                    bg="linear-gradient(135deg, #6B2A8F 0%, #8B5CF6 100%)"
                     flexShrink={0}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    position="relative"
                   >
                     {productImages[it.id || it._id] ? (
-                      <Image src={productImages[it.id || it._id]} alt={it.name} w="full" h="full" objectFit="cover" />
+                      <Image
+                        src={productImages[it.id || it._id]}
+                        alt={it.name}
+                        w="full"
+                        h="full"
+                        objectFit="cover"
+                        transition="transform 0.3s ease"
+                        _hover={{ transform: "scale(1.05)" }}
+                      />
                     ) : (
-                      <Icon as={FiShoppingCart} boxSize={7} color="white" opacity={0.4} />
+                      <Icon as={FiShoppingCart} boxSize={8} color="white" opacity={0.4} />
                     )}
+
+                    {/* Subtle shine effect */}
+                    <Box
+                      position="absolute"
+                      top={0}
+                      left={0}
+                      right={0}
+                      bottom={0}
+                      bg="linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%)"
+                      pointerEvents="none"
+                    />
                   </Box>
-                  
-                  <Box flex={1}>
-                    <Heading size="sm" color="#000" fontWeight="700" mb={1} noOfLines={1}>
-                      {it.name}
-                    </Heading>
+
+                  <VStack align="stretch" spacing={2.5} flex={1} py={1}>
+                    <HStack justify="space-between" align="start">
+                      <VStack align="start" spacing={0.5} flex={1}>
+                        <Heading size="sm" color="#0F172A" fontWeight={900} noOfLines={1} lineHeight={1.2}>
+                          {it.name}
+                        </Heading>
+                        {typeof it.currentInventory === 'number' && (
+                          <Badge
+                            colorScheme={it.currentInventory > 10 ? "green" : it.currentInventory > 0 ? "orange" : "red"}
+                            fontSize="10px"
+                            borderRadius="full"
+                            px={2}
+                            py={0.5}
+                            fontWeight={600}
+                          >
+                            {it.currentInventory} available
+                          </Badge>
+                        )}
+                      </VStack>
+                    </HStack>
+
                     {it.desc && (
-                      <Text fontSize="12px" color="#8E8E93" mb={2} noOfLines={2}>
+                      <Text color="#64748B" fontSize="sm" noOfLines={1} lineHeight={1.3}>
                         {it.desc}
                       </Text>
                     )}
-                    
-                    <HStack spacing={2} mb={1}>
-                      <HStack spacing={0.5}>
-                        <Icon as={FiStar} color="yellow.400" boxSize={3} />
-                        <Text fontSize="11px" fontWeight="600" color="#000">4.5</Text>
+
+                    <HStack spacing={3}>
+                      <HStack spacing={1}>
+                        <Icon as={FiStar} color="#F59E0B" boxSize={4} />
+                        <Text fontSize="xs" color="#374151" fontWeight={700}>4.5</Text>
+                        <Text fontSize="xs" color="#9CA3AF">(128 reviews)</Text>
                       </HStack>
                       {it.category && (
                         <>
-                          <Text fontSize="11px" color="#8E8E93">•</Text>
-                          <Text fontSize="11px" color="#8E8E93">{it.category}</Text>
+                          <Text fontSize="xs" color="#D1D5DB">•</Text>
+                          <Text fontSize="xs" color="#6B7280" fontWeight={600}>{it.category}</Text>
                         </>
                       )}
                     </HStack>
-                    
-                    <Text fontSize="16px" fontWeight="800" color="#6B2A8F">
-                      {formatCurrency(it.price)}
-                    </Text>
-                  </Box>
+
+                    <HStack justify="space-between" pt={1}>
+                      <VStack align="start" spacing={0}>
+                        <Text fontWeight={900} color="#7C3AED" fontSize="lg" lineHeight={1}>
+                          {formatCurrency(it.price)}
+                        </Text>
+                        <Text fontSize="xs" color="#9CA3AF" textDecoration="line-through">
+                          {formatCurrency((it.price || 0) * 1.1)}
+                        </Text>
+                      </VStack>
+                      <Button
+                        size="sm"
+                        bg="linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)"
+                        color="white"
+                        borderRadius="12px"
+                        px={4}
+                        h="36px"
+                        leftIcon={<Icon as={FiShoppingCart} />}
+                        fontWeight={700}
+                        fontSize="sm"
+                        _hover={{
+                          bg: "linear-gradient(135deg, #6D28D9 0%, #DB2777 100%)",
+                          transform: "translateY(-1px)",
+                          boxShadow: "0 8px 20px rgba(124, 58, 237, 0.3)"
+                        }}
+                        transition="all 0.2s ease"
+                      >
+                        Add to Cart
+                      </Button>
+                    </HStack>
+                  </VStack>
                 </Flex>
               </Box>
             ))}

@@ -7,7 +7,7 @@ import Wrapper from "../components/Wrapper";
 import { SlLocationPin } from "react-icons/sl";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { GoHeart, GoHeartFill, GoPerson } from "react-icons/go";
@@ -28,6 +28,7 @@ function BoiboiWebApp() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
 
   const carouselRef = useRef<HTMLDivElement>(null);
   let touchStartX = 0;
@@ -40,7 +41,7 @@ function BoiboiWebApp() {
     const touchEndX = e.touches[0].clientX;
     const diff = touchStartX - touchEndX;
 
-    if (diff > 50 && activeIndex < vendorList.length - 1) {
+    if (diff > 50 && activeIndex < filteredVendorList.length - 1) {
       setActiveIndex((prev) => prev + 1);
       touchStartX = touchEndX;
     } else if (diff < -50 && activeIndex > 0) {
@@ -60,22 +61,22 @@ function BoiboiWebApp() {
     if (typeof vendor.category === 'string' && !vendor.category.match(/^[0-9a-f]{24}$/i)) {
       return vendor.category;
     }
-    
+
     // Check for category name field
     if (vendor.categoryName) {
       return vendor.categoryName;
     }
-    
+
     // Check for category object with name
     if (vendor.category && typeof vendor.category === 'object' && vendor.category.name) {
       return vendor.category.name;
     }
-    
+
     // Check for business type or other category fields
     if (vendor.businessType) {
       return vendor.businessType;
     }
-    
+
     // Default fallback categories based on common patterns
     const categoryMap: { [key: string]: string } = {
       '67d582619dfc3452b04e4c77': 'Restaurant',
@@ -83,11 +84,11 @@ function BoiboiWebApp() {
       '68035dd9f2c01460883c9e14': 'Supermarket',
       // Add more mappings as needed
     };
-    
+
     if (vendor.category && categoryMap[vendor.category]) {
       return categoryMap[vendor.category];
     }
-    
+
     // Final fallback
     return 'Store';
   };
@@ -119,6 +120,22 @@ function BoiboiWebApp() {
       (getCategoryName(v).toLowerCase().includes(query))
     );
   });
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (isHovered || filteredVendorList.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % filteredVendorList.length);
+    }, 4000); // Auto-slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [isHovered, filteredVendorList.length]);
+
+  // Reset to first item when search query changes
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [searchQuery]);
 
   // Get store image
   const getStoreImage = (v: any): string => {
@@ -228,6 +245,8 @@ function BoiboiWebApp() {
                       w="100%"
                       onTouchStart={handleTouchStart}
                       onTouchMove={handleTouchMove}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
                     >
                       <motion.div
                         style={{ display: "flex", width: "100%" }}

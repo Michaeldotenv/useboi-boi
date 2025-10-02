@@ -76,7 +76,7 @@ export default function StoreDetailsPage() {
         {/* Content Section */}
         <Box py={4}>
           {/* Store Card */}
-          <Box bg="white" borderRadius="8px" p={4} border="1px solid" borderColor="gray.100" mb={4}>
+          <Box bg="white" borderRadius="12px" p={4} border="1px solid" borderColor="gray.200" mb={4} boxShadow="sm">
             <Heading size="md" color="#000" fontWeight="700" mb={2}>
               {v.businessName || v.name || v.Name}
             </Heading>
@@ -109,26 +109,11 @@ export default function StoreDetailsPage() {
             </HStack>
           </Box>
 
-          {/* Categories */}
+          {/* Categories - horizontal auto sliding */}
           {(v.categories && v.categories.length > 0) && (
-            <Box bg="white" borderRadius="8px" p={4} border="1px solid" borderColor="gray.100" mb={4}>
+            <Box bg="white" borderRadius="12px" p={4} border="1px solid" borderColor="gray.200" mb={4}>
               <Heading size="sm" color="#000" fontWeight="600" mb={3}>Categories</Heading>
-              <SimpleGrid columns={{ base: 2, sm: 3 }} spacing={2}>
-                {v.categories.slice(0, 6).map((c: any) => (
-                  <Box 
-                    key={c?.name || c} 
-                    bg="#F2F2F7" 
-                    px={3} 
-                    py={2} 
-                    borderRadius="8px"
-                    textAlign="center"
-                  >
-                    <Text fontSize="12px" fontWeight="500" color="#000">
-                      {c?.name || c}
-                    </Text>
-                  </Box>
-                ))}
-              </SimpleGrid>
+              <AutoSlidingCategories categories={v.categories} />
             </Box>
           )}
 
@@ -151,6 +136,48 @@ export default function StoreDetailsPage() {
         <Box mb={"5em"} />
       </Wrapper>
     </Box>
+  );
+}
+
+// Lightweight auto-sliding categories scroller
+function AutoSlidingCategories({ categories }: { categories: any[] }) {
+  const [index, setIndex] = useState(0);
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    if (!categories || categories.length <= 3 || hovered) return;
+    const id = setInterval(() => {
+      setIndex((prev) => (prev + 1) % categories.length);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [categories, hovered]);
+
+  const visible = (start: number, count: number) => {
+    const arr: any[] = [];
+    for (let i = 0; i < count; i++) {
+      arr.push(categories[(start + i) % categories.length]);
+    }
+    return arr;
+  };
+
+  return (
+    <HStack spacing={2} overflow="hidden" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      {visible(index, Math.min(6, categories.length)).map((c: any, i: number) => (
+        <Box
+          key={(c?.name || c) + i}
+          bg="#F2F2F7"
+          px={3}
+          py={2}
+          borderRadius="8px"
+          textAlign="center"
+          flexShrink={0}
+        >
+          <Text fontSize="12px" fontWeight="500" color="#000">
+            {c?.name || c}
+          </Text>
+        </Box>
+      ))}
+    </HStack>
   );
 }
 

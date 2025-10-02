@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import NextLink from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getAuthToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { Box, Heading, Link, VStack, HStack, Text, Fade, ScaleFade, SlideFade, Skeleton, SkeletonText, Avatar, Icon, Image, Badge, Flex, Spacer, Button } from "@chakra-ui/react";
@@ -17,6 +17,10 @@ export default function StoresPage() {
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [storeImages, setStoreImages] = useState<{[key: string]: string}>({});
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  let touchStartX = 0;
   
   useEffect(() => {
     const token = getAuthToken();
@@ -61,6 +65,33 @@ export default function StoresPage() {
       return () => clearTimeout(timer);
     }
   }, [isLoading, data]);
+
+  // Touch handlers for slider
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX = e.touches[0].clientX;
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const vendors = (data as any)?.data || data || [];
+    const touchEndX = e.touches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (diff > 50 && activeIndex < vendors.length - 1) {
+      setActiveIndex((prev) => prev + 1);
+      touchStartX = touchEndX;
+    } else if (diff < -50 && activeIndex > 0) {
+      setActiveIndex((prev) => prev - 1);
+      touchStartX = touchEndX;
+    }
+  };
+
+  // Auto-slide
+  useEffect(() => {
+    const vendors = (data as any)?.data || data || [];
+    if (!vendors || vendors.length <= 1 || isHovered) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % vendors.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [data, isHovered]);
 
   // Professional loading state
   if (isLoading) {
@@ -122,71 +153,80 @@ export default function StoresPage() {
           </Card>
         </ScaleFade>
       ) : (
-        <VStack align="stretch" spacing={6} mt={6}>
-          {vendors.map((v: any, index: number) => (
-            <Box
-              key={v.id || v._id}
-              bg="white"
-              borderRadius="12px"
-              overflow="hidden"
-              boxShadow="0px 0px 2px rgba(0,0,0,0.1)"
-              cursor="pointer"
-              onClick={() => router.push(`/user-dashboard/stores/${v.id || v._id}`)}
-              transition="all 0.2s"
-              _hover={{ boxShadow: "0px 4px 12px rgba(0,0,0,0.15)" }}
+        <Box position="relative" mt={4}>
+          <Box
+            ref={carouselRef}
+            overflow="hidden"
+            w="100%"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <motion.div
+              style={{ display: "flex", width: "100%" }}
+              animate={{ x: `-${activeIndex * 100}%` }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              <Flex gap={3} p={3}>
-                {/* Store Image */}
+              {vendors.map((v: any) => (
                 <Box
-                  w="100px"
-                  h="100px"
-                  borderRadius="8px"
-                  bg="linear-gradient(135deg, #6B2A8F 0%, #8a46b5 100%)"
-                  flexShrink={0}
-                  position="relative"
-                  overflow="hidden"
+                  key={v.id || v._id}
+                  flex="0 0 100%"
+                  px={1}
+                  cursor="pointer"
+                  onClick={() => router.push(`/user-dashboard/stores/${v.id || v._id}`)}
                 >
-                  {storeImages[v.id || v._id] ? (
-                    <Image
-                      src={storeImages[v.id || v._id]}
-                      alt={v.name}
-                      w="full"
-                      h="full"
-                      objectFit="cover"
-                    />
-                  ) : (
-                    <Icon as={FiShoppingBag} boxSize={8} color="white" opacity={0.6} />
-                  )}
+                  <Box bg="white" borderRadius="12px" overflow="hidden" border="1px solid" borderColor="gray.200">
+                    <Box
+                      w="100%"
+                      h="150px"
+                      bgImage={`url(${(storeImages[v.id || v._id] || "").startsWith("/") ? (storeImages[v.id || v._id] || "") : "/" + (storeImages[v.id || v._id] || "Food-item-1.jpeg")})`}
+                      bgSize="cover"
+                      bgPosition="center"
+                      position="relative"
+                      overflow="hidden"
+                    >
+                      <Box position="absolute" inset={0} bgGradient="linear(to-t, rgba(0,0,0,0.3), rgba(0,0,0,0.05))" />
+                      <Badge position="absolute" bottom={2} left={2} colorScheme="green" borderRadius="full" px={2} py={0.5} fontSize="10px">Open</Badge>
+                    </Box>
+                    <Box p={3}>
+                      <Flex justifyContent="space-between" alignItems="center">
+                        <Box>
+                          <Heading size="sm" color="#000" fontWeight="600" noOfLines={1}>
+                            {v.name}
+                          </Heading>
+                          <Text fontSize="11px" color="#8E8E93" noOfLines={1}>
+                            {v.description || "Delicious food delivered fresh"}
+                          </Text>
+                        </Box>
+                        <HStack spacing={0.5}>
+                          <Image src="/Star.png" alt="Rating" width={"14px"} height={"14px"} />
+                          <Text fontSize={"12px"} fontWeight={"600"} color="#000">4.5</Text>
+                        </HStack>
+                      </Flex>
+                    </Box>
+                  </Box>
                 </Box>
-                
-                {/* Store Info */}
-                <Box flex={1}>
-                  <Heading size="sm" color="#000" fontWeight="600" mb={1} noOfLines={1}>
-                    {v.name}
-                  </Heading>
-                  <Text fontSize="11px" color="#8E8E93" mb={2} noOfLines={1}>
-                    {v.description || "Delicious food delivered fresh"}
-                  </Text>
-                  
-                  <HStack spacing={2} mb={2}>
-                    <HStack spacing={0.5}>
-                      <Icon as={FiStar} color="yellow.400" boxSize={3} />
-                      <Text fontSize="11px" fontWeight="600" color="#000">4.5</Text>
-                    </HStack>
-                    <Text fontSize="11px" color="#8E8E93">•</Text>
-                    <Text fontSize="11px" color="#8E8E93">0.9km</Text>
-                    <Text fontSize="11px" color="#8E8E93">•</Text>
-                    <Badge colorScheme="green" fontSize="9px" px={2} py={0.5} borderRadius="full">Open</Badge>
-                  </HStack>
-                  
-                  <Text fontSize="12px" fontWeight="600" color="#6B2A8F">
-                    View Menu →
-                  </Text>
-                </Box>
-              </Flex>
-            </Box>
-          ))}
-        </VStack>
+              ))}
+            </motion.div>
+          </Box>
+
+          {/* Pagination Dots */}
+          <Flex justify="center" gap={2} mt={4}>
+            {vendors.map((_: any, index: number) => (
+              <Box
+                key={index}
+                w={activeIndex === index ? "20px" : "6px"}
+                h="6px"
+                bg={activeIndex === index ? "#000" : "#D1D1D6"}
+                borderRadius="full"
+                transition="all 0.3s"
+                cursor="pointer"
+                onClick={() => setActiveIndex(index)}
+              />
+            ))}
+          </Flex>
+        </Box>
       )}
       <Box mb="5em" />
       </Box>

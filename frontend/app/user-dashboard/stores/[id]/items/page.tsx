@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { getAuthToken } from "@/lib/auth";
 import { Box, Heading, Text, VStack, HStack, Badge, Input, InputGroup, InputLeftElement, Flex, Button, Icon, Image, SimpleGrid, Card, Skeleton } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
@@ -23,6 +23,10 @@ export default function StoreItemsPage() {
   const [productImages, setProductImages] = useState<{[key: string]: string}>({});
   const [visibleItemsCount, setVisibleItemsCount] = useState<number>(8);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [categoryIndex, setCategoryIndex] = useState<number>(0);
+  const [isCatHovered, setIsCatHovered] = useState<boolean>(false);
+  const catRef = useRef<HTMLDivElement>(null);
+  let catTouchStartX = 0;
 
   useEffect(() => {
     const token = getAuthToken();
@@ -108,6 +112,30 @@ export default function StoreItemsPage() {
       setSelectedCategory(categories[0]); // Set first category as default
     }
   }, [categories, selectedCategory]);
+
+  // Auto-slide categories horizontally
+  useEffect(() => {
+    if (!categories || categories.length <= 3 || isCatHovered) return;
+    const id = setInterval(() => {
+      setCategoryIndex((prev) => (prev + 1) % categories.length);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [categories, isCatHovered]);
+
+  const handleCatTouchStart = (e: React.TouchEvent) => {
+    catTouchStartX = e.touches[0].clientX;
+  };
+  const handleCatTouchMove = (e: React.TouchEvent) => {
+    const touchEndX = e.touches[0].clientX;
+    const diff = catTouchStartX - touchEndX;
+    if (diff > 40) {
+      setCategoryIndex((prev) => (prev + 1) % categories.length);
+      catTouchStartX = touchEndX;
+    } else if (diff < -40) {
+      setCategoryIndex((prev) => (prev - 1 + categories.length) % categories.length);
+      catTouchStartX = touchEndX;
+    }
+  };
 
   // Use backend-provided item images (e.g., imgbb URLs) when data is ready
   useEffect(() => {
@@ -286,29 +314,40 @@ export default function StoreItemsPage() {
         <Box py={4}>
           {/* Filter Bar */}
           <Box bg="white" borderRadius="8px" p={3} border="1px solid" borderColor="gray.100" mb={4}>
-            <HStack spacing={2} overflowX="auto" css={{ '&::-webkit-scrollbar': { display: 'none' } }}>
-              {categories.map((cat) => (
-                <Button
-                  key={cat}
-                  size="sm"
-                  variant={selectedCategory === cat ? "solid" : "outline"}
-                  bg={selectedCategory === cat ? "#6C3FE8" : "transparent"}
-                  color={selectedCategory === cat ? "white" : "#000"}
-                  borderColor={selectedCategory === cat ? "#6C3FE8" : "#E2E8F0"}
-                  borderRadius="full"
-                  px={4}
-                  fontSize="12px"
-                  fontWeight="500"
-                  onClick={() => setSelectedCategory(cat)}
-                  _hover={{
-                    bg: selectedCategory === cat ? "#5a2cc7" : "#F7FAFC"
-                  }}
-                  flexShrink={0}
-                >
-                  {cat}
-                </Button>
-              ))}
-            </HStack>
+            <Box
+              ref={catRef}
+              onMouseEnter={() => setIsCatHovered(true)}
+              onMouseLeave={() => setIsCatHovered(false)}
+              onTouchStart={handleCatTouchStart}
+              onTouchMove={handleCatTouchMove}
+              overflow="hidden"
+              w="100%"
+            >
+              <Box display="flex" transition="transform 0.35s ease" style={{ transform: `translateX(-${categoryIndex * 88}px)` }}>
+                {categories.map((cat) => (
+                  <Button
+                    key={cat}
+                    size="sm"
+                    variant={selectedCategory === cat ? "solid" : "outline"}
+                    bg={selectedCategory === cat ? "#6C3FE8" : "transparent"}
+                    color={selectedCategory === cat ? "white" : "#000"}
+                    borderColor={selectedCategory === cat ? "#6C3FE8" : "#E2E8F0"}
+                    borderRadius="full"
+                    px={4}
+                    mr={2}
+                    fontSize="12px"
+                    fontWeight="500"
+                    onClick={() => setSelectedCategory(cat)}
+                    _hover={{
+                      bg: selectedCategory === cat ? "#5a2cc7" : "#F7FAFC"
+                    }}
+                    flexShrink={0}
+                  >
+                    {cat}
+                  </Button>
+                ))}
+              </Box>
+            </Box>
           </Box>
 
           {/* Search Bar */}
@@ -352,172 +391,152 @@ export default function StoreItemsPage() {
             {filteredAndSortedItems.slice(0, visibleItemsCount).map((it: any, index: number) => (
               <motion.div
                 key={it.id || it._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.5 + (index * 0.1)
-                }}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 18 }}
+                transition={{ duration: 0.45, delay: 0.3 + (index * 0.06) }}
               >
                 <Card
                   p={0}
                   h="full"
+                  borderRadius="20px"
+                  border="none"
+                  background="linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)"
+                  boxShadow="0 8px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)"
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   _hover={{
-                    transform: "translateY(-8px) scale(1.02)",
-                    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
-                    borderColor: "#6B2A8F"
+                    transform: "translateY(-4px) scale(1.02)",
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
+                    background: "linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)"
                   }}
                   cursor="pointer"
                   overflow="hidden"
-                  borderRadius="16px"
-                  border="1px solid"
-                  borderColor="gray.100"
-                  bg="white"
+                  position="relative"
                 >
-                  {/* Product Image */}
-                  <Box position="relative" h="140px" overflow="hidden">
-                    {productImages[it.id || it._id] ? (
-                      <Image
-                        src={productImages[it.id || it._id]}
-                        alt={it.name}
-                        w="full"
-                        h="full"
-                        objectFit="cover"
-                      />
-                    ) : (
-                      <Box
-                        w="full"
-                        h="full"
-                        bg="#6B2A8F"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Icon as={FiShoppingCart} boxSize={7} color="white" opacity={0.35} />
-                      </Box>
-                    )}
+                  {/* Subtle gradient overlay */}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    bg="linear-gradient(135deg, rgba(108, 63, 232, 0.02) 0%, rgba(107, 42, 143, 0.01) 100%)"
+                    pointerEvents="none"
+                    zIndex={0}
+                  />
 
-                    {/* Category Badge */}
-                    {it.category && (
-                      <Badge
-                        position="absolute"
-                        top={2}
-                        left={2}
-                        bg="#6C3FE8"
-                        color="white"
-                        fontSize="xs"
-                        px={2}
-                        py={1}
-                        borderRadius="full"
-                        fontWeight="600"
-                      >
-                        {getCategoryName(it)}
-                      </Badge>
-                    )}
-
-                    {/* Quick Actions */}
-                    <HStack
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      spacing={1}
-                      opacity={0}
-                      transition="opacity 0.3s ease"
-                      _groupHover={{ opacity: 1 }}
+                  <Flex gap={4} p={4} align="stretch" position="relative" zIndex={1}>
+                    {/* Enhanced Thumbnail */}
+                    <Box
+                      w={{ base: "110px", sm: "120px" }}
+                      h={{ base: "90px", sm: "96px" }}
+                      borderRadius="16px"
+                      overflow="hidden"
+                      bg="linear-gradient(135deg, #6B2A8F 0%, #8B5CF6 100%)"
+                      flexShrink={0}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      position="relative"
                     >
-                      <Button
-                        size="sm"
-                        borderRadius="full"
-                        bg="white"
-                        color="gray.600"
-                        _hover={{ bg: "gray.50", color: "#6C3FE8" }}
-                        p={2}
-                      >
-                        <Icon as={FiEye} boxSize={3} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        borderRadius="full"
-                        bg="white"
-                        color="gray.600"
-                        _hover={{ bg: "gray.50", color: "#6C3FE8" }}
-                        p={2}
-                      >
-                        <Icon as={FiShoppingCart} boxSize={3} />
-                      </Button>
-                    </HStack>
-                  </Box>
+                      {productImages[it.id || it._id] ? (
+                        <Image
+                          src={productImages[it.id || it._id]}
+                          alt={it.name}
+                          w="full"
+                          h="full"
+                          objectFit="cover"
+                          transition="transform 0.3s ease"
+                          _hover={{ transform: "scale(1.05)" }}
+                        />
+                      ) : (
+                        <Icon as={FiShoppingCart} boxSize={8} color="white" opacity={0.4} />
+                      )}
 
-                  {/* Product Info */}
-                  <Box p={4}>
-                    <VStack align="stretch" spacing={3}>
-                      <Text
-                        fontWeight={700}
-                        color="#111"
-                        fontSize="md"
-                        noOfLines={2}
-                        minH="2.5em"
-                      >
-                        {it.name}
-                      </Text>
+                      {/* Subtle shine effect */}
+                      <Box
+                        position="absolute"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                        bg="linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%)"
+                        pointerEvents="none"
+                      />
+                    </Box>
+
+                    {/* Enhanced Content */}
+                    <VStack align="stretch" spacing={2.5} flex={1} py={1}>
+                      <HStack justify="space-between" align="start">
+                        <VStack align="start" spacing={0.5} flex={1}>
+                          <Text fontWeight={900} color="#0F172A" fontSize="md" noOfLines={1} lineHeight={1.2}>
+                            {it.name}
+                          </Text>
+                          {it.currentInventory !== undefined && (
+                            <Badge
+                              colorScheme={it.currentInventory > 10 ? "green" : it.currentInventory > 0 ? "orange" : "red"}
+                              fontSize="10px"
+                              borderRadius="full"
+                              px={2}
+                              py={0.5}
+                              fontWeight={600}
+                            >
+                              {it.currentInventory} available
+                            </Badge>
+                          )}
+                        </VStack>
+                      </HStack>
 
                       {it.desc && (
-                        <Text
-                          color="#718096"
-                          fontSize="sm"
-                          noOfLines={2}
-                          flex={1}
-                        >
+                        <Text color="#64748B" fontSize="sm" noOfLines={1} lineHeight={1.3}>
                           {it.desc}
                         </Text>
                       )}
 
-                      {/* Rating */}
-                      <HStack spacing={1}>
-                        <Icon as={FiStar} color="yellow.400" boxSize={3} />
-                        <Text fontSize="xs" color="gray.600">
-                          4.5 (128 reviews)
-                        </Text>
-                      </HStack>
-
-                      <HStack justify="space-between" pt={2} borderTop="1px solid" borderColor="gray.100">
-                        <Text
-                          fontWeight={700}
-                          color="#6C3FE8"
-                          fontSize="lg"
-                        >
-                          {formatCurrency(it.price)}
-                        </Text>
-                        {it.currentInventory !== undefined && (
-                          <Badge
-                            colorScheme={it.currentInventory > 10 ? "green" : it.currentInventory > 0 ? "orange" : "red"}
-                            fontSize="xs"
-                          >
-                            {it.currentInventory} in stock
-                          </Badge>
+                      <HStack spacing={3}>
+                        <HStack spacing={1}>
+                          <Icon as={FiStar} color="#F59E0B" boxSize={4} />
+                          <Text fontSize="xs" color="#374151" fontWeight={700}>4.5</Text>
+                          <Text fontSize="xs" color="#9CA3AF">(128 reviews)</Text>
+                        </HStack>
+                        {it.category && (
+                          <>
+                            <Text fontSize="xs" color="#D1D5DB">•</Text>
+                            <Text fontSize="xs" color="#6B7280" fontWeight={600}>{getCategoryName(it)}</Text>
+                          </>
                         )}
                       </HStack>
 
-                      {/* Add to Cart Button */}
-                      <Button
-                        w="full"
-                        bg="#6C3FE8"
-                        color="white"
-                        size="sm"
-                        borderRadius="8px"
-                        leftIcon={<Icon as={FiShoppingCart} />}
-                        _hover={{
-                          bg: "#5a2cc7",
-                          transform: "translateY(-1px)",
-                          boxShadow: "0 4px 12px rgba(108, 63, 232, 0.3)"
-                        }}
-                        transition="all 0.2s ease"
-                      >
-                        Add to Cart
-                      </Button>
+                      <HStack justify="space-between" pt={1}>
+                        <VStack align="start" spacing={0}>
+                          <Text fontWeight={900} color="#7C3AED" fontSize="lg" lineHeight={1}>
+                            {formatCurrency(it.price)}
+                          </Text>
+                          <Text fontSize="xs" color="#9CA3AF" textDecoration="line-through">
+                            {formatCurrency((it.price || 0) * 1.1)}
+                          </Text>
+                        </VStack>
+                        <Button
+                          size="sm"
+                          bg="linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)"
+                          color="white"
+                          borderRadius="12px"
+                          px={4}
+                          h="36px"
+                          leftIcon={<Icon as={FiShoppingCart} />}
+                          fontWeight={700}
+                          fontSize="sm"
+                          _hover={{
+                            bg: "linear-gradient(135deg, #6D28D9 0%, #DB2777 100%)",
+                            transform: "translateY(-1px)",
+                            boxShadow: "0 8px 20px rgba(124, 58, 237, 0.3)"
+                          }}
+                          transition="all 0.2s ease"
+                        >
+                          Add to Cart
+                        </Button>
+                      </HStack>
                     </VStack>
-                  </Box>
+                  </Flex>
                 </Card>
               </motion.div>
             ))}
