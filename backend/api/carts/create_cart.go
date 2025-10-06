@@ -3,7 +3,6 @@ package carts
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"useboi-boi/backend/internal/data"
 	"useboi-boi/backend/utils"
@@ -51,13 +50,13 @@ func CreateCart(c *gin.Context, db *mongo.Database) {
 
 	cartCollection := db.Collection(utils.CART)
 
+	isCompleted := false
 	cart := data.Cart{
 		ID:          primitive.NewObjectID(),
-		UserId:      userObjectId,
-		StoreId:     storeObjectId,
-		IsCompleted: false,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		UserID:      userObjectId,
+		StoreID:     storeObjectId,
+		IsCompleted: &isCompleted,
+		CartItems:   []primitive.ObjectID{},
 	}
 
 	_, err = cartCollection.InsertOne(c, cart)
@@ -69,8 +68,8 @@ func CreateCart(c *gin.Context, db *mongo.Database) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":      cart.ID.Hex(),
-		"storeId": cart.StoreId.Hex(),
-		"userId":  cart.UserId.Hex(),
+		"storeId": cart.StoreID.Hex(),
+		"userId":  cart.UserID.Hex(),
 	})
 }
 
@@ -148,11 +147,6 @@ func AddCartItem(c *gin.Context, db *mongo.Database) {
 		slog.Error("Failed to add cart item", "error", err)
 		return
 	}
-
-	// Update cart timestamp
-	cartCollection.UpdateOne(c, bson.M{"_id": cartId}, bson.M{
-		"$set": bson.M{"updatedAt": time.Now()},
-	})
 
 	c.JSON(http.StatusOK, gin.H{"message": "cart item added", "id": cartItem.ID.Hex()})
 }
@@ -238,4 +232,3 @@ func DeleteCartItem(c *gin.Context, db *mongo.Database) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "cart item removed"})
 }
-
