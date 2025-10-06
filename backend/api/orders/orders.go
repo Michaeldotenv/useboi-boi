@@ -64,10 +64,18 @@ func Checkout(c *gin.Context, db *mongo.Database, fcm *messaging.Client) {
 		return
 	}
 
+	// Convert storeId string to ObjectID
+	storeObjectId, err := primitive.ObjectIDFromHex(checkoutBody.StoreId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid storeId format"})
+		slog.Error("Invalid storeId format", "error", err.Error())
+		return
+	}
+
 	storeCollection := db.Collection(utils.STORE)
 
 	var store data.Store
-	if err := storeCollection.FindOne(c, bson.M{"_id": checkoutBody.StoreId}).Decode(&store); err != nil {
+	if err := storeCollection.FindOne(c, bson.M{"_id": storeObjectId}).Decode(&store); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to get store. " + err.Error()})
 		slog.Error("Failed to get store", "error", err.Error())
 		return
