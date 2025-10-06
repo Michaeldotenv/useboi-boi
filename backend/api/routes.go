@@ -198,8 +198,20 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	})
 
 	// Carts
+	mainRoute.POST("/carts", func(ctx *gin.Context) {
+		carts.CreateCart(ctx, db)
+	})
 	mainRoute.GET("/carts/:id/items", func(ctx *gin.Context) {
 		carts.GetItemsInCart(ctx, db)
+	})
+	mainRoute.POST("/carts/:id/items", func(ctx *gin.Context) {
+		carts.AddCartItem(ctx, db)
+	})
+	mainRoute.PATCH("/carts/:id/items/:itemId", func(ctx *gin.Context) {
+		carts.UpdateCartItem(ctx, db)
+	})
+	mainRoute.DELETE("/carts/:id/items/:itemId", func(ctx *gin.Context) {
+		carts.DeleteCartItem(ctx, db)
 	})
 
 	// Orders
