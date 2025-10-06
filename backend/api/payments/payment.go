@@ -595,18 +595,23 @@ func CapturePayment(ctx *gin.Context, db *mongo.Database) {
 func GetAuthorizationUrl(c *gin.Context) {
 	var requestBody data.TransactionRequest
 	if err := c.BindJSON(&requestBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body " + err.Error()})
+		slog.Error("GetAuthorizationUrl: Failed to bind JSON", "error", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
+	slog.Info("GetAuthorizationUrl: Request received", "email", requestBody.Email, "amount", requestBody.Amount)
+
 	jsonBody, err := json.Marshal(requestBody)
 	if err != nil {
+		slog.Error("GetAuthorizationUrl: Failed to marshal request", "error", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
 	req, err := http.NewRequest("POST", "https://api.paystack.co/transaction/initialize", bytes.NewBuffer(jsonBody))
 	if err != nil {
+		slog.Error("GetAuthorizationUrl: Failed to create HTTP request", "error", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
@@ -618,7 +623,8 @@ func GetAuthorizationUrl(c *gin.Context) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send HTTP request"})
+		slog.Error("GetAuthorizationUrl: Failed to send HTTP request", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to communicate with payment provider"})
 		return
 	}
 	defer resp.Body.Close()
@@ -626,8 +632,16 @@ func GetAuthorizationUrl(c *gin.Context) {
 	var responseBody map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&responseBody)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode JSON response"})
+		slog.Error("GetAuthorizationUrl: Failed to decode response", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode payment provider response"})
 		return
+	}
+
+	slog.Info("GetAuthorizationUrl: Paystack response", "status_code", resp.StatusCode, "status", responseBody["status"])
+
+	// If Paystack returned an error, log it
+	if resp.StatusCode >= 400 {
+		slog.Error("GetAuthorizationUrl: Paystack error", "status_code", resp.StatusCode, "response", responseBody)
 	}
 
 	c.JSON(resp.StatusCode, responseBody)
@@ -638,8 +652,11 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 
 	reference := c.Param("reference")
 
+	slog.Info("VerifyCardChargeAndAddCard: Verifying card", "reference", reference)
+
 	req, err := http.NewRequest("GET", "https://api.paystack.co/transaction/verify/"+reference, nil)
 	if err != nil {
+		slog.Error("VerifyCardChargeAndAddCard: Failed to create request", "error", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
@@ -651,7 +668,8 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send HTTP request"})
+		slog.Error("VerifyCardChargeAndAddCard: Failed to send request", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify transaction with payment provider"})
 		return
 	}
 	defer resp.Body.Close()
@@ -659,29 +677,52 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 	var responseBody map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&responseBody)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode JSON response"})
+		slog.Error("VerifyCardChargeAndAddCard: Failed to decode response", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode verification response"})
 		return
 	}
 
-	id := responseBody["data"].(map[string]interface{})["id"].(float64)
-	status := responseBody["data"].(map[string]interface{})["status"].(string)
-	authorization := responseBody["data"].(map[string]interface{})["authorization"].(map[string]interface{})
+	slog.Info("VerifyCardChargeAndAddCard: Paystack verification response", "status_code", resp.StatusCode, "response", responseBody)
 
-	if authorization["authorization_code"] == nil {
-		if status != "success" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "transaction not verified"})
-			return
-		}
-	}
-
-	authorizationCode := authorization["authorization_code"].(string)
-	bank := authorization["bank"].(string)
-	cardType := authorization["card_type"].(string)
-
-	if status != "success" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "transaction not verified"})
+	// Check if verification was successful
+	if resp.StatusCode != http.StatusOK {
+		slog.Error("VerifyCardChargeAndAddCard: Verification failed", "status_code", resp.StatusCode, "response", responseBody)
+		c.JSON(resp.StatusCode, gin.H{"error": "Transaction verification failed"})
 		return
 	}
+
+	// Safely extract data from response
+	dataMap, ok := responseBody["data"].(map[string]interface{})
+	if !ok {
+		slog.Error("VerifyCardChargeAndAddCard: Invalid response structure", "response", responseBody)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid verification response"})
+		return
+	}
+
+	status, ok := dataMap["status"].(string)
+	if !ok || status != "success" {
+		slog.Error("VerifyCardChargeAndAddCard: Transaction not successful", "status", status)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Transaction was not successful"})
+		return
+	}
+
+	authorization, ok := dataMap["authorization"].(map[string]interface{})
+	if !ok {
+		slog.Error("VerifyCardChargeAndAddCard: No authorization data", "data", dataMap)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No card authorization data found"})
+		return
+	}
+
+	authorizationCode, ok := authorization["authorization_code"].(string)
+	if !ok || authorizationCode == "" {
+		slog.Error("VerifyCardChargeAndAddCard: No authorization code", "authorization", authorization)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No authorization code received"})
+		return
+	}
+
+	bank, _ := authorization["bank"].(string)
+	cardType, _ := authorization["card_type"].(string)
+	id, _ := dataMap["id"].(float64)
 
 	card := data.Card{
 		ID:                id,
@@ -693,32 +734,42 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 
 	userId, ok := c.Get("userId")
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "no user found"})
+		slog.Error("VerifyCardChargeAndAddCard: No userId in context")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
 	}
 
 	userObjectId, err := primitive.ObjectIDFromHex(userId.(string))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to create user object id"})
+		slog.Error("VerifyCardChargeAndAddCard: Invalid user ID", "userId", userId, "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
 	userCollection := db.Collection(utils.USER)
 
-	slog.Info("message", "user object id", userId)
-
 	var user data.User
-
-	// userCollection.FindOne(c, bson.M{"_id": userObjectId}).Decode(&user)
 	if err := userCollection.FindOne(c, bson.M{"_id": userObjectId}).Decode(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found" + err.Error()})
+		slog.Error("VerifyCardChargeAndAddCard: User not found", "userId", userObjectId, "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
 		return
 	}
 
+	// Check if card already exists
+	for _, existingCard := range user.Cards {
+		if existingCard.AuthorizationCode == authorizationCode {
+			slog.Info("VerifyCardChargeAndAddCard: Card already exists", "authCode", authorizationCode)
+			c.JSON(http.StatusOK, gin.H{"message": "Card already added", "data": card})
+			return
+		}
+	}
+
+	// Set as default if first card
 	if len(user.Cards) == 0 {
 		card.IsSelected = true
 	}
 
+	// Initialize cards array if nil
 	if user.Cards == nil {
 		res := userCollection.FindOneAndUpdate(c, bson.M{"_id": userObjectId}, bson.M{
 			"$set": bson.M{
@@ -727,11 +778,13 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 		})
 
 		if res.Err() != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to empty card array. " + res.Err().Error()})
+			slog.Error("VerifyCardChargeAndAddCard: Failed to initialize cards array", "error", res.Err().Error())
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize cards array"})
 			return
 		}
 	}
 
+	// Add card to user
 	res := userCollection.FindOneAndUpdate(c, bson.M{"_id": userObjectId}, bson.M{
 		"$push": bson.M{
 			"cards": card,
@@ -739,11 +792,14 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 	})
 
 	if res.Err() != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to add card. " + res.Err().Error()})
+		slog.Error("VerifyCardChargeAndAddCard: Failed to add card", "error", res.Err().Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add card"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "card added successfully"})
+	slog.Info("VerifyCardChargeAndAddCard: Card added successfully", "userId", userObjectId, "bank", bank)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Card added successfully", "data": card})
 
 }
 

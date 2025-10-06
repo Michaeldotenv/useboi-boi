@@ -244,10 +244,10 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	webhookRoute.POST("/payment/capture", func(ctx *gin.Context) {
 		payments.CapturePayment(ctx, db)
 	})
-	mainRoute.POST("payment/cards/authorization", func(ctx *gin.Context) {
+	mainRoute.POST("/payment/cards/authorization", func(ctx *gin.Context) {
 		payments.GetAuthorizationUrl(ctx)
 	})
-	mainRoute.GET("payment/cards/verify/:reference", func(ctx *gin.Context) {
+	mainRoute.GET("/payment/cards/verify/:reference", func(ctx *gin.Context) {
 		payments.VerifyCardChargeAndAddCard(ctx, db)
 	})
 	mainRoute.POST("/wallet/withdrawals", func(ctx *gin.Context) {
