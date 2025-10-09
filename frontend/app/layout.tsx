@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Preloader from "./components/Preloader";
+import GlobalNavigationLayout from "./components/GlobalNavigationLayout";
 import { Suspense } from "react";
 // import ClientSetup from "./components/ClientSetup";
 
@@ -25,7 +26,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <Suspense fallback={<Preloader />}>{children}</Suspense>
+          <Suspense fallback={<Preloader />}>
+            <GlobalNavigationLayout>
+              {children}
+            </GlobalNavigationLayout>
+          </Suspense>
         </Providers>
       </body>
     </html>

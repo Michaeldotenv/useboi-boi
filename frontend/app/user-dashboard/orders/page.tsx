@@ -82,7 +82,7 @@ export default function OrdersPage() {
             const scheme = status.includes("complete")
               ? "green"
               : status.includes("progress") || status.includes("rider")
-              ? "purple"
+              ? "orange"
               : status.includes("pend")
               ? "orange"
               : "gray";

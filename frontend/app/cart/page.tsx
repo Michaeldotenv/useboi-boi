@@ -1,9 +1,12 @@
 "use client";
-import { Box, Icon, Badge, Wrap, Image, Flex, Text, VStack, IconButton, HStack, Input, InputRightElement, InputGroup, Button } from "@chakra-ui/react";
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Box, Icon, Badge, Wrap, Image, Flex, Text, VStack, IconButton, HStack, Input, InputRightElement, InputGroup, Button, useToast, Divider, Select, Textarea, RadioGroup, Radio, Stack, useColorModeValue } from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
 import Wrapper from "../components/Wrapper";
 import { AddIcon, ArrowBackIcon, ArrowForwardIcon, SmallCloseIcon } from "@chakra-ui/icons";
-import { useRef, useState } from "react";
+import { useCartStore } from "@/lib/cartStore";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { GoHeart } from "react-icons/go";
@@ -11,12 +14,31 @@ import { GoHeart } from "react-icons/go";
 
 const CartWithBadge = () => {
   const router =  useRouter();
+  const toast = useToast();
+  const { items, increment, decrement, removeItem, clearCart } = useCartStore();
+  const total = useCartStore((s) => s.subtotal());
+  const qty = useCartStore((s) => s.totalQuantity());
+  const cartVendorId = useCartStore((s) => s.vendorId);
 
-   const cards = [
-    { id: 1, title: "Pizza Party", content: "Enjoy pizza from Johnny and get upto 30% off.", image: "Food-item-1.jpeg", pricetag: "Starting from", price: "$10" },
-    { id: 2, title: "Pizza Party", content: "Enjoy pizza from Johnny and get upto 30% off.", image: "Food-item-1.jpeg", pricetag: "Starting from", price: "$20" },
-    { id: 3, title: "Pizza Party", content: "Enjoy pizza from Johnny and get upto 30% off.", image: "Food-item-1.jpeg", pricetag: "Starting from", price: "$30" },
-  ];
+  const { data: meData } = useQuery({ queryKey: ["me"], queryFn: api.me });
+  const meObj = ((meData as any)?.data || meData || {}) as any;
+
+   // Get recommended items from the same vendor or popular items
+   const { data: recommendedData } = useQuery({
+     queryKey: ["recommended-items", cartVendorId],
+     queryFn: () => cartVendorId ? api.vendorItems(cartVendorId) : Promise.resolve([]),
+     enabled: Boolean(cartVendorId),
+   });
+   
+   const recommendedItems = (recommendedData as any)?.data || recommendedData || [];
+   const cards = recommendedItems.slice(0, 3).map((item: any, index: number) => ({
+     id: item.id || item._id || index,
+     title: item.name || "Item",
+     content: item.desc || "Great item from our store",
+     image: item.image || item.Image || "/Food-item-1.jpeg",
+     pricetag: "Starting from",
+     price: `₦${(item.price || 0).toLocaleString()}`
+   }));
 
   const [activeIndex, setActiveIndex] = useState(0);
   
@@ -38,48 +60,454 @@ const CartWithBadge = () => {
       }
     };
 
+  const [checkoutType, setCheckoutType] = useState<'wallet' | 'card'>('wallet');
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [deliveryLocation, setDeliveryLocation] = useState('');
+  const [deliveryInstructions, setDeliveryInstructions] = useState('');
+  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  
+  // Get user's saved cards
+  const userCards = useMemo(() => {
+    return (meObj?.cards || []) as Array<{
+      id: number;
+      bank: string;
+      cardType: string;
+      authorizationCode: string;
+      isSelected: boolean;
+    }>;
+  }, [meObj?.cards]);
+  
+  // Auto-select the default card or first card
+  useEffect(() => {
+    if (checkoutType === 'card' && userCards.length > 0 && !selectedCardId) {
+      const defaultCard = userCards.find(card => card.isSelected);
+      setSelectedCardId(defaultCard?.id || userCards[0].id);
+    }
+  }, [checkoutType, userCards, selectedCardId]);
+
+  const deliveryFee = 500; // Fixed delivery fee
+  const serviceCharge = Math.round(total * 0.05); // 5% service charge
+  const vat = Math.round((total + deliveryFee + serviceCharge) * 0.075); // 7.5% VAT
+  const couponDiscount = selectedCoupon ? (selectedCoupon.type === 'percent' ? Math.round(total * selectedCoupon.discount / 100) : selectedCoupon.discount) : 0;
+  const grandTotal = total + deliveryFee + serviceCharge + vat - couponDiscount;
+
+  const handleCheckout = async () => {
+    if (!items.length) return;
+    
+    // Validate card selection if card payment is chosen
+    if (checkoutType === 'card') {
+      if (userCards.length === 0) {
+        toast({ 
+          title: "No saved cards", 
+          description: "Please add a card to your account or use wallet payment.",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+        return;
+      }
+      if (!selectedCardId) {
+        toast({ 
+          title: "Select a card", 
+          description: "Please select a card for payment.",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+        return;
+      }
+    }
+    
+    setIsCheckingOut(true);
+    
+    try {
+      // Ensure cart is synced with backend before checkout
+      await useCartStore.getState().syncWithBackend();
+      
+      const cartId = useCartStore.getState().cartId;
+      
+      if (!cartId) {
+        throw new Error("Cart could not be created. Please try again.");
+      }
+      
+      const payload: any = {
+        totalPrice: grandTotal,
+        cartId: cartId,
+        storeId: cartVendorId,
+        deliveryLocation: deliveryLocation || null,
+        deliveryFee: deliveryFee,
+        serviceCharge: serviceCharge,
+        couponPrice: couponDiscount > 0 ? couponDiscount : null,
+        checkoutType: checkoutType,
+        deliveryInstructions: deliveryInstructions || null,
+        isErrand: false,
+      };
+      
+      // Add cardId if card payment is selected
+      if (checkoutType === 'card' && selectedCardId) {
+        payload.cardId = selectedCardId;
+      }
+      
+      await api.checkout(payload);
+      clearCart();
+      toast({ 
+        title: "Order placed successfully!", 
+        description: "Your order has been confirmed and is being processed.",
+        status: "success",
+        duration: 5000,
+        isClosable: true
+      });
+      router.replace("/user-dashboard/orders");
+    } catch (e: any) {
+      console.error("Checkout failed:", e);
+      toast({ 
+        title: "Checkout failed", 
+        description: e.message || "Please try again or contact support.",
+        status: "error",
+        duration: 5000,
+        isClosable: true
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
   return (
-   <Wrapper>
-      <Box my={"3em"}>
-         <Flex gap={"5"}>
-            <ArrowBackIcon mt={".2em"} width={"22px"} height={"22px"} color={"#000"} onClick={() => location.replace("/add-to-cart")} cursor={"pointer"}/>
-            <Text fontSize={"20px"} fontWeight={"700"}>Cart</Text>
-         </Flex>
+   <Box 
+     minH="100vh" 
+     bg="linear-gradient(135deg, #F2F2F7 0%, #E5E7EB 50%, #F9FAFB 100%)"
+     position="relative"
+     _before={{
+       content: '""',
+       position: "absolute",
+       top: 0,
+       left: 0,
+       right: 0,
+       bottom: 0,
+       background: `
+         radial-gradient(circle at 20% 80%, rgba(59, 23, 79, 0.1) 0%, transparent 50%),
+         radial-gradient(circle at 80% 20%, rgba(107, 42, 143, 0.1) 0%, transparent 50%),
+         radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)
+       `,
+       pointerEvents: "none",
+       zIndex: 0,
+     }}
+   >
+     <Wrapper>
+       <Box my={"3em"} position="relative" zIndex={1}>
+          <Flex gap={"5"} alignItems="center">
+             <Box
+               p={2}
+               borderRadius="12px"
+               bg="rgba(255, 255, 255, 0.8)"
+               backdropFilter="blur(10px)"
+               border="1px solid rgba(255, 255, 255, 0.2)"
+               cursor="pointer"
+               transition="all 0.3s ease"
+               _hover={{
+                 bg: "rgba(255, 255, 255, 0.9)",
+                 transform: "translateX(-2px)",
+                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+               }}
+               onClick={() => location.replace("/add-to-cart")}
+             >
+               <ArrowBackIcon width={"20px"} height={"20px"} color={"#3B174F"}/>
+             </Box>
+             <Text fontSize={"24px"} fontWeight={"800"} bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
+               Shopping Cart
+             </Text>
+          </Flex>
+       </Box>
+
+      {/* Cart Items */}
+      {items.map((it, index) => (
+        <motion.div
+          key={it.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+        >
+          <Box
+            bg="rgba(255, 255, 255, 0.9)"
+            backdropFilter="blur(20px)"
+            borderRadius="20px"
+            p={4}
+            border="1px solid rgba(255, 255, 255, 0.2)"
+            boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
+            mb={4}
+            transition="all 0.3s ease"
+            _hover={{
+              transform: "translateY(-2px)",
+              boxShadow: "0 12px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+            }}
+          >
+            <Flex gap={4} alignItems="center">
+              <Box position="relative">
+                <Image 
+                  src={it.image || "/food-carousel.png"} 
+                  alt={it.name} 
+                  width={"70px"} 
+                  height={"70px"} 
+                  borderRadius={"16px"}
+                  objectFit="cover"
+                />
+                <Badge 
+                  position="absolute" 
+                  top="-2" 
+                  right="-2" 
+                  bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+                  color="white" 
+                  borderRadius="50%" 
+                  fontSize="11px" 
+                  fontWeight="700"
+                  px={2} 
+                  py={1}
+                  minW="20px"
+                  height="20px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  boxShadow="0 2px 8px rgba(59, 23, 79, 0.3)"
+                  border="2px solid white"
+                >
+                  {it.quantity}
+                </Badge>
+              </Box>
+              
+              <Box flex={1}>
+                <Text fontSize="18px" fontWeight="700" mb={1} noOfLines={1} color="#1A1A1A">
+                  {it.name}
+                </Text>
+                <Text fontSize="14px" color="#6B7280" mb={3}>₦{it.price.toLocaleString()} each</Text>
+                <HStack spacing={3}>
+                  <Button 
+                    size="sm" 
+                    borderRadius="12px"
+                    bg="rgba(59, 23, 79, 0.1)"
+                    color="#3B174F"
+                    _hover={{ bg: "rgba(59, 23, 79, 0.2)" }}
+                    onClick={async () => await decrement(it.id)}
+                    minW="32px"
+                    height="32px"
+                  >
+                    -
+                  </Button>
+                  <Text fontWeight="600" fontSize="16px" color="#1A1A1A">{it.quantity}</Text>
+                  <Button 
+                    size="sm" 
+                    borderRadius="12px"
+                    bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+                    color="white"
+                    _hover={{ transform: "scale(1.05)" }}
+                    onClick={async () => await increment(it.id)}
+                    minW="32px"
+                    height="32px"
+                  >
+                    +
+                  </Button>
+                </HStack>
+              </Box>
+              
+              <VStack align="end" spacing={2}>
+                <Text fontSize="18px" fontWeight="800" color="#1A1A1A">
+                  ₦{(it.price * it.quantity).toLocaleString()}
+                </Text>
+                <IconButton 
+                  aria-label="remove" 
+                  icon={<SmallCloseIcon />} 
+                  size="sm" 
+                  borderRadius="12px"
+                  bg="rgba(239, 68, 68, 0.1)"
+                  color="#EF4444"
+                  _hover={{ bg: "rgba(239, 68, 68, 0.2)" }}
+                  onClick={async () => await removeItem(it.id)} 
+                />
+              </VStack>
+            </Flex>
+          </Box>
+        </motion.div>
+      ))}
+
+      {/* Order Summary */}
+      <Box 
+        mt={8} 
+        p={6} 
+        bg="rgba(255, 255, 255, 0.9)"
+        backdropFilter="blur(20px)"
+        borderRadius="20px"
+        border="1px solid rgba(255, 255, 255, 0.2)"
+        boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
+      >
+        <Text fontSize="20px" fontWeight="800" mb={6} bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
+          Order Summary
+        </Text>
+        
+        <VStack spacing={2} align="stretch">
+          <Flex justify="space-between">
+            <Text fontSize="14px" color="gray.600">Subtotal</Text>
+            <Text fontSize="14px" fontWeight="600">₦{total.toLocaleString()}</Text>
+          </Flex>
+          
+          <Flex justify="space-between">
+            <Text fontSize="14px" color="gray.600">Delivery Fee</Text>
+            <Text fontSize="14px" fontWeight="600">₦{deliveryFee.toLocaleString()}</Text>
+          </Flex>
+          
+          <Flex justify="space-between">
+            <Text fontSize="14px" color="gray.600">Service Charge (5%)</Text>
+            <Text fontSize="14px" fontWeight="600">₦{serviceCharge.toLocaleString()}</Text>
+          </Flex>
+          
+          <Flex justify="space-between">
+            <Text fontSize="14px" color="gray.600">VAT (7.5%)</Text>
+            <Text fontSize="14px" fontWeight="600">₦{vat.toLocaleString()}</Text>
+          </Flex>
+          
+          {couponDiscount > 0 && (
+            <Flex justify="space-between">
+              <Text fontSize="14px" color="green.600">Coupon Discount</Text>
+              <Text fontSize="14px" fontWeight="600" color="green.600">-₦{couponDiscount.toLocaleString()}</Text>
+            </Flex>
+          )}
+          
+          <Divider />
+          
+          <Flex justify="space-between">
+            <Text fontSize="16px" fontWeight="700">Total</Text>
+            <Text fontSize="16px" fontWeight="700" color="#000">₦{grandTotal.toLocaleString()}</Text>
+          </Flex>
+        </VStack>
       </Box>
 
-      <Flex width={"100%"} mx={"auto"} mt={"2em"} gap={"4"}>
-         <Box position="relative" display="inline-block">
-            <Image src="/Food-item-6.jpg" alt="food image" width={"64px"} height={"64px"} borderRadius={"16px"}/>
-            <Badge position="absolute" top="-2" right="-2" bg="#000" color="white" borderRadius="50%" fontSize="12px" px={"7px"}>1</Badge>
-         </Box>
+      {/* Delivery Information */}
+      <Box mt={6}>
+        <Text fontSize="16px" fontWeight="700" mb={3}>Delivery Information</Text>
+        
+        <VStack spacing={4} align="stretch">
+          <Box>
+            <Text fontSize="14px" fontWeight="600" mb={2}>Delivery Location</Text>
+            <Input
+              placeholder="Enter delivery address"
+              value={deliveryLocation}
+              onChange={(e) => setDeliveryLocation(e.target.value)}
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+            />
+          </Box>
+          
+          <Box>
+            <Text fontSize="14px" fontWeight="600" mb={2}>Delivery Instructions (Optional)</Text>
+            <Textarea
+              placeholder="Any special delivery instructions..."
+              value={deliveryInstructions}
+              onChange={(e) => setDeliveryInstructions(e.target.value)}
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+              rows={3}
+            />
+          </Box>
+        </VStack>
+      </Box>
 
-         <Box mt={"-4px"}>
-            <Text fontSize="17px" fontWeight="400" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>Chicken Fajita Pizza</Text>
-            <Text fontSize="15px" fontWeight="400" mb={2} color={"rgba(142, 142, 147, 1)"} lineHeight={"20px"} letterSpacing={"-0.24px"}>10” • Char Donay</Text>
-            <Text fontSize="15px" fontWeight="700" mb={2} color={"#000"} lineHeight={"20px"} letterSpacing={"-0.24px"}>$20</Text>
-         </Box>
+      {/* Payment Method */}
+      <Box mt={6}>
+        <Text fontSize="16px" fontWeight="700" mb={3}>Payment Method</Text>
+        
+        <RadioGroup value={checkoutType} onChange={(value: 'wallet' | 'card') => setCheckoutType(value)}>
+          <Stack spacing={3}>
+            <Radio value="wallet" size="lg">
+              <Box ml={2}>
+                <Text fontSize="14px" fontWeight="600">Wallet Balance</Text>
+                <Text fontSize="12px" color="gray.600">Pay from your Boiboi wallet</Text>
+              </Box>
+            </Radio>
+            <Radio value="card" size="lg">
+              <Box ml={2}>
+                <Text fontSize="14px" fontWeight="600">Saved Card</Text>
+                <Text fontSize="12px" color="gray.600">
+                  {userCards.length > 0 
+                    ? `Pay with your saved card (${userCards.length} card${userCards.length > 1 ? 's' : ''} available)` 
+                    : "No saved cards - please add a card first"}
+                </Text>
+              </Box>
+            </Radio>
+          </Stack>
+        </RadioGroup>
+        
+        {/* Card Selector */}
+        {checkoutType === 'card' && userCards.length > 0 && (
+          <Box mt={4} p={4} bg="gray.50" borderRadius="12px">
+            <Text fontSize="14px" fontWeight="600" mb={2}>Select Card</Text>
+            <Select
+              placeholder="Choose a card"
+              value={selectedCardId || ''}
+              onChange={(e) => setSelectedCardId(Number(e.target.value))}
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              {userCards.map((card) => (
+                <option key={card.id} value={card.id}>
+                  {card.bank} - {card.cardType} {card.isSelected ? '(Default)' : ''}
+                </option>
+              ))}
+            </Select>
+          </Box>
+        )}
+      </Box>
 
-         <Box ml={"3em"} mt={"15"}>
-            <Icon as={SmallCloseIcon} boxSize={5} color={"#fff"} bg={"rgba(142, 142, 147, 1)"} fontSize={"4px"} fontWeight={"400"} borderRadius={"50%"}/>
-         </Box>
-      </Flex>
-
-      <Flex width={"100%"} mx={"auto"} mt={"2em"} gap={"4"}>
-         <Box position="relative" display="inline-block">
-            <Image src="/Food-item-6.jpg" alt="food image" width={"64px"} height={"64px"} borderRadius={"16px"}/>
-            <Badge position="absolute" top="-2" right="-2" bg="#000" color="white" borderRadius="50%" fontSize="12px" px={"7px"}>3</Badge>
-         </Box>
-
-         <Box mt={"-4px"}>
-            <Text fontSize="17px" fontWeight="400" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>Chicken Fajita Pizza</Text>
-            <Text fontSize="15px" fontWeight="400" mb={2} color={"rgba(142, 142, 147, 1)"} lineHeight={"20px"} letterSpacing={"-0.24px"}>10” • Char Donay</Text>
-            <Text fontSize="15px" fontWeight="700" mb={2} color={"#000"} lineHeight={"20px"} letterSpacing={"-0.24px"}>$30</Text>
-         </Box>
-
-         <Box ml={"3em"} mt={"15"}>
-            <Icon as={SmallCloseIcon} boxSize={5} color={"#fff"} bg={"rgba(142, 142, 147, 1)"} fontSize={"4px"} fontWeight={"400"} borderRadius={"50%"}/>
-         </Box>
-      </Flex>
+      {/* Checkout Button */}
+      <Box mt={8} mb={4}>
+        <Button
+          width="100%"
+          height="60px"
+          bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+          color="white"
+          fontSize="18px"
+          fontWeight="800"
+          borderRadius="20px"
+          onClick={handleCheckout}
+          isLoading={isCheckingOut}
+          loadingText="Processing Order..."
+          disabled={!items.length || !deliveryLocation.trim()}
+          boxShadow="0 8px 25px rgba(59, 23, 79, 0.3)"
+          _hover={{
+            bg: "linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)",
+            transform: "translateY(-3px)",
+            boxShadow: "0 12px 35px rgba(59, 23, 79, 0.4)",
+            _before: {
+              left: "100%",
+            },
+          }}
+          _active={{
+            transform: "translateY(-1px)"
+          }}
+          transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+          position="relative"
+          overflow="hidden"
+          _before={{
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: "-100%",
+            width: "100%",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+            transition: "left 0.5s",
+          }}
+        >
+          {isCheckingOut ? "Processing..." : `Complete Order - ₦${grandTotal.toLocaleString()}`}
+        </Button>
+        
+        {!deliveryLocation.trim() && (
+          <Text fontSize="12px" color="red.500" mt={2} textAlign="center">
+            Please enter delivery location to continue
+          </Text>
+        )}
+      </Box>
 
       <Box my={'2em'}>
          <Flex justifyContent={"space-between"} mb={"1em"}>
@@ -88,22 +516,30 @@ const CartWithBadge = () => {
          <Box w="100%" h={"200px"} textAlign="center" position={"relative"}>
             <Flex ref={carouselRef} overflow="hidden" w="100%" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
                <motion.div style={{ display: "flex", width: "100%" }} animate={{ x: `-${activeIndex * 100}%` }} transition={{ type: "spring", stiffness: 100 }}>
-               {cards.map((card) => (
-               <Box key={card.id} flex="0 0 100%" p={10} w="100%" h="200px" borderRadius="16px" bgImage={"Food-item-2.jpg"} bgSize="cover" bgPosition="center">
-                  <Text fontSize="12px" fontWeight="700" position={"absolute"} left={"3"} bottom="3" borderRadius={"16px"} color={"#000"} bg={"#fff"} px={"8px"} py={"4px"}>$18</Text>
+                {cards.length > 0 ? cards.map((card: any) => (
+               <Box key={card.id} flex="0 0 100%" p={10} w="100%" h="200px" borderRadius="16px" bgImage={card.image} bgSize="cover" bgPosition="center">
+                  <Text fontSize="12px" fontWeight="700" position={"absolute"} left={"3"} bottom="3" borderRadius={"16px"} color={"#000"} bg={"#fff"} px={"8px"} py={"4px"}>{card.price}</Text>
                   <Box borderRadius={"50%"} position="absolute" top={2} right={2} color={"rgba(255, 255, 255, 1)"} opacity={1} p={2}>
                      <Icon aria-label="Like" as={GoHeart} color={"white"}  opacity={1} size={"12px"}/>
                   </Box>
                </Box>
-               ))}
+               )) : (
+               <Box flex="0 0 100%" p={10} w="100%" h="200px" borderRadius="16px" bg="gray.100" display="flex" alignItems="center" justifyContent="center">
+                  <Text color="gray.500">No recommended items available</Text>
+               </Box>
+               )}
                </motion.div>
             </Flex>
          </Box>
-         <Flex justifyContent={"space-between"} mt={"1em"}>
-            <Text fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>Popperoni Pizza</Text>
-            <Icon as={AddIcon} width={"18px"} height={"18px"}/>
-         </Flex>
-         <Text fontSize="15px" fontWeight="400" color={"Gray"} mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>Daily Deli</Text>
+         {cards.length > 0 && (
+           <Flex justifyContent={"space-between"} mt={"1em"}>
+              <Text fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>{cards[activeIndex]?.title}</Text>
+              <Icon as={AddIcon} width={"18px"} height={"18px"}/>
+           </Flex>
+         )}
+         {cards.length > 0 && (
+           <Text fontSize="15px" fontWeight="400" color={"Gray"} mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"}>{cards[activeIndex]?.content}</Text>
+         )}
       </Box>
 
       <Box mt={"3em"} mb={"1em"}>
@@ -115,8 +551,8 @@ const CartWithBadge = () => {
       </Box>
 
       <Flex justifyContent={"space-between"} width={"100%"} mx={"auto"} mt={"2em"}>
-         <Text fontSize="20px" fontWeight="700" mb={2} lineHeight={"24px"} letterSpacing={"0.75px"}>Variation</Text>
-         <Text fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"} color={"brand.primary"}>$50</Text>
+         <Text fontSize="20px" fontWeight="700" mb={2} lineHeight={"24px"} letterSpacing={"0.75px"}>Subtotal</Text>
+         <Text fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"} color={"brand.primary"}>₦{total.toLocaleString()}</Text>
       </Flex>
       
       <Flex justifyContent={"space-between"} borderBottom={"2px solid rgba(242, 242, 247, 1)"} width={"100%"}>
@@ -125,35 +561,48 @@ const CartWithBadge = () => {
          </Box>
       
          <Box>
-            <Text my={"1em"} color={"rgba(142, 142, 147, 1)"}>$10</Text>
+            <Text my={"1em"} color={"rgba(142, 142, 147, 1)"}>₦{deliveryFee.toLocaleString()}</Text>
          </Box>
       </Flex>
 
       <Flex justifyContent={"space-between"} borderBottom={"2px solid rgba(242, 242, 247, 1)"} width={"100%"}>
          <Box my={"1em"}>
-            <Text fontWeight={"400"} fontSize={"17px"}>VAT</Text>
+            <Text fontWeight={"400"} fontSize={"17px"}>Service Charge (5%)</Text>
          </Box>
       
          <Box>
-            <Text my={"1em"} color={"rgba(142, 142, 147, 1)"}>$10</Text>
+            <Text my={"1em"} color={"rgba(142, 142, 147, 1)"}>₦{serviceCharge.toLocaleString()}</Text>
          </Box>
       </Flex>
 
       <Flex justifyContent={"space-between"} borderBottom={"2px solid rgba(242, 242, 247, 1)"} width={"100%"}>
          <Box my={"1em"}>
-            <Text fontWeight={"400"} fontSize={"17px"}>Coupon</Text>
+            <Text fontWeight={"400"} fontSize={"17px"}>VAT (7.5%)</Text>
          </Box>
       
          <Box>
-            <Text my={"1em"} color={"rgba(52, 199, 89, 1)"}>-$4</Text>
+            <Text my={"1em"} color={"rgba(142, 142, 147, 1)"}>₦{vat.toLocaleString()}</Text>
          </Box>
       </Flex>
+
+      {couponDiscount > 0 && (
+        <Flex justifyContent={"space-between"} borderBottom={"2px solid rgba(242, 242, 247, 1)"} width={"100%"}>
+           <Box my={"1em"}>
+              <Text fontWeight={"400"} fontSize={"17px"}>Coupon Discount</Text>
+           </Box>
+        
+           <Box>
+              <Text my={"1em"} color={"rgba(52, 199, 89, 1)"}>-₦{couponDiscount.toLocaleString()}</Text>
+           </Box>
+        </Flex>
+      )}
 
       <Flex justifyContent={"space-between"} alignItems={"center"} mt={"4em"} mb={"1em"}>
-         <Text fontSize="28px" fontWeight="700" mb={2} lineHeight={"24px"} letterSpacing={"0.75px"}>$20</Text>
-         <Button fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"} color={"#fff"} variant={"primary"} bg={"brand.primary"} borderRadius={"16px"} py={"28px"} px={"24px"} onClick={() => location.replace("/check-out")}>Go to Checkout</Button>
+         <Text fontSize="28px" fontWeight="700" mb={2} lineHeight={"24px"} letterSpacing={"0.75px"}>₦{grandTotal.toLocaleString()}</Text>
+         <Button isDisabled={!items.length || !deliveryLocation.trim()} fontSize="17px" fontWeight="700" mb={2} lineHeight={"22px"} letterSpacing={"-0.41px"} color={"#fff"} variant={"primary"} bg={"brand.primary"} borderRadius={"16px"} py={"28px"} px={"24px"} onClick={handleCheckout}>Go to Checkout</Button>
       </Flex>  
-    </Wrapper>
+     </Wrapper>
+   </Box>
   );
 };
 

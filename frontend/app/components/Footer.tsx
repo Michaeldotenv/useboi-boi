@@ -141,7 +141,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
                 <Flex
                   align="center"
                   justify="center"
-                  bg="purple.600"
+                  bg="brand.primary"
                   color="white"
                   px={{ base: 4, xs: 5, sm: 6 }}
                   py={{ base: 3, sm: 3 }}
@@ -149,7 +149,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
                   fontWeight="600"
                   cursor="pointer"
                   _hover={{
-                    bg: "purple.700",
+                    bg: "brand.primaryDark",
                     boxShadow: "0 4px 12px rgba(82, 52, 229, 0.3)",
                   }}
                   minH={{ base: "48px", sm: "52px" }}

@@ -20,15 +20,18 @@ export const theme = extendTheme({
 
   colors: {
     brand: {
-      primary: "#5234E5",
-      primaryLight: "#6B4EFF",
-      primaryDark: "#3B1FB8",
-      secondary: "#FF6B35",
-      secondaryLight: "#FF8A65",
-      secondaryDark: "#E64A19",
-      accent: "#00D4AA",
-      accentLight: "#26E6C4",
-      accentDark: "#00A085",
+      primary: "#3B174F",
+      primaryLight: "#6B2A8F",
+      primaryDark: "#2A0F3B",
+      secondary: "#6B2A8F",
+      secondaryLight: "#8B3FB8",
+      secondaryDark: "#3B174F",
+      accent: "#10B981",
+      accentLight: "#34D399",
+      accentDark: "#059669",
+      gradient: "#3B174F",
+      gradientLight: "#6B2A8F",
+      gradientDark: "#2A0F3B",
     },
     gray: {
       50: "#FAFAFA",
@@ -60,29 +63,48 @@ export const theme = extendTheme({
     Button: {
       baseStyle: {
         fontWeight: "600",
-        borderRadius: "12px",
-        transition: "all 0.2s ease-in-out",
+        borderRadius: "16px",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        position: "relative",
+        overflow: "hidden",
         _hover: {
-          transform: "translateY(-1px)",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          transform: "translateY(-2px)",
+          boxShadow: "0 8px 25px rgba(59, 23, 79, 0.25)",
+          _before: {
+            left: "100%",
+          },
         },
         _active: {
           transform: "translateY(0)",
+        },
+        _before: {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: "-100%",
+          width: "100%",
+          height: "100%",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+          transition: "left 0.5s",
         },
       },
       variants: {
         primary: {
           bg: "brand.primary",
           color: "white",
+          boxShadow: "0 4px 15px rgba(59, 23, 79, 0.3)",
           _hover: {
             bg: "brand.primaryDark",
+            boxShadow: "0 8px 25px rgba(59, 23, 79, 0.4)",
           },
         },
         secondary: {
           bg: "brand.secondary",
           color: "white",
+          boxShadow: "0 4px 15px rgba(107, 42, 143, 0.3)",
           _hover: {
             bg: "brand.secondaryDark",
+            boxShadow: "0 8px 25px rgba(107, 42, 143, 0.4)",
           },
         },
         outline: {
@@ -93,13 +115,23 @@ export const theme = extendTheme({
           _hover: {
             bg: "brand.primary",
             color: "white",
+            borderColor: "transparent",
           },
         },
         ghost: {
           color: "brand.primary",
           bg: "transparent",
           _hover: {
-            bg: "gray.50",
+            bg: "rgba(59, 23, 79, 0.1)",
+          },
+        },
+        gradient: {
+          bg: "brand.primary",
+          color: "white",
+          boxShadow: "0 4px 15px rgba(59, 23, 79, 0.3)",
+          _hover: {
+            bg: "brand.primaryDark",
+            boxShadow: "0 8px 25px rgba(59, 23, 79, 0.4)",
           },
         },
       },
@@ -164,22 +196,53 @@ export const theme = extendTheme({
     Card: {
       baseStyle: {
         container: {
-          borderRadius: "16px",
+          borderRadius: "20px",
           border: "1px solid",
-          borderColor: "gray.200",
-          bg: "white",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          transition: "all 0.2s ease-in-out",
+          borderColor: "rgba(255, 255, 255, 0.2)",
+          bg: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(20px)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          position: "relative",
+          overflow: "hidden",
           _hover: {
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            transform: "translateY(-2px)",
+            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+            transform: "translateY(-4px) scale(1.02)",
+            borderColor: "rgba(59, 23, 79, 0.2)",
+          },
+          _before: {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(59, 23, 79, 0.02)",
+            pointerEvents: "none",
+            zIndex: 0,
           },
         },
       },
       variants: {
         elevated: {
           container: {
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+            bg: "rgba(255, 255, 255, 0.98)",
+          },
+        },
+        glass: {
+          container: {
+            bg: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+          },
+        },
+        gradient: {
+          container: {
+            bg: "#ffffff",
+            border: "1px solid rgba(59, 23, 79, 0.1)",
+            boxShadow: "0 8px 25px rgba(59, 23, 79, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
           },
         },
       },
@@ -215,12 +278,28 @@ export const theme = extendTheme({
   styles: {
     global: {
       body: {
-        bg: "gray.50",
+        bg: "linear-gradient(135deg, #F2F2F7 0%, #E5E7EB 50%, #F9FAFB 100%)",
+        backgroundAttachment: "fixed",
         color: "text.primary",
         fontFamily: "body",
+        minHeight: "100vh",
       },
       "*": {
-        borderColor: "gray.200",
+        borderColor: "rgba(255, 255, 255, 0.2)",
+      },
+      "::-webkit-scrollbar": {
+        width: "8px",
+      },
+      "::-webkit-scrollbar-track": {
+        background: "rgba(0, 0, 0, 0.1)",
+        borderRadius: "10px",
+      },
+      "::-webkit-scrollbar-thumb": {
+        background: "#3B174F",
+        borderRadius: "10px",
+      },
+      "::-webkit-scrollbar-thumb:hover": {
+        background: "#6B2A8F",
       },
     },
   },

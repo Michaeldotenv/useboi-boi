@@ -5,14 +5,16 @@ import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { getAuthToken } from "@/lib/auth";
-import { Box, Heading, Text, VStack, HStack, Badge, Input, InputGroup, InputLeftElement, Flex, Button, Icon, Image } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack, HStack, Badge, Input, InputGroup, InputLeftElement, Flex, Button, Icon, Image, useToast } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { FaBell, FaArrowLeft } from "react-icons/fa";
 import { FiStar, FiShoppingCart } from "react-icons/fi";
+import { useCartStore } from "@/lib/cartStore";
 
 export default function StoreItemsPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const toast = useToast();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   
@@ -286,7 +288,7 @@ export default function StoreItemsPage() {
 
                     <HStack justify="space-between" pt={1}>
                       <VStack align="start" spacing={0}>
-                        <Text fontWeight={900} color="#7C3AED" fontSize="lg" lineHeight={1}>
+                        <Text fontWeight={900} color="#3B174F" fontSize="lg" lineHeight={1}>
                           {formatCurrency(it.price)}
                         </Text>
                         <Text fontSize="xs" color="#9CA3AF" textDecoration="line-through">
@@ -295,7 +297,7 @@ export default function StoreItemsPage() {
                       </VStack>
                       <Button
                         size="sm"
-                        bg="linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)"
+                        bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
                         color="white"
                         borderRadius="12px"
                         px={4}
@@ -304,11 +306,27 @@ export default function StoreItemsPage() {
                         fontWeight={700}
                         fontSize="sm"
                         _hover={{
-                          bg: "linear-gradient(135deg, #6D28D9 0%, #DB2777 100%)",
+                          bg: "linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)",
                           transform: "translateY(-1px)",
                           boxShadow: "0 8px 20px rgba(124, 58, 237, 0.3)"
                         }}
                         transition="all 0.2s ease"
+                        onClick={async () => {
+                          try {
+                            const vendorId = (params?.id as string) || "";
+                            await useCartStore.getState().addItem({
+                              id: it._id || it.id,
+                              vendorId: vendorId,
+                              name: it.name || it.title || 'Item',
+                              price: Number(it.price || 0),
+                              image: it.image || it.coverImage,
+                            }, 1);
+                            toast({ title: 'Added to cart', description: (it.name || 'Item') + ' added', status: 'success', duration: 1500 });
+                          } catch (error) {
+                            console.error('Failed to add to cart:', error);
+                            toast({ title: 'Failed to add to cart', description: 'Please try again', status: 'error', duration: 2000 });
+                          }
+                        }}
                       >
                         Add to Cart
                       </Button>

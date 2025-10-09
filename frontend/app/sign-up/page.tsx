@@ -889,7 +889,7 @@ function SignUp() {
         left="-10%"
         w={isMobile ? "250px" : "350px"}
         h={isMobile ? "250px" : "350px"}
-        bg="purple.400"
+        bg="brand.primaryLight"
         borderRadius="full"
         opacity={0.06}
         filter="blur(40px)"

@@ -28,8 +28,12 @@ import Wrapper from "../components/Wrapper";
 import Card from "../components/Card";
 import Navigation from "../components/Navigation";
 import { useState } from "react";
+import { useCartStore } from "@/lib/cartStore";
+import { useRouter } from "next/navigation";
 
 function AddToCart() {
+  const cart = useCartStore();
+  const router = useRouter();
   const [value, setValue] = useState(1);
   const [selectedSize, setSelectedSize] = useState("8");
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
@@ -341,14 +345,23 @@ function AddToCart() {
               </Text>
             </VStack>
             
-            <Button
+          <Button
               variant="primary"
               size="lg"
               px={12}
               py={6}
               fontSize="lg"
               fontWeight="700"
-              onClick={() => window.location.href = "/cart"}
+            onClick={() => {
+              cart.addItem({
+                id: "demo-item",
+                vendorId: "demo-vendor",
+                name: "Demo Item",
+                price: getTotalPrice(),
+                image: "/Food-item-1.jpeg",
+              }, value);
+              router.push('/cart');
+            }}
               rightIcon={<AddIcon />}
             >
               Add to Cart
