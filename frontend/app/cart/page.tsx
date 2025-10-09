@@ -173,7 +173,7 @@ const CartWithBadge = () => {
     }
   };
 
-  return (
+   return (
    <Box 
      minH="100vh" 
      bg="linear-gradient(135deg, #F2F2F7 0%, #E5E7EB 50%, #F9FAFB 100%)"
@@ -195,28 +195,39 @@ const CartWithBadge = () => {
      }}
    >
      <Wrapper>
-       <Box my={"3em"} position="relative" zIndex={1}>
-          <Flex gap={"5"} alignItems="center">
+       <Box my={{ base: "2em", md: "3em" }} position="relative" zIndex={1}>
+          <Flex gap={{ base: 3, md: 5 }} alignItems="center" mb={6}>
              <Box
-               p={2}
-               borderRadius="12px"
-               bg="rgba(255, 255, 255, 0.8)"
+               p={{ base: 2, md: 3 }}
+               borderRadius={{ base: "10px", md: "12px" }}
+               bg="rgba(255, 255, 255, 0.9)"
                backdropFilter="blur(10px)"
                border="1px solid rgba(255, 255, 255, 0.2)"
                cursor="pointer"
                transition="all 0.3s ease"
                _hover={{
-                 bg: "rgba(255, 255, 255, 0.9)",
+                 bg: "rgba(255, 255, 255, 1)",
                  transform: "translateX(-2px)",
-                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
                }}
                onClick={() => location.replace("/add-to-cart")}
              >
-               <ArrowBackIcon width={"20px"} height={"20px"} color={"#3B174F"}/>
+               <ArrowBackIcon width={{ base: "18px", md: "20px" }} height={{ base: "18px", md: "20px" }} color={"#3B174F"}/>
              </Box>
-             <Text fontSize={"24px"} fontWeight={"800"} bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
-               Shopping Cart
-             </Text>
+             <VStack align="start" spacing={0} flex={1}>
+               <Text 
+                 fontSize={{ base: "20px", md: "24px" }} 
+                 fontWeight={"800"} 
+                 bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" 
+                 bgClip="text" 
+                 color="transparent"
+               >
+                 Shopping Cart
+               </Text>
+               <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600">
+                 Review your items & checkout
+               </Text>
+             </VStack>
           </Flex>
        </Box>
 
@@ -231,25 +242,25 @@ const CartWithBadge = () => {
           <Box
             bg="rgba(255, 255, 255, 0.9)"
             backdropFilter="blur(20px)"
-            borderRadius="20px"
-            p={4}
+            borderRadius={{ base: "16px", md: "20px" }}
+            p={{ base: 3, md: 4 }}
             border="1px solid rgba(255, 255, 255, 0.2)"
             boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
-            mb={4}
+            mb={{ base: 3, md: 4 }}
             transition="all 0.3s ease"
             _hover={{
               transform: "translateY(-2px)",
               boxShadow: "0 12px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
             }}
           >
-            <Flex gap={4} alignItems="center">
+            <Flex gap={{ base: 3, md: 4 }} alignItems="center" direction={{ base: "row", md: "row" }}>
               <Box position="relative">
                 <Image 
                   src={it.image || "/food-carousel.png"} 
                   alt={it.name} 
-                  width={"70px"} 
-                  height={"70px"} 
-                  borderRadius={"16px"}
+                  width={{ base: "60px", md: "70px" }} 
+                  height={{ base: "60px", md: "70px" }} 
+                  borderRadius={{ base: "12px", md: "16px" }}
                   objectFit="cover"
                 />
                 <Badge 
@@ -259,12 +270,12 @@ const CartWithBadge = () => {
                   bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
                   color="white" 
                   borderRadius="50%" 
-                  fontSize="11px" 
+                  fontSize={{ base: "10px", md: "11px" }} 
                   fontWeight="700"
-                  px={2} 
+                  px={{ base: 1.5, md: 2 }} 
                   py={1}
-                  minW="20px"
-                  height="20px"
+                  minW={{ base: "18px", md: "20px" }}
+                  height={{ base: "18px", md: "20px" }}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
@@ -276,48 +287,52 @@ const CartWithBadge = () => {
               </Box>
               
               <Box flex={1}>
-                <Text fontSize="18px" fontWeight="700" mb={1} noOfLines={1} color="#1A1A1A">
+                <Text fontSize={{ base: "15px", md: "18px" }} fontWeight="700" mb={1} noOfLines={1} color="#1A1A1A">
                   {it.name}
                 </Text>
-                <Text fontSize="14px" color="#6B7280" mb={3}>₦{it.price.toLocaleString()} each</Text>
-                <HStack spacing={3}>
+                <Text fontSize={{ base: "12px", md: "14px" }} color="#6B7280" mb={{ base: 2, md: 3 }}>
+                  ₦{it.price.toLocaleString()} each
+                </Text>
+                <HStack spacing={{ base: 2, md: 3 }}>
                   <Button 
-                    size="sm" 
-                    borderRadius="12px"
+                    size={{ base: "xs", md: "sm" }} 
+                    borderRadius={{ base: "10px", md: "12px" }}
                     bg="rgba(59, 23, 79, 0.1)"
                     color="#3B174F"
                     _hover={{ bg: "rgba(59, 23, 79, 0.2)" }}
                     onClick={async () => await decrement(it.id)}
-                    minW="32px"
-                    height="32px"
+                    minW={{ base: "28px", md: "32px" }}
+                    height={{ base: "28px", md: "32px" }}
                   >
                     -
                   </Button>
-                  <Text fontWeight="600" fontSize="16px" color="#1A1A1A">{it.quantity}</Text>
+                  <Text fontWeight="600" fontSize={{ base: "14px", md: "16px" }} color="#1A1A1A" minW={{ base: "20px", md: "24px" }} textAlign="center">
+                    {it.quantity}
+                  </Text>
                   <Button 
-                    size="sm" 
-                    borderRadius="12px"
+                    size={{ base: "xs", md: "sm" }} 
+                    borderRadius={{ base: "10px", md: "12px" }}
                     bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
                     color="white"
                     _hover={{ transform: "scale(1.05)" }}
                     onClick={async () => await increment(it.id)}
-                    minW="32px"
-                    height="32px"
+                    minW={{ base: "28px", md: "32px" }}
+                    height={{ base: "28px", md: "32px" }}
                   >
                     +
                   </Button>
                 </HStack>
               </Box>
               
-              <VStack align="end" spacing={2}>
-                <Text fontSize="18px" fontWeight="800" color="#1A1A1A">
+              <VStack align="end" spacing={{ base: 1, md: 2 }}>
+                <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="800" color="#1A1A1A">
                   ₦{(it.price * it.quantity).toLocaleString()}
                 </Text>
                 <IconButton 
                   aria-label="remove" 
                   icon={<SmallCloseIcon />} 
-                  size="sm" 
-                  borderRadius="12px"
+                  size={{ base: "xs", md: "sm" }} 
+                  borderRadius={{ base: "10px", md: "12px" }}
                   bg="rgba(239, 68, 68, 0.1)"
                   color="#EF4444"
                   _hover={{ bg: "rgba(239, 68, 68, 0.2)" }}

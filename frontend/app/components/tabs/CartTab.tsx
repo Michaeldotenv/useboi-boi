@@ -99,25 +99,42 @@ const CartTab: React.FC = () => {
     }
   };
 
+  // Calculate totals
+  const deliveryFee = 500;
+  const serviceCharge = Math.round(total * 0.05);
+  const vat = Math.round((total + deliveryFee + serviceCharge) * 0.075);
+  const grandTotal = total + deliveryFee + serviceCharge + vat - couponDiscount;
+
   // Show empty state if no items
   if (items.length === 0) {
     return (
       <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={4}>
-            <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="700" color="#000" mb={6} mt={4}>
-              Shopping Cart
-            </Text>
+            <Flex justify="space-between" align="center" mb={6} mt={4}>
+              <HStack spacing={3}>
+                <Box
+                  p={3}
+                  borderRadius="16px"
+                  bg="rgba(255, 255, 255, 0.9)"
+                  backdropFilter="blur(10px)"
+                  border="1px solid rgba(255, 255, 255, 0.2)"
+                  boxShadow="0 4px 12px rgba(59, 23, 79, 0.1)"
+                >
+                  <FaShoppingCart color="#3B174F" size="24px" />
+                </Box>
+                <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="800" bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
+                  Shopping Cart
+                </Text>
+              </HStack>
+            </Flex>
             
             <EmptyState
               iconType="cart"
               title="Your cart is empty"
               description="Add some items from stores to get started with your order!"
               actionText="Start Shopping"
-              onAction={() => {
-                // Navigate to explore tab
-                window.location.reload();
-              }}
+              onAction={() => window.location.reload()}
               variant="illustrated"
             />
           </Box>
@@ -151,21 +168,38 @@ const CartTab: React.FC = () => {
     >
       <Wrapper>
         <Box py={4} position="relative" zIndex={1}>
-          <HStack spacing={3} mb={6}>
-            <Box
-              p={3}
-              borderRadius="16px"
-              bg="rgba(255, 255, 255, 0.8)"
-              backdropFilter="blur(10px)"
-              border="1px solid rgba(255, 255, 255, 0.2)"
-              boxShadow="0 4px 12px rgba(59, 23, 79, 0.1)"
+          <Flex justify="space-between" align="center" mb={6} mt={4}>
+            <HStack spacing={3}>
+              <Box
+                p={3}
+                borderRadius="16px"
+                bg="rgba(255, 255, 255, 0.9)"
+                backdropFilter="blur(10px)"
+                border="1px solid rgba(255, 255, 255, 0.2)"
+                boxShadow="0 4px 12px rgba(59, 23, 79, 0.1)"
+              >
+                <FaShoppingCart color="#3B174F" size="24px" />
+              </Box>
+              <VStack align="start" spacing={0}>
+                <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="800" bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
+                  Shopping Cart
+                </Text>
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600">
+                  {items.length} {items.length === 1 ? 'item' : 'items'}
+                </Text>
+              </VStack>
+            </HStack>
+            <Badge
+              bg="brand.primary"
+              color="white"
+              fontSize={{ base: "xs", md: "sm" }}
+              px={{ base: 2, md: 3 }}
+              py={1}
+              borderRadius="full"
             >
-              <FaShoppingCart color="#3B174F" size="24px" />
-            </Box>
-            <Text fontSize={{ base: "24px", md: "28px" }} fontWeight="800" bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
-              Shopping Cart
-            </Text>
-          </HStack>
+              ₦{total.toLocaleString()}
+            </Badge>
+          </Flex>
 
           <VStack spacing={6} align="stretch">
             {/* Cart Items */}

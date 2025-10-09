@@ -48,24 +48,44 @@ export default function AboutUs() {
       <Navigation />
 
       {/* Hero Section */}
-      <Box bg="brand.primary" py={20} color="white">
+      <Box 
+        bg="brand.primary" 
+        py={{ base: 12, md: 20 }} 
+        color="white"
+        position="relative"
+        overflow="hidden"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)
+          `,
+          pointerEvents: "none",
+        }}
+      >
         <Wrapper variant="section">
-          <VStack spacing={8} align="center" textAlign="center">
-            <Badge colorScheme="white" variant="solid" px={4} py={2} borderRadius="full">
+          <VStack spacing={{ base: 6, md: 8 }} align="center" textAlign="center" position="relative" zIndex={1}>
+            <Badge colorScheme="white" variant="solid" px={{ base: 3, md: 4 }} py={{ base: 1.5, md: 2 }} borderRadius="full" fontSize={{ base: "sm", md: "md" }}>
               Our Story
             </Badge>
             <Text
-              fontSize={{ base: "3xl", md: "5xl", lg: "6xl" }}
+              fontSize={{ base: "2xl", sm: "3xl", md: "5xl", lg: "6xl" }}
               fontWeight="900"
               lineHeight="1.2"
             >
               <chakra.span color="white">BOIBOI's</chakra.span> STORY
             </Text>
             <Text
-              fontSize={{ base: "lg", md: "xl" }}
+              fontSize={{ base: "md", md: "lg", lg: "xl" }}
               maxW="3xl"
-              opacity={0.9}
+              opacity={0.95}
               lineHeight="1.6"
+              px={{ base: 4, md: 0 }}
             >
               Transforming campus life through efficient, sustainable, and technology-driven errand services
             </Text>
@@ -74,52 +94,58 @@ export default function AboutUs() {
       </Box>
 
       {/* CEO Section */}
-      <Box py={20} bg="gray.50">
+      <Box py={{ base: 12, md: 20 }} bg="gray.50">
         <Wrapper variant="section">
           <Flex
             direction={{ base: "column", lg: "row" }}
-            gap={12}
+            gap={{ base: 8, md: 12 }}
             align="center"
           >
-            <Card variant="elevated" p={0} overflow="hidden" maxW="400px">
+            <Card 
+              variant="elevated" 
+              p={0} 
+              overflow="hidden" 
+              maxW={{ base: "100%", md: "400px" }}
+              w={{ base: "100%", md: "auto" }}
+            >
               <Image
                 src="/ore_.jpg"
                 alt="CEO Idowu Oreoluwa"
                 width="100%"
-                height="500px"
+                height={{ base: "300px", md: "500px" }}
                 objectFit="cover"
               />
-              <Box p={6}>
-                <Text fontSize="2xl" fontWeight="900" color="text.primary" mb={2}>
+              <Box p={{ base: 4, md: 6 }}>
+                <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="900" color="text.primary" mb={2}>
                   Idowu Oreoluwa
                 </Text>
-                <Text fontSize="lg" fontWeight="500" color="brand.primary">
+                <Text fontSize={{ base: "md", md: "lg" }} fontWeight="500" color="brand.primary">
                   CEO, Boiboi Technologies
                 </Text>
               </Box>
             </Card>
 
-            <VStack spacing={6} align="start" flex={1} maxW="2xl">
-              <Text fontSize="xl" lineHeight="1.8" color="text.primary">
-                <chakra.span fontSize="3xl" fontWeight="700" color="brand.primary">
+            <VStack spacing={{ base: 4, md: 6 }} align="start" flex={1} maxW="2xl">
+              <Text fontSize={{ base: "md", md: "xl" }} lineHeight="1.8" color="text.primary">
+                <chakra.span fontSize={{ base: "2xl", md: "3xl" }} fontWeight="700" color="brand.primary">
                   There
                 </chakra.span>{" "}
                 is a growing demand for convenience, which is predicated on the need to achieve efficiency and maximum productivity. Errands and logistics services are needed on campuses as they help students balance their growing and busy schedules, alongside the demand for convenience, saving them time and effort while affording them reduced stress and increased productivity.
               </Text>
 
-              <Text fontSize="lg" lineHeight="1.8" color="text.secondary">
+              <Text fontSize={{ base: "sm", md: "lg" }} lineHeight="1.8" color="text.secondary">
                 Also, with the current rise in the trend of the emergence of student entrepreneurs. Logistics seems to be the bane of this, and so logistic solutions help them scale and grow as their operational costs get reduced.
               </Text>
 
-              <Card bg="brand.primary" color="white" p={6}>
-                <VStack spacing={4} align="start">
-                  <Text fontSize="lg" fontWeight="700">
+              <Card bg="brand.primary" color="white" p={{ base: 4, md: 6 }} w="100%">
+                <VStack spacing={{ base: 3, md: 4 }} align="start">
+                  <Text fontSize={{ base: "md", md: "lg" }} fontWeight="700">
                     Our Key Differentiators:
                   </Text>
-                  <VStack spacing={2} align="start">
-                    <Text>• Flexible, student-friendly scheduling</Text>
-                    <Text>• Campus-specific expertise and student-focused services</Text>
-                    <Text>• Customized errand services</Text>
+                  <VStack spacing={{ base: 1.5, md: 2 }} align="start">
+                    <Text fontSize={{ base: "sm", md: "md" }}>• Flexible, student-friendly scheduling</Text>
+                    <Text fontSize={{ base: "sm", md: "md" }}>• Campus-specific expertise and student-focused services</Text>
+                    <Text fontSize={{ base: "sm", md: "md" }}>• Customized errand services</Text>
                   </VStack>
                 </VStack>
               </Card>
@@ -129,48 +155,49 @@ export default function AboutUs() {
       </Box>
 
       {/* Vision & Mission */}
-      <Box py={20}>
+      <Box py={{ base: 12, md: 20 }}>
         <Wrapper variant="section">
-          <VStack spacing={12} align="center">
+          <VStack spacing={{ base: 8, md: 12 }} align="center">
             <Text
-              fontSize={{ base: "3xl", md: "4xl" }}
+              fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
               fontWeight="900"
               textAlign="center"
               color="text.primary"
+              px={{ base: 4, md: 0 }}
             >
               Our Vision & Mission
             </Text>
 
             <Flex
               direction={{ base: "column", md: "row" }}
-              gap={8}
+              gap={{ base: 6, md: 8 }}
               w="100%"
             >
               <Card variant="elevated" flex={1} textAlign="center">
-                <VStack spacing={4}>
+                <VStack spacing={{ base: 3, md: 4 }}>
                   <Text
-                    fontSize="2xl"
+                    fontSize={{ base: "xl", md: "2xl" }}
                     fontWeight="700"
                     color="brand.primary"
                   >
                     Our Vision
                   </Text>
-                  <Text fontSize="lg" lineHeight="1.7" color="text.secondary">
+                  <Text fontSize={{ base: "sm", md: "lg" }} lineHeight="1.7" color="text.secondary">
                     To create a service-based company whose primary goal is to exceed customers' expectations by transforming their campus life through efficient, sustainable, and technology-driven errand services.
                   </Text>
                 </VStack>
               </Card>
 
               <Card variant="elevated" flex={1} textAlign="center">
-                <VStack spacing={4}>
+                <VStack spacing={{ base: 3, md: 4 }}>
                   <Text
-                    fontSize="2xl"
+                    fontSize={{ base: "xl", md: "2xl" }}
                     fontWeight="700"
                     color="brand.primary"
                   >
                     Our Mission
                   </Text>
-                  <Text fontSize="lg" lineHeight="1.7" color="text.secondary">
+                  <Text fontSize={{ base: "sm", md: "lg" }} lineHeight="1.7" color="text.secondary">
                     To deliver exceptional value to students, faculty, and staff. Also to ease distribution and transportation of goods of campus-based and student-led SMEs within the shortest period as we provide them with an environmentally friendly and expedient delivery service, therefore affording them the opportunity for growth and scalability.
                   </Text>
                 </VStack>
@@ -181,25 +208,26 @@ export default function AboutUs() {
       </Box>
 
       {/* Core Values */}
-      <Box py={20} bg="gray.50">
+      <Box py={{ base: 12, md: 20 }} bg="gray.50">
         <Wrapper variant="section">
-          <VStack spacing={12} align="center">
-            <VStack spacing={4} align="center" textAlign="center">
+          <VStack spacing={{ base: 8, md: 12 }} align="center">
+            <VStack spacing={{ base: 3, md: 4 }} align="center" textAlign="center">
               <Text
-                fontSize={{ base: "3xl", md: "4xl" }}
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
                 fontWeight="900"
                 color="text.primary"
+                px={{ base: 4, md: 0 }}
               >
                 <chakra.span color="brand.primary">Our Core</chakra.span> Values
               </Text>
-              <Text fontSize="lg" color="text.secondary" maxW="2xl">
+              <Text fontSize={{ base: "sm", md: "lg" }} color="text.secondary" maxW="2xl" px={{ base: 4, md: 0 }}>
                 What makes us special and drives everything we do
               </Text>
             </VStack>
 
             <Flex
               direction={{ base: "column", lg: "row" }}
-              gap={8}
+              gap={{ base: 6, md: 8 }}
               w="100%"
             >
               {[
@@ -220,17 +248,17 @@ export default function AboutUs() {
                 }
               ].map((value, index) => (
                 <Card key={index} variant="elevated" flex={1} textAlign="center">
-                  <VStack spacing={6}>
-                    <Text fontSize="4xl">{value.icon}</Text>
+                  <VStack spacing={{ base: 4, md: 6 }}>
+                    <Text fontSize={{ base: "3xl", md: "4xl" }}>{value.icon}</Text>
                     <Text
-                      fontSize="xl"
+                      fontSize={{ base: "lg", md: "xl" }}
                       fontWeight="700"
                       color="brand.primary"
                     >
                       {value.title}
                     </Text>
                     <Text
-                      fontSize="md"
+                      fontSize={{ base: "sm", md: "md" }}
                       lineHeight="1.7"
                       color="text.secondary"
                     >
@@ -245,18 +273,19 @@ export default function AboutUs() {
       </Box>
 
       {/* FAQs Section */}
-      <Box py={20} id="FAQs">
+      <Box py={{ base: 12, md: 20 }} id="FAQs">
         <Wrapper variant="section">
-          <VStack spacing={12} align="center">
-            <VStack spacing={4} align="center" textAlign="center">
+          <VStack spacing={{ base: 8, md: 12 }} align="center">
+            <VStack spacing={{ base: 3, md: 4 }} align="center" textAlign="center">
               <Text
-                fontSize={{ base: "3xl", md: "4xl" }}
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
                 fontWeight="900"
                 color="text.primary"
+                px={{ base: 4, md: 0 }}
               >
                 Frequently Asked Questions
               </Text>
-              <Text fontSize="lg" color="text.secondary" maxW="2xl">
+              <Text fontSize={{ base: "sm", md: "lg" }} color="text.secondary" maxW="2xl" px={{ base: 4, md: 0 }}>
                 Got questions? We've got answers! Here are some common questions about our services.
               </Text>
             </VStack>
@@ -306,13 +335,13 @@ export default function AboutUs() {
                     <>
                       <AccordionButton
                         _hover={{ bg: "gray.50" }}
-                        py={6}
-                        px={6}
+                        py={{ base: 4, md: 6 }}
+                        px={{ base: 4, md: 6 }}
                         borderRadius="12px"
                       >
                         <Box as="span" flex="1" textAlign="left">
                           <Text
-                            fontSize={{ base: "md", md: "lg" }}
+                            fontSize={{ base: "sm", md: "md", lg: "lg" }}
                             fontWeight="700"
                             color="text.primary"
                           >
@@ -321,21 +350,21 @@ export default function AboutUs() {
                         </Box>
                         {isExpanded ? (
                           <MinusIcon
-                            fontSize={{ base: "16px", md: "18px" }}
+                            fontSize={{ base: "14px", md: "16px", lg: "18px" }}
                             color="brand.primary"
                           />
                         ) : (
                           <AddIcon
-                            fontSize={{ base: "16px", md: "18px" }}
+                            fontSize={{ base: "14px", md: "16px", lg: "18px" }}
                             color="brand.primary"
                           />
                         )}
                       </AccordionButton>
                       <AccordionPanel
-                        pb={6}
-                        px={6}
+                        pb={{ base: 4, md: 6 }}
+                        px={{ base: 4, md: 6 }}
                         color="text.secondary"
-                        fontSize="md"
+                        fontSize={{ base: "sm", md: "md" }}
                         lineHeight="1.6"
                       >
                         {faq.answer}
