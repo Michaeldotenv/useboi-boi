@@ -174,7 +174,7 @@ function Login() {
         left="-10%"
         w={isMobile ? "200px" : "300px"}
         h={isMobile ? "200px" : "300px"}
-        bg="purple.400"
+        bg="brand.primaryLight"
         borderRadius="full"
         opacity={0.06}
         filter="blur(40px)"

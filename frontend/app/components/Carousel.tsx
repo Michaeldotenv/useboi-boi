@@ -173,7 +173,9 @@ export default function Carousel({
                         position="absolute"
                         top={2}
                         left={2}
-                        colorScheme="purple"
+                        bg="brand.primary"
+                        color="white"
+                        _hover={{ bg: "brand.primaryDark" }}
                         fontSize="xs"
                         px={2}
                         py={1}

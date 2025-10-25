@@ -36,8 +36,27 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(text || `Request failed with ${res.status}`);
+    let errorMessage = `Request failed with ${res.status}`;
+    try {
+      const errorData = await res.json();
+      // Handle different error response formats
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (typeof errorData === 'string') {
+        errorMessage = errorData;
+      }
+    } catch {
+      // If JSON parsing fails, try text
+      try {
+        const text = await res.text();
+        if (text) errorMessage = text;
+      } catch {
+        // Use default error message
+      }
+    }
+    throw new Error(errorMessage);
   }
 
   const contentType = res.headers.get("content-type") || "";
@@ -63,12 +82,51 @@ export const api = {
   createSupportTicket: (body: { subject: string; message: string }) => apiFetch(`/api/support/tickets`, { method: "POST", body }),
   mySupportTickets: () => apiFetch(`/api/support/tickets`),
   cartItems: (id: string) => apiFetch(`/api/carts/${id}/items`),
+  addCartItem: (cartId: string, body: any) => apiFetch(`/api/carts/${cartId}/items`, { method: "POST", body }),
+  updateCartItem: (cartId: string, itemId: string, body: any) => apiFetch(`/api/carts/${cartId}/items/${itemId}`, { method: "PATCH", body }),
+  deleteCartItem: (cartId: string, itemId: string) => apiFetch(`/api/carts/${cartId}/items/${itemId}`, { method: "DELETE" }),
   checkout: (body: any) => apiFetch(`/api/orders/checkout`, { method: "POST", body }),
   initTopup: (body: any) => apiFetch(`/api/wallet/initializeTransaction`, { method: "POST", body }),
   registerDevice: (token: string) => apiFetch(`/api/notifications/registerDevice`, { method: "POST", body: { token } }),
   updateUser: (id: string, body: any) => apiFetch(`/api/user/${id}`, { method: "PATCH", body }),
   searchItems: (query: string) => apiFetch(`/api/items/search?q=${encodeURIComponent(query)}`),
   allVendorsWithItems: () => apiFetch(`/api/vendors/with-items`),
+  
+  // Enhanced Cart Management
+  createCart: (body: { storeId: string }) => apiFetch(`/api/carts`, { method: "POST", body }),
+  getCart: (userId: string) => apiFetch(`/api/carts/user/${userId}`),
+  
+  // Payment & Wallet
+  createBankAccount: () => apiFetch(`/api/createBankAccount`, { method: "POST" }),
+  walletWithdrawals: (body: any) => apiFetch(`/api/wallet/withdrawals`, { method: "POST", body }),
+  getWalletTransactions: () => apiFetch(`/api/user/wallet/transactions`),
+  getPendingWithdrawals: () => apiFetch(`/api/user/wallet/withdrawalRequests`),
+  
+  // Enhanced Order Management
+  completeOrder: (id: string) => apiFetch(`/api/orders/${id}/complete`, { method: "POST" }),
+  cancelOrder: (id: string) => apiFetch(`/api/orders/${id}/cancel`, { method: "PATCH" }),
+  updateOrderProgress: (id: string, body: any) => apiFetch(`/api/orders/${id}/orderProgress`, { method: "PATCH", body }),
+  
+  // Coupons & Discounts
+  getCoupons: () => apiFetch(`/api/coupons`),
+  
+  // Notifications
+  registerDeviceToken: (body: { token: string; type: string }) => apiFetch(`/api/notifications/registerDevice`, { method: "POST", body }),
+  
+  // Card Management
+  getCardAuthorizationUrl: (email: string, callbackUrl: string) => apiFetch(`/api/payment/cards/authorization`, { 
+    method: "POST", 
+    body: {
+      email,
+      amount: "10000", // ₦100 for card verification (in kobo)
+      callback_url: callbackUrl,
+      channels: ["card"],
+      metadata: {
+        purpose: "card_verification"
+      }
+    }
+  }),
+  verifyCardAndAdd: (reference: string) => apiFetch(`/api/payment/cards/verify/${reference}`),
 };
 
 

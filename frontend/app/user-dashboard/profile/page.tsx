@@ -147,6 +147,41 @@ export default function ProfilePage() {
           </Card>
         </ScaleFade>
         
+        {/* Payment Cards Section */}
+        <ScaleFade in={isLoaded} initialScale={0.95} transition={{ enter: { duration: 0.5, delay: 0.35 } }}>
+          <Card 
+            p={5}
+            transition="all 0.3s ease"
+            _hover={{
+              transform: "translateY(-4px)",
+              boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)"
+            }}
+          >
+            <VStack align="stretch" spacing={3}>
+              <Heading size="sm" color="text.primary">Payment Methods</Heading>
+              <Text color="text.secondary" fontSize="sm">
+                {me.cards && me.cards.length > 0 
+                  ? `You have ${me.cards.length} saved card${me.cards.length > 1 ? 's' : ''}`
+                  : "No saved cards yet"}
+              </Text>
+              <CButton
+                bg="brand.primary"
+                color="white"
+                _hover={{
+                  bg: "brand.primaryDark",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 8px 16px rgba(59, 23, 79, 0.3)"
+                }}
+                onClick={() => router.push("/user-dashboard/profile/cards")}
+                w="fit-content"
+                transition="all 0.2s ease"
+              >
+                Manage Cards
+              </CButton>
+            </VStack>
+          </Card>
+        </ScaleFade>
+        
         <SlideFade in={isLoaded} offsetY="20px" transition={{ enter: { duration: 0.5, delay: 0.4 } }}>
           <CButton 
             colorScheme="red" 

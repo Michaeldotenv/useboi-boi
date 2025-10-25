@@ -52,7 +52,7 @@ export default function StoreDetailsPage() {
   return (
     <Box bg="#F2F2F7" minH="100vh">
       {/* Header */}
-      <Box bg="#6C3FE8" w="100%" py={3}>
+      <Box bg="#3B174F" w="100%" py={3}>
         <Wrapper>
           <Flex justifyContent="space-between" alignItems="center">
             <HStack spacing={3}>
@@ -92,20 +92,20 @@ export default function StoreDetailsPage() {
                 </Text>
               </HStack>
               <HStack spacing={1}>
-                <Icon as={FiMapPin} color="#6C3FE8" boxSize={4} />
+                <Icon as={FiMapPin} color="#3B174F" boxSize={4} />
                 <Text fontSize="13px" color="#8E8E93">
                   {(v.distance || "0.6") + "km"} away
                 </Text>
               </HStack>
               <HStack spacing={1}>
-                <Icon as={FiClock} color="#6C3FE8" boxSize={4} />
+                <Icon as={FiClock} color="#3B174F" boxSize={4} />
                 <Text fontSize="13px" color="#8E8E93">25-35 min</Text>
               </HStack>
             </HStack>
 
             <HStack spacing={2}>
               <Badge colorScheme="green" fontSize="10px" px={2} py={0.5} borderRadius="full">Open Now</Badge>
-              <Badge colorScheme="purple" fontSize="10px" px={2} py={0.5} borderRadius="full">Fast Delivery</Badge>
+              <Badge bg="rgba(107, 42, 143, 0.15)" color="brand.primary" fontSize="10px" px={2} py={0.5} borderRadius="full">Fast Delivery</Badge>
             </HStack>
           </Box>
 
@@ -122,7 +122,7 @@ export default function StoreDetailsPage() {
             as={NextLink} 
             href={`/user-dashboard/stores/${params.id}/items`} 
             w="full"
-            bg="#6C3FE8" 
+            bg="#3B174F" 
             color="#fff" 
             borderRadius="12px" 
             h="48px"
