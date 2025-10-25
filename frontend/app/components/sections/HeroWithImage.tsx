@@ -182,7 +182,7 @@ export default function HeroWithImage() {
                     <VStack spacing={3} w="full" maxW="480px">
                       <MotionButton
                         as="a"
-                        href="#"
+                        // href="#"
                         size="lg"
                         w="full"
                         bg="purple.600"
@@ -208,7 +208,7 @@ export default function HeroWithImage() {
 
                       <MotionButton
                         as="a"
-                        href="#"
+                        // href="#"
                         size="lg"
                         w="full"
                         variant="outline"
@@ -220,7 +220,7 @@ export default function HeroWithImage() {
                         fontWeight="700"
                         whileHover={{ 
                           scale: 1.02,
-                          bg: "purple.50"
+                          // bg: "purple.50"
                         }}
                         whileTap={{ scale: 0.98 }}
                       >
