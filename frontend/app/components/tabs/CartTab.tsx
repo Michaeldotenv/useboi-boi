@@ -94,9 +94,12 @@ const CartTab: React.FC = () => {
 
       // Persist last order code/id for immediate visibility after redirect
       try {
-        localStorage.setItem("boiboi_last_order_code", String(createdOrder?.code || orderCode));
-        if (createdOrder?._id || createdOrder?.id) {
-          localStorage.setItem("boiboi_last_order_id", String(createdOrder._id || createdOrder.id));
+        const idForStore = String(createdOrder?._id || createdOrder?.id || "");
+        const codeForStore = String(createdOrder?.code || orderCode);
+        localStorage.setItem("boiboi_last_order_code", codeForStore);
+        if (idForStore) {
+          localStorage.setItem("boiboi_last_order_id", idForStore);
+          localStorage.setItem(`boiboi_order_code_${idForStore}`, codeForStore);
         }
       } catch {}
 

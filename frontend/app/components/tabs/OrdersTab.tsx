@@ -218,9 +218,12 @@ const OrdersTab: React.FC = () => {
     const couponPrice = order.couponPrice || 0;
     
     // Get order completion code (fallback to local storage if API gives 0)
-    const storedCode = (typeof window !== 'undefined' ? localStorage.getItem('boiboi_last_order_code') : null) || '';
+    const storedSpecific = (typeof window !== 'undefined' && orderId ? localStorage.getItem(`boiboi_order_code_${orderId}`) : null) || '';
+    const storedRecent = (typeof window !== 'undefined' ? localStorage.getItem('boiboi_last_order_code') : null) || '';
     const apiCode = order.code;
-    const orderCode = (apiCode && String(apiCode) !== '0' ? String(apiCode) : (storedCode && storedCode !== '0' ? storedCode : null));
+    const orderCode = (apiCode && String(apiCode).trim() !== '' && String(apiCode) !== '0'
+      ? String(apiCode)
+      : (storedSpecific && storedSpecific !== '0' ? storedSpecific : (storedRecent && storedRecent !== '0' ? storedRecent : null)));
 
     return (
       <MotionBox
