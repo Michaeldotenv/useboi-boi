@@ -217,8 +217,10 @@ const OrdersTab: React.FC = () => {
     const serviceCharge = order.serviceCharge || 0;
     const couponPrice = order.couponPrice || 0;
     
-    // Get order completion code
-    const orderCode = order.code || null;
+    // Get order completion code (fallback to local storage if API gives 0)
+    const storedCode = (typeof window !== 'undefined' ? localStorage.getItem('boiboi_last_order_code') : null) || '';
+    const apiCode = order.code;
+    const orderCode = (apiCode && String(apiCode) !== '0' ? String(apiCode) : (storedCode && storedCode !== '0' ? storedCode : null));
 
     return (
       <MotionBox
@@ -280,11 +282,18 @@ const OrdersTab: React.FC = () => {
                 }) : ""}
               </Text>
             </VStack>
-            {totalPrice > 0 && (
+            <VStack align="end" spacing={1}>
+              {orderCode && (displayStatus === "Active" || displayStatus === "Pending") && (
+                <Badge colorScheme="purple" variant="subtle" borderRadius="full" px={2} py={1} fontSize="10px">
+                  Code: {orderCode}
+                </Badge>
+              )}
+              {totalPrice > 0 && (
               <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="800" color="brand.primary">
                 ₦{totalPrice.toLocaleString()}
               </Text>
-            )}
+              )}
+            </VStack>
           </Flex>
 
           {/* Detailed Items Preview */}

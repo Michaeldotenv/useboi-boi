@@ -89,13 +89,23 @@ const CartTab: React.FC = () => {
         isErrand: false,
       };
       
-      await api.checkout(payload);
+      const res: any = await api.checkout(payload);
+      const createdOrder = (res?.data || res) as any;
+
+      // Persist last order code/id for immediate visibility after redirect
+      try {
+        localStorage.setItem("boiboi_last_order_code", String(createdOrder?.code || orderCode));
+        if (createdOrder?._id || createdOrder?.id) {
+          localStorage.setItem("boiboi_last_order_id", String(createdOrder._id || createdOrder.id));
+        }
+      } catch {}
+
       clearCart();
       toast({ 
         title: "Order placed successfully!", 
-        description: "Your order has been confirmed and is being processed.",
+        description: `Give this code to your rider: ${String(createdOrder?.code || orderCode)}`,
         status: "success",
-        duration: 5000,
+        duration: 7000,
         isClosable: true
       });
       // Navigate to orders tab

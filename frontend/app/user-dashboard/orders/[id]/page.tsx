@@ -191,7 +191,16 @@ const OrderDetailsPage: React.FC = () => {
 
   const orderStatus = getOrderStatus(order.status || order.orderProgressStatus || '');
   const orderItems = order.items || order.cart?.cartItems || order.cart?.items || [];
-  const orderCode = order.code || null;
+  // Get order code - prefer local copy if API returns 0/empty
+  const storedCode = (typeof window !== 'undefined' ? localStorage.getItem('boiboi_last_order_code') : null) || '';
+  const apiCodeRaw = order.code;
+  const pickCode = () => {
+    const fromApi = apiCodeRaw && String(apiCodeRaw).trim() !== '' && String(apiCodeRaw) !== '0' ? String(apiCodeRaw) : '';
+    const fromStore = storedCode && storedCode !== '0' ? storedCode : '';
+    const chosen = fromApi || fromStore;
+    return chosen ? chosen.padStart(4, '0') : null;
+  };
+  const orderCode = pickCode();
 
   return (
     <Box minH="100vh" bg="#F2F2F7">
