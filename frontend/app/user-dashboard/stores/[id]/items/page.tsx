@@ -389,7 +389,7 @@ export default function StoreItemsPage() {
               </Button>
             </Box>
           ) : (
-            <VStack align="stretch" spacing={3}>
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
             {filteredAndSortedItems.slice(0, visibleItemsCount).map((it: any, index: number) => (
               <motion.div
                 key={it.id || it._id}
@@ -399,20 +399,22 @@ export default function StoreItemsPage() {
               >
                 <Card
                   p={0}
-                  h="full"
+                  h="280px"
                   borderRadius="20px"
-                  border="none"
+                  border="1px solid"
+                  borderColor="gray.200"
                   background="linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)"
-                  boxShadow="0 8px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)"
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   _hover={{
                     transform: "translateY(-4px) scale(1.02)",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
                     background: "linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)"
                   }}
                   cursor="pointer"
                   overflow="hidden"
                   position="relative"
+                  display="flex"
+                  flexDirection="column"
+                  role="group"
                 >
                   {/* Subtle gradient overlay */}
                   <Box
@@ -426,19 +428,66 @@ export default function StoreItemsPage() {
                     zIndex={0}
                   />
 
-                  <Flex gap={4} p={4} align="stretch" position="relative" zIndex={1}>
-                    {/* Enhanced Thumbnail */}
+                  {/* Hover Add to Cart overlay */}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    bg="rgba(0,0,0,0.35)"
+                    opacity={0}
+                    transition="opacity 0.2s ease"
+                    _groupHover={{ opacity: 1 }}
+                    zIndex={2}
+                  >
+                    <Button
+                      size="sm"
+                      bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+                      color="white"
+                      borderRadius="12px"
+                      px={5}
+                      h="38px"
+                      leftIcon={<Icon as={FiShoppingCart} />}
+                      fontWeight={800}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        try {
+                          const vendorId = (params?.id as string) || "";
+                          await useCartStore.getState().addItem({
+                            id: it._id || it.id,
+                            vendorId: vendorId,
+                            name: it.name || it.title || 'Item',
+                            price: Number(it.price || 0),
+                            image: it.image || it.coverImage,
+                          }, 1);
+                          toast({ title: 'Added to cart', description: (it.name || 'Item') + ' added', status: 'success', duration: 1500 });
+                        } catch (error) {
+                          console.error('Failed to add to cart:', error);
+                          toast({ title: 'Failed to add to cart', description: 'Please try again', status: 'error', duration: 2000 });
+                        }
+                      }}
+                    >
+                      Add to Cart
+                    </Button>
+                  </Box>
+
+                  <Box p={4} position="relative" zIndex={1} flex="1" display="flex" flexDirection="column">
+                    {/* Image Section */}
                     <Box
-                      w={{ base: "110px", sm: "120px" }}
-                      h={{ base: "90px", sm: "96px" }}
+                      w="100%"
+                      h="140px"
                       borderRadius="16px"
                       overflow="hidden"
                       bg="linear-gradient(135deg, #6B2A8F 0%, #8B5CF6 100%)"
-                      flexShrink={0}
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                       position="relative"
+                      mb={3}
                     >
                       {productImages[it.id || it._id] ? (
                         <Image
@@ -466,8 +515,8 @@ export default function StoreItemsPage() {
                       />
                     </Box>
 
-                    {/* Enhanced Content */}
-                    <VStack align="stretch" spacing={2.5} flex={1} py={1}>
+                    {/* Content Section */}
+                    <VStack align="stretch" spacing={2} flex={1} py={1}>
                       <HStack justify="space-between" align="start">
                         <VStack align="start" spacing={0.5} flex={1}>
                           <Text fontWeight={900} color="#0F172A" fontSize="md" noOfLines={1} lineHeight={1.2}>
@@ -554,11 +603,11 @@ export default function StoreItemsPage() {
                         </Button>
                       </HStack>
                     </VStack>
-                  </Flex>
+                  </Box>
                 </Card>
               </motion.div>
             ))}
-            </VStack>
+            </SimpleGrid>
           )}
 
           {/* Load More / Show Less Buttons */}

@@ -78,13 +78,26 @@ export default function OrdersPage() {
           {[...orders]
             .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
             .map((o: any, index: number) => {
-            const status = (o.status || o.orderState || "").toString().toLowerCase();
-            const scheme = status.includes("complete")
+            // Convert backend status to user-friendly display status
+            const getDisplayStatus = (status: string) => {
+              if (status.includes("complete")) return "Completed";
+              if (status.includes("progress") || status.includes("rider") || status.includes("ongoing")) return "Active";
+              if (status.includes("pend")) return "Pending";
+              if (status.includes("cancel")) return "Cancelled";
+              return "Active"; // Default to Active for any other status
+            };
+            
+            const rawStatus = (o.status || o.orderState || "").toString().toLowerCase();
+            const displayStatus = getDisplayStatus(rawStatus);
+            
+            const scheme = displayStatus === "Completed"
               ? "green"
-              : status.includes("progress") || status.includes("rider")
+              : displayStatus === "Active"
               ? "orange"
-              : status.includes("pend")
+              : displayStatus === "Pending"
               ? "orange"
+              : displayStatus === "Cancelled"
+              ? "red"
               : "gray";
             return (
               <ScaleFade 
@@ -103,7 +116,6 @@ export default function OrdersPage() {
                   transition="all 0.3s ease"
                   _hover={{
                     transform: "translateY(-4px)",
-                    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)"
                   }}
                 >
                   <HStack justify="space-between" mb={2}>
@@ -115,7 +127,7 @@ export default function OrdersPage() {
                         transform: "scale(1.05)"
                       }}
                     >
-                      {o.status || o.orderState}
+                      {displayStatus}
                     </Badge>
                   </HStack>
                   <Link 

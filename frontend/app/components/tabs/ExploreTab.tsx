@@ -188,7 +188,7 @@ const ExploreTab: React.FC = () => {
 
   if (vendorsLoading) {
     return (
-      <Box minH="100vh" bg="#F2F2F7">
+      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Box bg="brand.primary" w="100%" py={4}>
           <Wrapper>
             <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -235,26 +235,8 @@ const ExploreTab: React.FC = () => {
 
   return (
     <Box 
-      minH="100vh" 
-      bg="linear-gradient(135deg, #F2F2F7 0%, #E5E7EB 50%, #F9FAFB 100%)"
-      backgroundAttachment="fixed"
-      position="relative"
+      minH="calc(100vh - 72px)" 
       pb="calc(env(safe-area-inset-bottom, 0px) + 72px)"
-      _before={{
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `
-          radial-gradient(circle at 20% 80%, rgba(59, 23, 79, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(107, 42, 143, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)
-        `,
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
     >
       {/* Header Section */}
       <Box 
@@ -262,15 +244,6 @@ const ExploreTab: React.FC = () => {
         w="100%" 
         py={6}
         position="relative"
-        _after={{
-          content: '""',
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "20px",
-          background: "linear-gradient(to bottom, transparent, rgba(242, 242, 247, 0.8))",
-        }}
       >
         <Wrapper>
           <Flex justifyContent="space-between" alignItems="center" mb={6}>
@@ -279,7 +252,6 @@ const ExploreTab: React.FC = () => {
                 p={2}
                 borderRadius="12px"
                 bg="rgba(255, 255, 255, 0.2)"
-                backdropFilter="blur(10px)"
                 border="1px solid rgba(255, 255, 255, 0.3)"
               >
                 <Text fontSize="16px" fontWeight="600" color="#fff">
@@ -301,12 +273,10 @@ const ExploreTab: React.FC = () => {
               p={2}
               borderRadius="12px"
               bg="rgba(255, 255, 255, 0.2)"
-              backdropFilter="blur(10px)"
               border="1px solid rgba(255, 255, 255, 0.3)"
               transition="all 0.3s ease"
               _hover={{
                 bg: "rgba(255, 255, 255, 0.3)",
-                transform: "scale(1.05)",
               }}
             >
               <Icon as={FaBell} color="#fff" fontSize="20px" />
@@ -321,19 +291,17 @@ const ExploreTab: React.FC = () => {
               placeholder="Search stores and items..."
               width="100%"
               fontSize="16px"
-              bg="rgba(255, 255, 255, 0.95)"
-              backdropFilter="blur(20px)"
+              bg="white"
               fontWeight="500"
               h="52px"
               borderRadius="16px"
-              border="1px solid rgba(255, 255, 255, 0.3)"
-              boxShadow="0 4px 12px rgba(0, 0, 0, 0.1)"
+              border="1px solid"
+              borderColor="gray.200"
               color="#000"
               _placeholder={{ color: "#8E8E93" }}
               _focus={{ 
-                boxShadow: "0 8px 20px rgba(59, 23, 79, 0.2)",
-                borderColor: "rgba(255, 255, 255, 0.5)",
-                bg: "rgba(255, 255, 255, 1)"
+                borderColor: "gray.300",
+                bg: "white"
               }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -576,116 +544,90 @@ const ExploreTab: React.FC = () => {
             />
           ) : (
             <Box position="relative">
-              <Box overflow="hidden" w="100%">
-                <motion.div
-                  style={{ display: "flex", width: "100%" }}
-                  animate={{ x: `-${activeIndex * 100}%` }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                >
+              <Box 
+                overflowX="auto" 
+                overflowY="hidden"
+                w="100%"
+                css={{
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                  '-ms-overflow-style': 'none',
+                  'scrollbar-width': 'none',
+                }}
+              >
+                <Flex gap={3} pb={2}>
                   {filteredVendorList.map((v: any, index) => (
-                    <motion.div
-                      key={v._id || v.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                    >
                       <Box 
-                        flex="0 0 100%" 
-                        px={1}
+                        key={v._id || v.id}
+                        flex="0 0 320px"
+                        px={2}
                         cursor="pointer"
                         onClick={() => {
                           router.push(`/user-dashboard/stores/${v._id || v.id}`);
                         }}
                       >
                         <Box
-                          bg="rgba(255, 255, 255, 0.9)"
-                          backdropFilter="blur(20px)"
-                          borderRadius="20px"
+                          bg="white"
+                          borderRadius="12px"
                           overflow="hidden"
-                          border="1px solid rgba(255, 255, 255, 0.2)"
-                          boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
-                          transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                          border="1px solid"
+                          borderColor="gray.200"
+                          transition="all 0.2s ease"
                           _hover={{
-                            transform: "translateY(-4px) scale(1.02)",
-                            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
-                            borderColor: "rgba(59, 23, 79, 0.2)",
+                            borderColor: "gray.300",
                           }}
                           position="relative"
-                          _before={{
-                            content: '""',
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: "rgba(59, 23, 79, 0.02)",
-                            pointerEvents: "none",
-                            zIndex: 0,
-                          }}
+                          h="260px"
+                          display="flex"
+                          flexDirection="column"
                         >
                           <Box
                             w="100%"
-                            h="140px"
-                            borderRadius="20px"
+                            h="160px"
                             bgImage={getStoreImage(v)}
                             bgSize="cover"
                             bgPosition="center"
                             position="relative"
                             overflow="hidden"
                           >
-                            <Box
-                              position="absolute"
-                              top={0}
-                              left={0}
-                              right={0}
-                              bottom={0}
-                              bg="linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.1) 100%)"
-                            />
                             <Text
                               position="absolute"
                               bottom="8px"
                               right="8px"
-                              fontSize="11px"
+                              fontSize="12px"
                               bg="brand.primary"
                               color="white"
                               px={3}
                               py={1}
-                              borderRadius="12px"
-                              fontWeight="700"
-                              boxShadow="0 2px 8px rgba(59, 23, 79, 0.3)"
+                              borderRadius="8px"
+                              fontWeight="600"
                             >
                               Up to 40% off
                             </Text>
                           </Box>
-                          <Box p={4} position="relative" zIndex={1}>
-                            <Flex justifyContent="space-between" alignItems="center">
-                              <Box>
-                                <Text fontSize={{ base: "14px", md: "16px" }} fontWeight="700" color="#1A1A1A" noOfLines={1}>
-                                  {v.businessName || v.name || v.Name}
-                                </Text>
-                                <Text fontSize={{ base: "12px", md: "13px" }} fontWeight="500" color="#6B7280">
-                                  {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
-                                </Text>
-                              </Box>
-                              <HStack spacing={1}>
-                                <Box
-                                  p={1}
-                                  borderRadius="8px"
-                                  bg="rgba(255, 193, 7, 0.1)"
-                                >
-                                  <Image src="/Star.png" alt="Rating" width="16px" height="16px" />
-                                </Box>
-                                <Text fontSize={{ base: "13px", md: "14px" }} fontWeight="700" color="#1A1A1A">
-                                  {v.rating ?? v.Ratings ?? "4.5"}
-                                </Text>
-                              </HStack>
+                          <Box p={4} flex="1" display="flex" flexDirection="column" justifyContent="space-between">
+                            <Box>
+                              <Text fontSize="15px" fontWeight="600" color="#1A1A1A" noOfLines={1} mb={1}>
+                                {v.businessName || v.name || v.Name}
+                              </Text>
+                              <Text fontSize="13px" fontWeight="400" color="#6B7280" noOfLines={1}>
+                                {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
+                              </Text>
+                            </Box>
+                            <Flex justifyContent="space-between" alignItems="center" mt={3}>
+                              <Text fontSize="13px" fontWeight="500" color="#1A1A1A">
+                                ★ {v.rating ?? v.Ratings ?? "4.5"}
+                              </Text>
+                              <Text fontSize="12px" fontWeight="500" color="#8E8E93">
+                                Store
+                              </Text>
                             </Flex>
                           </Box>
                         </Box>
                       </Box>
-                    </motion.div>
                   ))}
-                </motion.div>
+                </Flex>
               </Box>
             </Box>
           )}
@@ -721,8 +663,8 @@ const ExploreTab: React.FC = () => {
                     }
                   }}
                   cursor="pointer"
-                  _hover={{ transform: "translateY(-2px)", shadow: "lg" }}
-                  transition="all 0.3s ease"
+                  _hover={{ borderColor: "gray.300" }}
+                  transition="all 0.2s ease"
                 >
                   <Box
                     w="100%"
@@ -742,12 +684,9 @@ const ExploreTab: React.FC = () => {
                         {(v.distance || "0.6") + "km"} • {getCategoryName(v)}
                       </Text>
                     </Box>
-                    <HStack spacing={0.5}>
-                      <Image src="/Star.png" alt="Rating" width="14px" height="14px" />
-                      <Text fontSize={{ base: "11px", md: "12px" }} fontWeight="600" color="#000">
-                        {v.rating ?? v.Ratings ?? "4.5"}
-                      </Text>
-                    </HStack>
+                    <Text fontSize={{ base: "11px", md: "12px" }} fontWeight="600" color="#000">
+                      ★ {v.rating ?? v.Ratings ?? "4.5"}
+                    </Text>
                   </Flex>
                 </Box>
               ))}
@@ -768,7 +707,6 @@ const ExploreTab: React.FC = () => {
             h="56px"
             bg="#000"
             borderRadius="full"
-            boxShadow="lg"
             cursor="pointer"
           >
             <Icon as={FaBox} color="white" fontSize="24px" />

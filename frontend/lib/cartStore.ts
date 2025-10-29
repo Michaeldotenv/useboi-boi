@@ -96,7 +96,7 @@ export const useCartStore = create<CartState>()(
         // Sync with backend after local update
         const state = get();
         if (state.cartId) {
-          get().syncWithBackend();
+          await get().syncWithBackend();
         }
       },
       
@@ -111,7 +111,7 @@ export const useCartStore = create<CartState>()(
         // Sync with backend after local update
         const state = get();
         if (state.cartId) {
-          get().syncWithBackend();
+          await get().syncWithBackend();
         }
       },
       
@@ -126,7 +126,7 @@ export const useCartStore = create<CartState>()(
         // Sync with backend after local update
         const state = get();
         if (state.cartId) {
-          get().syncWithBackend();
+          await get().syncWithBackend();
         }
       },
 

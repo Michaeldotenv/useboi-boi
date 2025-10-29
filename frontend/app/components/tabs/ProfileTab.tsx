@@ -235,7 +235,7 @@ const ProfileTab: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box minH="100vh" bg="#F2F2F7">
+      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={8}>
             <VStack spacing={4} align="stretch">
@@ -250,7 +250,7 @@ const ProfileTab: React.FC = () => {
 
   if (error) {
     return (
-      <Box minH="100vh" bg="#F2F2F7">
+      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={8}>
             <EmptyState
@@ -268,27 +268,11 @@ const ProfileTab: React.FC = () => {
 
   return (
     <Box 
-      minH="100vh" 
-      bg="linear-gradient(135deg, #F2F2F7 0%, #E5E7EB 50%, #F9FAFB 100%)" 
+      minH="calc(100vh - 72px)" 
       pb="calc(env(safe-area-inset-bottom, 0px) + 72px)"
-      position="relative"
-      _before={{
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `
-          radial-gradient(circle at 20% 80%, rgba(59, 23, 79, 0.05) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(107, 42, 143, 0.05) 0%, transparent 50%)
-        `,
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
     >
       <Wrapper>
-        <Box py={4} position="relative" zIndex={1}>
+        <Box py={4}>
           {/* Header */}
           <Flex justify="space-between" align="center" mb={6} mt={4}>
             <HStack spacing={3}>
@@ -298,7 +282,6 @@ const ProfileTab: React.FC = () => {
                 bg="rgba(255, 255, 255, 0.9)"
                 backdropFilter="blur(10px)"
                 border="1px solid rgba(255, 255, 255, 0.2)"
-                boxShadow="0 4px 12px rgba(59, 23, 79, 0.1)"
               >
                 <FaUserCircle color="#3B174F" size="24px" />
               </Box>
@@ -340,7 +323,6 @@ const ProfileTab: React.FC = () => {
             borderRadius="20px"
             p={{ base: 5, md: 6 }}
             border="1px solid rgba(255, 255, 255, 0.2)"
-            boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
             mb={6}
           >
             <VStack spacing={4} align="stretch">
@@ -505,7 +487,6 @@ const ProfileTab: React.FC = () => {
                 borderRadius="16px"
                 p={{ base: 3, md: 4 }}
                 border="1px solid rgba(255, 255, 255, 0.2)"
-                boxShadow="0 4px 16px rgba(0, 0, 0, 0.05)"
                 textAlign="center"
               >
                 <VStack spacing={2}>
@@ -543,13 +524,10 @@ const ProfileTab: React.FC = () => {
                 borderRadius="16px"
                 p={{ base: 3, md: 4 }}
                 border="1px solid rgba(255, 255, 255, 0.2)"
-                boxShadow="0 4px 16px rgba(0, 0, 0, 0.05)"
                 cursor="pointer"
                 _hover={{
                   transform: "translateX(4px)",
-                  boxShadow: "0 8px 20px rgba(59, 23, 79, 0.15)",
                 }}
-                transition="all 0.3s ease"
                 onClick={item.action}
               >
                 <Flex justify="space-between" align="center">
@@ -560,7 +538,7 @@ const ProfileTab: React.FC = () => {
                       bg={item.bgColor}
                       color={item.color}
                     >
-                      <item.icon size={{ base: 18, md: 20 }} />
+                      <item.icon size={20} />
                     </Box>
                     <VStack align="start" spacing={0}>
                       <Text fontWeight="600" color="#000" fontSize={{ base: 'sm', md: 'md' }}>
@@ -594,7 +572,6 @@ const ProfileTab: React.FC = () => {
               _hover={{
                 bg: "red.50",
                 transform: "translateY(-2px)",
-                boxShadow: "0 8px 20px rgba(220, 38, 38, 0.2)",
               }}
               transition="all 0.3s ease"
             >

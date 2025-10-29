@@ -56,14 +56,28 @@ const CartTab: React.FC = () => {
   const couponDiscount = selectedCoupon ? (selectedCoupon.type === 'percent' ? Math.round(total * selectedCoupon.discount / 100) : selectedCoupon.discount) : 0;
   const grandTotal = total + deliveryFee + serviceCharge + vat - couponDiscount;
 
+  // Generate 4-digit order completion code
+  const generateOrderCode = (): number => {
+    return Math.floor(1000 + Math.random() * 9000); // Generates a number between 1000-9999
+  };
+
   const handleCheckout = async () => {
     if (!items.length) return;
     setIsCheckingOut(true);
     
     try {
+      // Ensure cart is synced with backend before checkout
+      const cartStore = useCartStore.getState();
+      if (!cartStore.cartId) {
+        await cartStore.syncWithBackend();
+      }
+      
+      // Generate 4-digit order completion code
+      const orderCode = generateOrderCode();
+      
       const payload = {
         totalPrice: grandTotal,
-        cartId: useCartStore.getState().cartId || '',
+        cartId: cartStore.cartId || '',
         storeId: cartVendorId,
         deliveryLocation: deliveryLocation || null,
         deliveryFee: deliveryFee,
@@ -71,6 +85,7 @@ const CartTab: React.FC = () => {
         couponPrice: couponDiscount > 0 ? couponDiscount : null,
         checkoutType: checkoutType,
         deliveryInstructions: deliveryInstructions || null,
+        code: orderCode, // 4-digit code for rider to complete order
         isErrand: false,
       };
       
@@ -99,16 +114,10 @@ const CartTab: React.FC = () => {
     }
   };
 
-  // Calculate totals
-  const deliveryFee = 500;
-  const serviceCharge = Math.round(total * 0.05);
-  const vat = Math.round((total + deliveryFee + serviceCharge) * 0.075);
-  const grandTotal = total + deliveryFee + serviceCharge + vat - couponDiscount;
-
   // Show empty state if no items
   if (items.length === 0) {
     return (
-      <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={4}>
             <Flex justify="space-between" align="center" mb={6} mt={4}>
@@ -119,7 +128,6 @@ const CartTab: React.FC = () => {
                   bg="rgba(255, 255, 255, 0.9)"
                   backdropFilter="blur(10px)"
                   border="1px solid rgba(255, 255, 255, 0.2)"
-                  boxShadow="0 4px 12px rgba(59, 23, 79, 0.1)"
                 >
                   <FaShoppingCart color="#3B174F" size="24px" />
                 </Box>
@@ -145,29 +153,11 @@ const CartTab: React.FC = () => {
 
   return (
     <Box 
-      minH="100vh" 
-      bg="linear-gradient(135deg, #F2F2F7 0%, #E5E7EB 50%, #F9FAFB 100%)"
-      backgroundAttachment="fixed"
-      position="relative"
+      minH="calc(100vh - 72px)" 
       pb="calc(env(safe-area-inset-bottom, 0px) + 72px)"
-      _before={{
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `
-          radial-gradient(circle at 20% 80%, rgba(59, 23, 79, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(107, 42, 143, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)
-        `,
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
     >
       <Wrapper>
-        <Box py={4} position="relative" zIndex={1}>
+        <Box py={4}>
           <Flex justify="space-between" align="center" mb={6} mt={4}>
             <HStack spacing={3}>
               <Box
@@ -176,7 +166,6 @@ const CartTab: React.FC = () => {
                 bg="rgba(255, 255, 255, 0.9)"
                 backdropFilter="blur(10px)"
                 border="1px solid rgba(255, 255, 255, 0.2)"
-                boxShadow="0 4px 12px rgba(59, 23, 79, 0.1)"
               >
                 <FaShoppingCart color="#3B174F" size="24px" />
               </Box>
@@ -209,7 +198,6 @@ const CartTab: React.FC = () => {
               borderRadius="20px" 
               p={6} 
               border="1px solid rgba(255, 255, 255, 0.2)"
-              boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
             >
               <Text fontSize="20px" fontWeight="800" mb={6} bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
                 Cart Items ({items.length})
@@ -229,11 +217,9 @@ const CartTab: React.FC = () => {
                       borderRadius="16px"
                       p={4}
                       border="1px solid rgba(255, 255, 255, 0.3)"
-                      boxShadow="0 4px 16px rgba(0, 0, 0, 0.05)"
                       transition="all 0.3s ease"
                       _hover={{
                         transform: "translateY(-2px)",
-                        boxShadow: "0 8px 25px rgba(0, 0, 0, 0.1)",
                       }}
                     >
                       <HStack spacing={4}>
@@ -262,7 +248,6 @@ const CartTab: React.FC = () => {
                             display="flex"
                             alignItems="center"
                             justifyContent="center"
-                            boxShadow="0 2px 8px rgba(59, 23, 79, 0.3)"
                             border="2px solid white"
                           >
                             {item.quantity}
@@ -334,7 +319,6 @@ const CartTab: React.FC = () => {
               borderRadius="20px" 
               p={6} 
               border="1px solid rgba(255, 255, 255, 0.2)"
-              boxShadow="0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
             >
               <Text fontSize="20px" fontWeight="800" mb={6} bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
                 Order Summary
@@ -448,11 +432,9 @@ const CartTab: React.FC = () => {
               isLoading={isCheckingOut}
               loadingText="Processing Order..."
               disabled={!items.length || !deliveryLocation.trim()}
-              boxShadow="0 8px 25px rgba(59, 23, 79, 0.3)"
               _hover={{
                 bg: "linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)",
                 transform: "translateY(-3px)",
-                boxShadow: "0 12px 35px rgba(59, 23, 79, 0.4)",
                 _before: {
                   left: "100%",
                 },

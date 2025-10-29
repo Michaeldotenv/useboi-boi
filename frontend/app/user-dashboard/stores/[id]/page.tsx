@@ -76,7 +76,7 @@ export default function StoreDetailsPage() {
         {/* Content Section */}
         <Box py={4}>
           {/* Store Card */}
-          <Box bg="white" borderRadius="12px" p={4} border="1px solid" borderColor="gray.200" mb={4} boxShadow="sm">
+          <Box bg="white" borderRadius="12px" p={4} border="1px solid" borderColor="gray.200" mb={4}>
             <Heading size="md" color="#000" fontWeight="700" mb={2}>
               {v.businessName || v.name || v.Name}
             </Heading>

@@ -91,7 +91,7 @@ const SavedTab: React.FC = () => {
 
   if (vendorsLoading) {
     return (
-      <Box minH="100vh" bg="#F2F2F7">
+      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={8}>
             <VStack spacing={4} align="stretch">
@@ -105,7 +105,7 @@ const SavedTab: React.FC = () => {
   }
 
   return (
-    <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+    <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
       <Wrapper>
         <Box py={4}>
           <Flex justifyContent="space-between" alignItems="center" mt={4} mb={6}>

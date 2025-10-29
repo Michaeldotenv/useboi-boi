@@ -40,12 +40,11 @@ export function NavigationProvider({ children, initialTab = 'explore' }: Navigat
   useEffect(() => {
     if (pathname.includes('/cart') || pathname.includes('/check-out') || pathname.includes('/add-to-cart')) {
       setActiveTabState('cart');
-    } else if (pathname.includes('/user-dashboard/orders')) {
-      setActiveTabState('orders');
     } else if (pathname.includes('/user-dashboard/profile')) {
       setActiveTabState('profile');
     } else if (pathname === '/user-dashboard' || pathname.includes('/user-dashboard/stores')) {
-      setActiveTabState('explore');
+      // Don't automatically set to explore - let the saved tab state handle it
+      // setActiveTabState('explore');
     }
   }, [pathname]);
 
@@ -60,7 +59,7 @@ export function NavigationProvider({ children, initialTab = 'explore' }: Navigat
     const routes = {
       explore: '/user-dashboard',
       cart: '/cart',
-      orders: '/user-dashboard/orders',
+      orders: '/user-dashboard', // Use tab system instead of separate page
       support: '/user-dashboard', // Support can be handled within dashboard
       profile: '/user-dashboard/profile'
     };

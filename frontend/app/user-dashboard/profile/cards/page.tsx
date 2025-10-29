@@ -17,6 +17,7 @@ import {
   VStack,
   Badge,
   Spinner,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { ArrowBackIcon, AddIcon, DeleteIcon, CheckIcon } from "@chakra-ui/icons";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -169,15 +170,16 @@ export default function CardsPage() {
 
       {/* Cards List */}
       <Box px={6} mt={-4}>
-        <VStack spacing={4} align="stretch">
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
           {userCards.length === 0 ? (
-            <Card
-              bg="white"
-              borderRadius="16px"
-              boxShadow="sm"
-              p={8}
-              textAlign="center"
-            >
+              <Card
+                bg="white"
+                borderRadius="16px"
+                p={8}
+                textAlign="center"
+                border="1px solid"
+                borderColor="gray.200"
+              >
               <Icon as={FaCreditCard} boxSize={16} color="gray.300" mb={4} mx="auto" />
               <Text fontSize="lg" fontWeight="600" mb={2}>
                 No cards saved
@@ -205,10 +207,11 @@ export default function CardsPage() {
                   key={card.id}
                   bg="white"
                   borderRadius="16px"
-                  boxShadow="sm"
+                  border="1px solid"
+                  borderColor="gray.200"
                   overflow="hidden"
                   transition="all 0.2s"
-                  _hover={{ boxShadow: "md" }}
+                  _hover={{ transform: "translateY(-2px)" }}
                 >
                   <CardBody>
                     <Flex justify="space-between" align="start">
@@ -271,7 +274,7 @@ export default function CardsPage() {
               </Button>
             </>
           )}
-        </VStack>
+        </SimpleGrid>
       </Box>
 
       {/* Info Boxes */}

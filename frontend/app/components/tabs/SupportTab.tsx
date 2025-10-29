@@ -128,7 +128,7 @@ const SupportTab: React.FC = () => {
   ];
 
   return (
-    <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+    <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
       <Wrapper>
         <Box py={4}>
           <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="700" color="#000" mb={6} mt={4}>

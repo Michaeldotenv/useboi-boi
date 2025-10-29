@@ -158,7 +158,7 @@ const CartWithBadge = () => {
         duration: 5000,
         isClosable: true
       });
-      router.replace("/user-dashboard/orders");
+      router.replace("/user-dashboard");
     } catch (e: any) {
       console.error("Checkout failed:", e);
       toast({ 

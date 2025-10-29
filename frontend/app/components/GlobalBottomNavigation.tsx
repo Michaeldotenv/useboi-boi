@@ -80,7 +80,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, tab, isActive, onClick }
           color: activeColor,
         }}
         style={{
-          filter: isActive ? 'drop-shadow(0 0 8px rgba(59, 23, 79, 0.3))' : 'none'
+          filter: 'none'
         }}
       />
       <Text
@@ -105,7 +105,6 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, tab, isActive, onClick }
           height="4px"
           borderRadius="50%"
           bg={activeColor}
-          boxShadow="0 0 8px rgba(59, 23, 79, 0.6)"
         />
       )}
     </VStack>
@@ -151,7 +150,6 @@ const GlobalBottomNavigation: React.FC = () => {
       backdropFilter="blur(20px)"
       borderTop="1px solid"
       borderColor="rgba(255, 255, 255, 0.2)"
-      boxShadow="0 -8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
       maxW="100vw"
       _before={{
         content: '""',
@@ -204,7 +202,6 @@ const GlobalBottomNavigation: React.FC = () => {
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
-                      boxShadow="0 2px 8px rgba(16, 185, 129, 0.4)"
                       border="2px solid white"
                       animation="pulse 2s infinite"
                     >
@@ -230,7 +227,6 @@ const GlobalBottomNavigation: React.FC = () => {
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
-                      boxShadow="0 2px 8px rgba(16, 185, 129, 0.4)"
                       border="2px solid white"
                       animation="pulse 2s infinite"
                     >

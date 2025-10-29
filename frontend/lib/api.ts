@@ -103,7 +103,10 @@ export const api = {
   getPendingWithdrawals: () => apiFetch(`/api/user/wallet/withdrawalRequests`),
   
   // Enhanced Order Management
-  completeOrder: (id: string) => apiFetch(`/api/orders/${id}/complete`, { method: "POST" }),
+  completeOrder: (id: string, code: string) => apiFetch(`/api/orders/${id}/complete`, { 
+    method: "POST", 
+    body: { code } 
+  }),
   cancelOrder: (id: string) => apiFetch(`/api/orders/${id}/cancel`, { method: "PATCH" }),
   updateOrderProgress: (id: string, body: any) => apiFetch(`/api/orders/${id}/orderProgress`, { method: "PATCH", body }),
   

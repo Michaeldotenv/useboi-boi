@@ -19,8 +19,8 @@ export default function Card({
   const cardBg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const hoverShadow = useColorModeValue(
-    "0 20px 40px -12px rgba(0, 0, 0, 0.15)",
-    "0 20px 40px -12px rgba(0, 0, 0, 0.3)"
+    "",
+    ""
   );
   const filledBg = useColorModeValue("gray.50", "gray.700");
   const glassBg = useColorModeValue("rgba(255, 255, 255, 0.8)", "rgba(45, 55, 72, 0.8)");
@@ -30,7 +30,6 @@ export default function Card({
     switch (variant) {
       case "elevated":
         return {
-          boxShadow: "0 8px 32px -8px rgba(0, 0, 0, 0.1)",
           border: "none",
           bg: cardBg,
         };
@@ -53,20 +52,17 @@ export default function Card({
           border: "1px solid",
           borderColor: glassBorder,
           backdropFilter: "blur(20px)",
-          boxShadow: "0 8px 32px -8px rgba(0, 0, 0, 0.1)",
         };
       case "gradient":
         return {
           bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           border: "none",
-          boxShadow: "0 8px 32px -8px rgba(102, 126, 234, 0.3)",
           color: "white",
         };
       default:
         return {
           border: "1px solid",
           borderColor: borderColor,
-          boxShadow: "0 4px 16px -4px rgba(0, 0, 0, 0.08)",
           bg: cardBg,
         };
     }
@@ -78,14 +74,12 @@ export default function Card({
     if (interactive) {
       return {
         transform: "translateY(-4px)",
-        boxShadow: hoverShadow,
         cursor: "pointer",
       };
     }
     
     return {
       transform: "translateY(-2px)",
-      boxShadow: hoverShadow,
     };
   };
 

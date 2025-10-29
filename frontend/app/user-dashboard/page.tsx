@@ -41,8 +41,14 @@ function BoiboiWebApp() {
   };
 
   return (
-    <Box minH="100vh" bg="#F2F2F7">
-      {renderContent()}
+    <Box 
+      minH="100vh" 
+      bg="#F2F2F7"
+      position="relative"
+    >
+      <Box position="relative" zIndex={1}>
+        {renderContent()}
+      </Box>
       <GlobalBottomNavigation />
     </Box>
   );
