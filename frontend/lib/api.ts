@@ -130,6 +130,13 @@ export const api = {
     }
   }),
   verifyCardAndAdd: (reference: string) => apiFetch(`/api/payment/cards/verify/${reference}`),
+
+  // Admin
+  adminLogin: (key: string) => apiFetch<{ token: string }>(`/api/auth/admin/login`, { method: "POST", body: { key } }),
+  adminStores: (token: string) => apiFetch(`/api/admin/stores`, { headers: { Authorization: `Bearer ${token}` } }),
+  adminRiders: (token: string) => apiFetch(`/api/admin/riders`, { headers: { Authorization: `Bearer ${token}` } }),
+  adminOrders: (token: string) => apiFetch(`/api/admin/orders`, { headers: { Authorization: `Bearer ${token}` } }),
+  adminDeliveryServices: (token: string) => apiFetch(`/api/admin/deliveryServices`, { headers: { Authorization: `Bearer ${token}` } }),
 };
 
 

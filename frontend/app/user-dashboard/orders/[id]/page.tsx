@@ -48,6 +48,16 @@ const OrderDetailsPage: React.FC = () => {
   });
 
   const order = (orderData as any)?.data || orderData;
+  
+  // Pre-fetch cart items if needed (hook must be at top level)
+  const embeddedItems = order?.items || order?.cart?.cartItems || order?.cart?.items || [];
+  const cartIdForOrder = order?.cartId || order?.cart?.id || order?.cart?._id || '';
+  const shouldFetchCartItems = embeddedItems.length === 0 && Boolean(cartIdForOrder);
+  const { data: cartItemsData } = useQuery({
+    queryKey: ['cart-items', cartIdForOrder],
+    queryFn: () => api.cartItems(cartIdForOrder),
+    enabled: shouldFetchCartItems && Boolean(order), // Only fetch if we have an order
+  });
 
   // Complete order mutation
   const completeOrderMutation = useMutation({
@@ -190,20 +200,35 @@ const OrderDetailsPage: React.FC = () => {
   };
 
   const orderStatus = getOrderStatus(order.status || order.orderProgressStatus || '');
-  const orderItems = order.items || order.cart?.cartItems || order.cart?.items || [];
-  // Get order code - prefer local copy if API returns 0/empty
-  const currentOrderId = (params?.id as string) || '';
-  const storedSpecific = (typeof window !== 'undefined' && currentOrderId ? localStorage.getItem(`boiboi_order_code_${currentOrderId}`) : null) || '';
-  const storedRecent = (typeof window !== 'undefined' ? localStorage.getItem('boiboi_last_order_code') : null) || '';
-  const apiCodeRaw = order.code;
-  const pickCode = () => {
-    const fromApi = apiCodeRaw && String(apiCodeRaw).trim() !== '' && String(apiCodeRaw) !== '0' ? String(apiCodeRaw) : '';
-    const fromSpecific = storedSpecific && storedSpecific !== '0' ? storedSpecific : '';
-    const fromRecent = storedRecent && storedRecent !== '0' ? storedRecent : '';
-    const chosen = fromApi || fromSpecific || fromRecent;
-    return chosen ? chosen.padStart(4, '0') : null;
-  };
-  const orderCode = pickCode();
+  // Use fetched cart items if embedded items are not available
+  const fetchedCartItems = (cartItemsData as any)?.data || cartItemsData || [];
+  const orderItems = embeddedItems.length > 0 ? embeddedItems : fetchedCartItems;
+  // Get order code strictly from backend response (no fallback)
+  const apiCodeRaw = order?.code || order?.orderCode || order?.completionCode;
+  
+  // Debug logging to see what backend returns
+  if (typeof window !== 'undefined' && order) {
+    console.log('🔍 Order Code Debug:', {
+      'order.code': order?.code,
+      'order.orderCode': order?.orderCode,
+      'order.completionCode': order?.completionCode,
+      'apiCodeRaw': apiCodeRaw,
+      'Full order object': order,
+    });
+  }
+  
+  const orderCode = (apiCodeRaw !== undefined && apiCodeRaw !== null)
+    ? (() => {
+        const codeStr = String(apiCodeRaw).trim();
+        // Treat "0" as missing code (old orders created before code field was properly set)
+        const isValid = codeStr !== '' && codeStr !== '0' && codeStr !== 'null' && codeStr !== 'undefined';
+        if (!isValid) {
+          console.warn('⚠️ Order has invalid code:', codeStr, '- This is an old order created before codes were properly implemented');
+          return null;
+        }
+        return codeStr.padStart(4, '0');
+      })()
+    : null;
 
   return (
     <Box minH="100vh" bg="#F2F2F7">
@@ -252,6 +277,41 @@ const OrderDetailsPage: React.FC = () => {
                 </VStack>
               </Box>
             )}
+
+            {/* Compact code row always visible - SHOW REGARDLESS OF STATUS */}
+            <Box bg={bgColor} borderRadius="12px" p={4} border="1px solid" borderColor={borderColor}>
+              <HStack justify="space-between" align="center">
+                <VStack align="start" spacing={0}>
+                  <Text fontSize="14px" color="#000" fontWeight="600">Order Completion Code</Text>
+                  <Text fontSize="11px" color="gray.500">Give this to your rider</Text>
+                </VStack>
+                <HStack spacing={2}>
+                  <Badge 
+                    colorScheme={orderCode ? 'purple' : 'gray'} 
+                    px={4} 
+                    py={2} 
+                    borderRadius="full"
+                    fontSize="16px"
+                    fontWeight="800"
+                    fontFamily="mono"
+                  >
+                    {orderCode || 'No Code Available'}
+                  </Badge>
+                  {orderCode && (
+                    <Button 
+                      size="sm" 
+                      colorScheme="purple"
+                      onClick={() => { 
+                        navigator.clipboard?.writeText(orderCode); 
+                        toast({ title: 'Code copied!', description: orderCode, status: 'success', duration: 2000 }); 
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  )}
+                </HStack>
+              </HStack>
+            </Box>
 
             {/* Order Tracking Timeline */}
             <Box bg={bgColor} borderRadius="16px" p={6} border="1px solid" borderColor={borderColor}>
@@ -384,7 +444,16 @@ const OrderDetailsPage: React.FC = () => {
                 <HStack justify="space-between">
                   <Text fontSize="14px" color="gray.600">Subtotal</Text>
                   <Text fontSize="14px" fontWeight="600">
-                    ₦{(order.price ? order.price - (order.deliveryFee || 0) - (order.serviceCharge || 0) + (order.couponPrice || 0) : order.subtotal || 0).toLocaleString()}
+                    {(() => {
+                      const subtotalFromItems = orderItems.reduce((sum: number, it: any) => {
+                        const d = it.item || it;
+                        const q = it.quantity || 1;
+                        const p = d.price || it.price || 0;
+                        return sum + p * q;
+                      }, 0);
+                      const value = subtotalFromItems || order.subtotal || (order.price ? (order.price - (order.deliveryFee || 0) - (order.serviceCharge || 0) + (order.couponPrice || 0)) : 0);
+                      return `₦${Number(value).toLocaleString()}`;
+                    })()}
                   </Text>
                 </HStack>
                 {order.deliveryFee && order.deliveryFee > 0 && (

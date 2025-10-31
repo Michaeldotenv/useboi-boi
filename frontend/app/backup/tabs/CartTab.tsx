@@ -26,10 +26,10 @@ import { FaShoppingCart } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Wrapper from '../Wrapper';
+import Wrapper from '../../components/Wrapper';
 import { useCartStore } from '@/lib/cartStore';
 import { api } from '@/lib/api';
-import EmptyState from '../EmptyState';
+import EmptyState from '../../components/EmptyState';
 
 const CartTab: React.FC = () => {
   const router = useRouter();

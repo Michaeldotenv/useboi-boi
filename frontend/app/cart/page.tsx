@@ -131,6 +131,9 @@ const CartWithBadge = () => {
         throw new Error("Cart could not be created. Please try again.");
       }
       
+      // Generate 4-digit order completion code (1000-9999)
+      const orderCode = Math.floor(1000 + Math.random() * 9000);
+      
       const payload: any = {
         totalPrice: grandTotal,
         cartId: cartId,
@@ -141,6 +144,7 @@ const CartWithBadge = () => {
         couponPrice: couponDiscount > 0 ? couponDiscount : null,
         checkoutType: checkoutType,
         deliveryInstructions: deliveryInstructions || null,
+        code: orderCode,
         isErrand: false,
       };
       
@@ -149,11 +153,13 @@ const CartWithBadge = () => {
         payload.cardId = selectedCardId;
       }
       
-      await api.checkout(payload);
+      const res: any = await api.checkout(payload);
+      const createdOrder = (res?.data || res) as any;
       clearCart();
+      // Only show backend provided code if present
       toast({ 
         title: "Order placed successfully!", 
-        description: "Your order has been confirmed and is being processed.",
+        description: createdOrder?.code ? `Give this code to your rider: ${String(createdOrder.code)}` : "Your order has been confirmed and is being processed.",
         status: "success",
         duration: 5000,
         isClosable: true
