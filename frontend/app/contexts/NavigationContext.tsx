@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
-export type TabType = 'explore' | 'cart' | 'orders' | 'support' | 'profile';
+export type TabType = 'explore' | 'cart' | 'orders' | 'support' | 'profile' | 'saved';
 
 interface NavigationContextType {
   activeTab: TabType;
@@ -26,7 +26,7 @@ export function NavigationProvider({ children, initialTab = 'explore' }: Navigat
   // Load saved tab from localStorage on mount
   useEffect(() => {
     const savedTab = localStorage.getItem('boiboi_active_tab') as TabType;
-    if (savedTab && ['explore', 'cart', 'orders', 'support', 'profile'].includes(savedTab)) {
+    if (savedTab && ['explore', 'cart', 'orders', 'support', 'profile', 'saved'].includes(savedTab)) {
       setActiveTabState(savedTab);
     }
   }, []);
@@ -42,9 +42,14 @@ export function NavigationProvider({ children, initialTab = 'explore' }: Navigat
       setActiveTabState('cart');
     } else if (pathname.includes('/user-dashboard/profile')) {
       setActiveTabState('profile');
-    } else if (pathname === '/user-dashboard' || pathname.includes('/user-dashboard/stores')) {
-      // Don't automatically set to explore - let the saved tab state handle it
-      // setActiveTabState('explore');
+    } else if (pathname.includes('/user-dashboard/orders')) {
+      setActiveTabState('orders');
+    } else if (pathname.includes('/support')) {
+      setActiveTabState('support');
+    } else if (pathname.includes('/saved')) {
+      setActiveTabState('saved');
+    } else if (pathname === '/user-dashboard' || pathname.includes('/user-dashboard/stores') || pathname.includes('/explore')) {
+      setActiveTabState('explore');
     }
   }, [pathname]);
 
@@ -59,20 +64,21 @@ export function NavigationProvider({ children, initialTab = 'explore' }: Navigat
     const routes = {
       explore: '/user-dashboard',
       cart: '/cart',
-      orders: '/user-dashboard', // Use tab system instead of separate page
-      support: '/user-dashboard', // Support can be handled within dashboard
-      profile: '/user-dashboard/profile'
+      orders: '/user-dashboard/orders',
+      support: '/support',
+      profile: '/user-dashboard/profile',
+      saved: '/saved'
     };
 
     const targetRoute = routes[tab];
     
-    // Only navigate if we're not already on the target route
-    if (pathname !== targetRoute && !pathname.startsWith(targetRoute)) {
-      router.push(targetRoute);
-    }
+    // Always navigate to ensure proper tab switching
+    router.push(targetRoute);
     
     // Scroll to top when switching tabs
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   return (

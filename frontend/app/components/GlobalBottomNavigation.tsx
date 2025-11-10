@@ -15,6 +15,7 @@ import {
   FaBox,
   FaHeadset,
   FaUser,
+  FaHeart,
 } from 'react-icons/fa';
 import { useNavigation, TabType } from '../contexts/NavigationContext';
 import { useCartStore } from '@/lib/cartStore';
@@ -30,80 +31,54 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ icon, label, tab, isActive, onClick }) => {
-  const activeColor = '#3B174F';
-  const inactiveColor = '#8E8E93';
-  const activeBg = 'rgba(59, 23, 79, 0.1)';
-  const hoverBg = 'rgba(59, 23, 79, 0.05)';
+  const activeColor = '#1a1a1a';
+  const inactiveColor = '#6b7280';
 
   return (
     <VStack
-      spacing={1}
+      spacing={1.5}
       cursor="pointer"
       onClick={onClick}
-      py={3}
-      px={4}
-      borderRadius="20px"
-      bg={isActive ? activeBg : 'transparent'}
-      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+      py={2}
+      px={3}
+      borderRadius="12px"
+      bg="transparent"
+      transition="all 0.2s ease"
       position="relative"
-      overflow="hidden"
+      minW="60px"
       _hover={{
-        bg: isActive ? activeBg : hoverBg,
-        transform: 'translateY(-3px) scale(1.05)',
+        bg: 'gray.50',
       }}
       _active={{
-        transform: 'translateY(-1px) scale(1.02)',
-      }}
-      minW="70px"
-      _before={{
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: isActive 
-          ? 'rgba(59, 23, 79, 0.1)'
-          : 'transparent',
-        borderRadius: "20px",
-        transition: "all 0.3s ease",
+        transform: 'scale(0.95)',
       }}
     >
       <Icon
         as={icon}
-        fontSize="22px"
+        fontSize="20px"
         color={isActive ? activeColor : inactiveColor}
-        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        position="relative"
-        zIndex={1}
-        _groupHover={{
-          color: activeColor,
-        }}
-        style={{
-          filter: 'none'
-        }}
+        transition="color 0.2s ease"
       />
       <Text
-        fontSize="11px"
-        fontWeight={isActive ? '700' : '500'}
+        fontSize="10px"
+        fontWeight={isActive ? '600' : '500'}
         color={isActive ? activeColor : inactiveColor}
         textAlign="center"
-        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        position="relative"
-        zIndex={1}
-        letterSpacing="0.5px"
+        transition="color 0.2s ease"
+        letterSpacing="0.3px"
+        lineHeight={1.2}
       >
         {label}
       </Text>
       {isActive && (
         <Box
           position="absolute"
-          bottom={1}
+          top={-1}
           left="50%"
           transform="translateX(-50%)"
-          width="4px"
-          height="4px"
-          borderRadius="50%"
+          width="24px"
+          height="2px"
+          borderRadius="1px"
           bg={activeColor}
         />
       )}
@@ -129,13 +104,18 @@ const GlobalBottomNavigation: React.FC = () => {
     enabled: Boolean(customerId),
   });
   const orders = (ordersData as any)?.data || ordersData || [];
-  const ordersCount = orders.length;
+  // Only count incomplete orders (not completed or cancelled)
+  const incompleteOrders = orders.filter((order: any) => {
+    const status = (order.status || order.orderProgressStatus || '').toLowerCase();
+    return !status.includes('complete') && !status.includes('cancel');
+  });
+  const ordersCount = incompleteOrders.length;
 
   const navItems = [
     { icon: FaCompass, label: 'Explore', tab: 'explore' as TabType },
+    { icon: FaHeart, label: 'Saved', tab: 'saved' as TabType },
     { icon: FaShoppingCart, label: 'Cart', tab: 'cart' as TabType },
     { icon: FaBox, label: 'Orders', tab: 'orders' as TabType },
-    { icon: FaHeadset, label: 'Support', tab: 'support' as TabType },
     { icon: FaUser, label: 'Profile', tab: 'profile' as TabType },
   ];
 
@@ -146,30 +126,19 @@ const GlobalBottomNavigation: React.FC = () => {
       left={0}
       right={0}
       zIndex={100}
-      bg="rgba(255, 255, 255, 0.95)"
-      backdropFilter="blur(20px)"
+      bg="white"
       borderTop="1px solid"
-      borderColor="rgba(255, 255, 255, 0.2)"
+      borderColor="gray.200"
       maxW="100vw"
-      _before={{
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(59, 23, 79, 0.02)",
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
     >
       <Flex
         justify="space-around"
         alignItems="center"
-        py={2}
-        px={2}
+        py={1}
+        px={4}
         maxW="container.sm"
         mx="auto"
+        height="70px"
       >
             {navItems.map((item) => {
               const showCartBadge = item.tab === 'cart' && cartQty > 0;
@@ -186,24 +155,23 @@ const GlobalBottomNavigation: React.FC = () => {
                   {showCartBadge && (
                     <Box 
                       position="absolute" 
-                      top={0} 
+                      top={-2} 
                       right={0} 
-                      transform="translate(40%, -20%)" 
-                      bg="brand.accent"
+                      transform="translate(30%, 0%)" 
+                      bg="red.500"
                       color="white" 
                       fontSize="10px" 
-                      fontWeight="700"
-                      px={2} 
-                      py={1} 
+                      fontWeight="600"
+                      px={1.5} 
+                      py={0.5} 
                       borderRadius="full" 
-                      minW="18px" 
-                      height="18px"
+                      minW="16px" 
+                      height="16px"
                       textAlign="center"
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                       border="2px solid white"
-                      animation="pulse 2s infinite"
                     >
                       {Math.min(cartQty, 99)}
                     </Box>
@@ -211,24 +179,23 @@ const GlobalBottomNavigation: React.FC = () => {
                   {showOrdersBadge && (
                     <Box 
                       position="absolute" 
-                      top={0} 
+                      top={-2} 
                       right={0} 
-                      transform="translate(40%, -20%)" 
-                      bg="linear-gradient(135deg, #10B981 0%, #34D399 100%)"
+                      transform="translate(30%, 0%)" 
+                      bg="blue.500"
                       color="white" 
                       fontSize="10px" 
-                      fontWeight="700"
-                      px={2} 
-                      py={1} 
+                      fontWeight="600"
+                      px={1.5} 
+                      py={0.5} 
                       borderRadius="full" 
-                      minW="18px" 
-                      height="18px"
+                      minW="16px" 
+                      height="16px"
                       textAlign="center"
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                       border="2px solid white"
-                      animation="pulse 2s infinite"
                     >
                       {Math.min(ordersCount, 99)}
                     </Box>

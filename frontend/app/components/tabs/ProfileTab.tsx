@@ -154,14 +154,7 @@ const ProfileTab: React.FC = () => {
       description: "View all your past orders",
       color: "blue.500",
       bgColor: "rgba(59, 130, 246, 0.1)",
-      action: () => {
-        toast({
-          title: "Redirecting to orders...",
-          status: "info",
-          duration: 2000,
-          isClosable: true,
-        });
-      },
+      action: () => router.push("/user-dashboard/orders"),
     },
     {
       icon: FaHeart,
@@ -270,35 +263,43 @@ const ProfileTab: React.FC = () => {
     <Box 
       minH="calc(100vh - 72px)" 
       pb="calc(env(safe-area-inset-bottom, 0px) + 72px)"
+      bg="gray.50"
     >
       <Wrapper>
-        <Box py={4}>
+        <Box py={6}>
           {/* Header */}
-          <Flex justify="space-between" align="center" mb={6} mt={4}>
+          <Flex justify="space-between" align="center" mb={8} mt={2}>
             <HStack spacing={3}>
               <Box
-                p={3}
-                borderRadius="16px"
-                bg="rgba(255, 255, 255, 0.9)"
-                backdropFilter="blur(10px)"
-                border="1px solid rgba(255, 255, 255, 0.2)"
+                p={2.5}
+                borderRadius="10px"
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
               >
-                <FaUserCircle color="#3B174F" size="24px" />
+                <FaUserCircle color="#111827" size="22px" />
               </Box>
-              <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="800" bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)" bgClip="text" color="transparent">
-                Profile
-              </Text>
+              <VStack align="start" spacing={0}>
+                <Text fontSize={{ base: "22px", md: "26px" }} fontWeight="600" color="gray.900" lineHeight="1.2">
+                  Profile
+                </Text>
+                <Text fontSize={{ base: "13px", md: "14px" }} color="gray.500" fontWeight="400">
+                  Manage your account
+                </Text>
+              </VStack>
             </HStack>
             {!isEditing && (
               <IconButton
                 aria-label="Edit profile"
                 icon={<FaEdit />}
                 size={{ base: 'sm', md: 'md' }}
-                bg="brand.primary"
+                bg="gray.900"
                 color="white"
-                _hover={{ bg: "brand.primaryDark", transform: "translateY(-2px)" }}
+                _hover={{ bg: "gray.800" }}
+                _active={{ bg: "gray.700" }}
                 onClick={handleEdit}
-                transition="all 0.3s ease"
+                transition="all 0.2s ease"
+                borderRadius="10px"
               />
             )}
           </Flex>
@@ -308,7 +309,7 @@ const ProfileTab: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            mb={6}
+            mb={5}
           >
             <WalletSection user={me} />
           </MotionBox>
@@ -318,47 +319,48 @@ const ProfileTab: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            bg="rgba(255, 255, 255, 0.9)"
-            backdropFilter="blur(20px)"
-            borderRadius="20px"
-            p={{ base: 5, md: 6 }}
-            border="1px solid rgba(255, 255, 255, 0.2)"
-            mb={6}
+            bg="white"
+            borderRadius="16px"
+            p={{ base: 6, md: 7 }}
+            border="1px solid"
+            borderColor="gray.200"
+            mb={5}
           >
-            <VStack spacing={4} align="stretch">
-              <Flex align="center" gap={4}>
+            <VStack spacing={5} align="stretch">
+              <Flex align="center" gap={5}>
                 <Box position="relative">
                   <Avatar
-                    size={{ base: 'lg', md: 'xl' }}
+                    size={{ base: 'xl', md: '2xl' }}
                     name={`${me.firstName} ${me.lastName}`}
-                    bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+                    bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                     color="white"
+                    fontWeight="600"
                   />
-                  <Badge
+                  <Box
                     position="absolute"
-                    bottom={0}
-                    right={0}
-                    bg="green.500"
-                    color="white"
+                    bottom={1}
+                    right={1}
+                    bg="green.400"
                     borderRadius="full"
-                    px={2}
-                    py={0.5}
-                    fontSize="10px"
-                    border="2px solid white"
-                  >
-                    Active
-                  </Badge>
+                    w={{ base: "14px", md: "16px" }}
+                    h={{ base: "14px", md: "16px" }}
+                    border="3px solid white"
+                  />
                 </Box>
-                <VStack align="start" spacing={1} flex={1}>
-                  <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="800" color="#1A1A1A" noOfLines={1}>
+                <VStack align="start" spacing={1.5} flex={1}>
+                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="600" color="gray.900" noOfLines={1}>
                     {me.firstName} {me.lastName}
                   </Text>
-                  <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600" noOfLines={1}>
-                    {me.email}
-                  </Text>
-                  <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600" noOfLines={1}>
-                    📱 {me.phoneNumber}
-                  </Text>
+                  <HStack spacing={2}>
+                    <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500" noOfLines={1}>
+                      {me.email}
+                    </Text>
+                  </HStack>
+                  <HStack spacing={2}>
+                    <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500" noOfLines={1}>
+                      {me.phoneNumber}
+                    </Text>
+                  </HStack>
                 </VStack>
               </Flex>
 
@@ -369,96 +371,114 @@ const ProfileTab: React.FC = () => {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Divider my={4} />
-                  <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="700" color="#000" mb={4}>
+                  <Divider my={5} borderColor="gray.200" />
+                  <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="600" color="gray.900" mb={5}>
                     Edit Profile Information
                   </Text>
                   
                   <VStack spacing={4} align="stretch">
-                    <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
-                      <Input
-                        placeholder="First Name"
-                        value={editForm.firstName}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
-                        bg="white"
-                        border="1px solid"
-                        borderColor="gray.300"
-                        borderRadius="12px"
-                        _focus={{
-                          borderColor: "brand.primary",
-                          boxShadow: "0 0 0 1px #3B174F",
-                        }}
-                        size={{ base: 'md', md: 'lg' }}
-                      />
-                      <Input
-                        placeholder="Last Name"
-                        value={editForm.lastName}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
-                        bg="white"
-                        border="1px solid"
-                        borderColor="gray.300"
-                        borderRadius="12px"
-                        _focus={{
-                          borderColor: "brand.primary",
-                          boxShadow: "0 0 0 1px #3B174F",
-                        }}
-                        size={{ base: 'md', md: 'lg' }}
-                      />
+                    <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
+                      <Box>
+                        <Text fontSize="sm" fontWeight="500" color="gray.700" mb={2}>First Name</Text>
+                        <Input
+                          placeholder="Enter first name"
+                          value={editForm.firstName}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
+                          bg="gray.50"
+                          border="1.5px solid"
+                          borderColor="gray.200"
+                          borderRadius="10px"
+                          _hover={{ borderColor: "gray.300" }}
+                          _focus={{
+                            borderColor: "gray.900",
+                            bg: "white",
+                          }}
+                          size={{ base: 'md', md: 'lg' }}
+                        />
+                      </Box>
+                      <Box>
+                        <Text fontSize="sm" fontWeight="500" color="gray.700" mb={2}>Last Name</Text>
+                        <Input
+                          placeholder="Enter last name"
+                          value={editForm.lastName}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
+                          bg="gray.50"
+                          border="1.5px solid"
+                          borderColor="gray.200"
+                          borderRadius="10px"
+                          _hover={{ borderColor: "gray.300" }}
+                          _focus={{
+                            borderColor: "gray.900",
+                            bg: "white",
+                          }}
+                          size={{ base: 'md', md: 'lg' }}
+                        />
+                      </Box>
                     </Grid>
 
-                    <Input
-                      placeholder="Email"
-                      value={editForm.email}
-                      isDisabled
-                      bg="gray.50"
-                      border="1px solid"
-                      borderColor="gray.300"
-                      borderRadius="12px"
-                      size={{ base: 'md', md: 'lg' }}
-                      _disabled={{
-                        opacity: 0.6,
-                        cursor: "not-allowed",
-                      }}
-                    />
+                    <Box>
+                      <Text fontSize="sm" fontWeight="500" color="gray.700" mb={2}>Email Address</Text>
+                      <Input
+                        placeholder="Email"
+                        value={editForm.email}
+                        isDisabled
+                        bg="gray.100"
+                        border="1.5px solid"
+                        borderColor="gray.200"
+                        borderRadius="10px"
+                        size={{ base: 'md', md: 'lg' }}
+                        _disabled={{
+                          opacity: 0.7,
+                          cursor: "not-allowed",
+                        }}
+                      />
+                    </Box>
 
-                    <Input
-                      placeholder="Phone Number"
-                      value={editForm.phoneNumber}
-                      isDisabled
-                      bg="gray.50"
-                      border="1px solid"
-                      borderColor="gray.300"
-                      borderRadius="12px"
-                      size={{ base: 'md', md: 'lg' }}
-                      _disabled={{
-                        opacity: 0.6,
-                        cursor: "not-allowed",
-                      }}
-                    />
+                    <Box>
+                      <Text fontSize="sm" fontWeight="500" color="gray.700" mb={2}>Phone Number</Text>
+                      <Input
+                        placeholder="Phone Number"
+                        value={editForm.phoneNumber}
+                        isDisabled
+                        bg="gray.100"
+                        border="1.5px solid"
+                        borderColor="gray.200"
+                        borderRadius="10px"
+                        size={{ base: 'md', md: 'lg' }}
+                        _disabled={{
+                          opacity: 0.7,
+                          cursor: "not-allowed",
+                        }}
+                      />
+                    </Box>
 
-                    <Flex gap={3}>
+                    <Flex gap={3} mt={2}>
                       <CButton
-                        bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+                        bg="gray.900"
                         color="white"
-                        _hover={{ transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(59, 23, 79, 0.3)" }}
+                        _hover={{ bg: "gray.800" }}
+                        _active={{ bg: "gray.700" }}
                         onClick={handleSave}
                         isLoading={updateMutation.isPending}
                         loadingText="Saving..."
                         flex={1}
-                        borderRadius="12px"
+                        borderRadius="10px"
                         size={{ base: 'md', md: 'lg' }}
-                        transition="all 0.3s ease"
+                        transition="all 0.2s ease"
+                        fontWeight="500"
                       >
                         Save Changes
                       </CButton>
                       <CButton
                         variant="outline"
                         borderColor="gray.300"
-                        _hover={{ bg: "gray.50" }}
+                        color="gray.700"
+                        _hover={{ bg: "gray.100", borderColor: "gray.400" }}
                         onClick={handleCancel}
                         flex={1}
-                        borderRadius="12px"
+                        borderRadius="10px"
                         size={{ base: 'md', md: 'lg' }}
+                        fontWeight="500"
                       >
                         Cancel
                       </CButton>
@@ -470,10 +490,10 @@ const ProfileTab: React.FC = () => {
           </MotionBox>
 
           {/* Quick Stats */}
-          <SimpleGrid columns={{ base: 2, md: 4 }} spacing={3} mb={6}>
+          <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
             {[
               { label: "Orders", value: "0", icon: FaHistory, color: "blue" },
-              { label: "Saved", value: "0", icon: FaHeart, color: "pink" },
+              { label: "Saved", value: "0", icon: FaHeart, color: "red" },
               { label: "Balance", value: `₦${(me.virtualBankAccount?.balance || 0).toLocaleString()}`, icon: FaWallet, color: "green" },
               { label: "Cards", value: me.cards?.length || 0, icon: FaCreditCard, color: "purple" },
             ].map((stat, index) => (
@@ -482,25 +502,26 @@ const ProfileTab: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.2 + (index * 0.1) }}
-                bg="rgba(255, 255, 255, 0.9)"
-                backdropFilter="blur(20px)"
-                borderRadius="16px"
-                p={{ base: 3, md: 4 }}
-                border="1px solid rgba(255, 255, 255, 0.2)"
+                bg="white"
+                borderRadius="14px"
+                p={{ base: 5, md: 6 }}
+                border="1px solid"
+                borderColor="gray.200"
                 textAlign="center"
+                _hover={{ borderColor: "gray.300" }}
               >
-                <VStack spacing={2}>
+                <VStack spacing={2.5}>
                   <Box
-                    p={2}
-                    borderRadius="full"
+                    p={3}
+                    borderRadius="10px"
                     bg={`${stat.color}.50`}
                   >
-                    <Icon as={stat.icon} color={`${stat.color}.500`} fontSize={{ base: '16px', md: '20px' }} />
+                    <Icon as={stat.icon} color={`${stat.color}.500`} fontSize={{ base: '20px', md: '22px' }} />
                   </Box>
-                  <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="800" color="#1A1A1A">
+                  <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="600" color="gray.900">
                     {stat.value}
                   </Text>
-                  <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600">
+                  <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500" fontWeight="500">
                     {stat.label}
                   </Text>
                 </VStack>
@@ -510,7 +531,7 @@ const ProfileTab: React.FC = () => {
 
           {/* Menu Items */}
           <VStack spacing={3} align="stretch" mb={6}>
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="700" color="#000" mb={2}>
+            <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="600" color="gray.900" mb={1}>
               Account Settings
             </Text>
             {menuItems.map((item, index) => (
@@ -519,14 +540,18 @@ const ProfileTab: React.FC = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: 0.5 + (index * 0.05) }}
-                bg="rgba(255, 255, 255, 0.9)"
-                backdropFilter="blur(20px)"
-                borderRadius="16px"
-                p={{ base: 3, md: 4 }}
-                border="1px solid rgba(255, 255, 255, 0.2)"
+                bg="white"
+                borderRadius="14px"
+                p={{ base: 4, md: 5 }}
+                border="1px solid"
+                borderColor="gray.200"
                 cursor="pointer"
                 _hover={{
-                  transform: "translateX(4px)",
+                  borderColor: "gray.300",
+                  bg: "gray.50",
+                }}
+                _active={{
+                  bg: "gray.100",
                 }}
                 onClick={item.action}
               >
@@ -534,22 +559,22 @@ const ProfileTab: React.FC = () => {
                   <HStack spacing={{ base: 3, md: 4 }}>
                     <Box
                       p={{ base: 2.5, md: 3 }}
-                      borderRadius="full"
+                      borderRadius="12px"
                       bg={item.bgColor}
                       color={item.color}
                     >
                       <item.icon size={20} />
                     </Box>
-                    <VStack align="start" spacing={0}>
-                      <Text fontWeight="600" color="#000" fontSize={{ base: 'sm', md: 'md' }}>
+                    <VStack align="start" spacing={0.5}>
+                      <Text fontWeight="600" color="gray.900" fontSize={{ base: 'sm', md: 'md' }}>
                         {item.title}
                       </Text>
-                      <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600" display={{ base: 'none', md: 'block' }}>
+                      <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500" display={{ base: 'none', md: 'block' }}>
                         {item.description}
                       </Text>
                     </VStack>
                   </HStack>
-                  <Icon as={FaChevronRight} color="gray.400" fontSize={{ base: '14px', md: '16px' }} />
+                  <Icon as={FaChevronRight} color="gray.300" fontSize={{ base: '14px', md: '16px' }} />
                 </Flex>
               </MotionBox>
             ))}
@@ -563,17 +588,23 @@ const ProfileTab: React.FC = () => {
           >
             <CButton
               leftIcon={<FaSignOutAlt />}
-              colorScheme="red"
-              variant="outline"
+              bg="white"
+              color="red.600"
+              border="1.5px solid"
+              borderColor="red.200"
               onClick={handleLogout}
               w="full"
               size={{ base: 'md', md: 'lg' }}
-              borderRadius="16px"
+              borderRadius="14px"
+              fontWeight="500"
               _hover={{
                 bg: "red.50",
-                transform: "translateY(-2px)",
+                borderColor: "red.300",
               }}
-              transition="all 0.3s ease"
+              _active={{
+                bg: "red.100",
+              }}
+              transition="all 0.2s ease"
             >
               Logout
             </CButton>

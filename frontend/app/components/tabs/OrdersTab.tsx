@@ -251,35 +251,34 @@ const OrdersTab: React.FC = () => {
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
         bg="white"
-        borderRadius={{ base: "12px", md: "16px" }}
-        p={{ base: 3, md: 5 }}
+        borderRadius="12px"
+        p={{ base: 4, md: 6 }}
         border="1px solid"
         borderColor="gray.200"
         position="relative"
-        zIndex={4}
         _hover={{
-          transform: "translateY(-2px)",
+          borderColor: "gray.300",
         }}
       >
         <VStack spacing={{ base: 2, md: 3 }} align="stretch">
           {/* Header Row */}
           <Flex justify="space-between" align="flex-start" gap={2}>
             <VStack align="start" spacing={1} flex={1}>
-              <Text fontWeight="700" color="#000" fontSize={{ base: 'sm', md: 'lg' }} noOfLines={1}>
+              <Text fontWeight="600" color="gray.900" fontSize={{ base: 'md', md: 'lg' }} noOfLines={1}>
                 #{orderIdDisplay}
               </Text>
-              <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600" noOfLines={1}>
+              <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500" noOfLines={1}>
                 {storeName}
               </Text>
             </VStack>
             <Badge 
               colorScheme={scheme}
-              px={{ base: 2, md: 3 }}
+              px={3}
               py={1}
-              borderRadius="full"
-              fontSize={{ base: 'xs', md: 'sm' }}
-              fontWeight="600"
-              whiteSpace="nowrap"
+              borderRadius="6px"
+              fontSize="xs"
+              fontWeight="500"
+              textTransform="capitalize"
             >
               {displayStatus}
             </Badge>
@@ -288,9 +287,9 @@ const OrdersTab: React.FC = () => {
           <Divider />
 
           {/* Details Row */}
-          <Flex justify="space-between" align="center" gap={2}>
+          <Flex justify="space-between" align="center" gap={4}>
             <VStack align="start" spacing={0}>
-              <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600">
+              <Text fontSize="sm" color="gray.600" fontWeight="500">
                 {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric', 
@@ -304,25 +303,24 @@ const OrdersTab: React.FC = () => {
                 }) : ""}
               </Text>
             </VStack>
-            <VStack align="end" spacing={1}>
+            <VStack align="end" spacing={2}>
               {orderCode && (
-                <Badge colorScheme="purple" variant="subtle" borderRadius="full" px={2} py={1} fontSize="10px">
+                <Badge colorScheme="purple" variant="subtle" borderRadius="6px" px={2} py={1} fontSize="10px" fontWeight="500">
                   Code: {orderCode}
                 </Badge>
               )}
               {totalPrice > 0 && (
-              <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="800" color="brand.primary">
-                ₦{totalPrice.toLocaleString()}
-              </Text>
+                <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="700" color="gray.900">
+                  ₦{totalPrice.toLocaleString()}
+                </Text>
               )}
-              {/* No fallback UI when code is unavailable */}
             </VStack>
           </Flex>
 
           {/* Detailed Items Preview */}
           {itemCount > 0 && (
-            <Box bg="gray.50" p={{ base: 2, md: 3 }} borderRadius="8px">
-              <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.700" fontWeight="600" mb={2}>
+            <Box bg="gray.50" p={4} borderRadius="8px">
+              <Text fontSize="sm" color="gray.700" fontWeight="600" mb={3}>
                 Order Items ({itemCount} {itemCount === 1 ? 'item' : 'items'})
               </Text>
               {cartItems.length > 0 && (
@@ -353,22 +351,22 @@ const OrdersTab: React.FC = () => {
           )}
 
           {/* Order Details */}
-          <Box bg="blue.50" p={{ base: 2, md: 3 }} borderRadius="8px">
-            <Text fontSize={{ base: 'xs', md: 'sm' }} color="blue.700" fontWeight="600" mb={2}>
+          <Box bg="blue.50" p={4} borderRadius="8px">
+            <Text fontSize="sm" color="blue.700" fontWeight="600" mb={3}>
               Order Details
             </Text>
             <VStack align="stretch" spacing={1}>
               {orderCode && (
-                <Box bg="purple.100" p={2} borderRadius="6px" mb={1}>
+                <Box bg="purple.100" p={3} borderRadius="8px" mb={2}>
                   <HStack justify="space-between">
-                    <Text fontSize="xs" color="purple.700" fontWeight="600">
+                    <Text fontSize="sm" color="purple.700" fontWeight="600">
                       Completion Code:
                     </Text>
-                    <Text fontSize="xs" color="purple.800" fontWeight="800" fontFamily="mono">
+                    <Text fontSize="sm" color="purple.900" fontWeight="700" fontFamily="mono">
                       {orderCode}
                     </Text>
                   </HStack>
-                  <Text fontSize="10px" color="purple.600" mt={1}>
+                  <Text fontSize="xs" color="purple.600" mt={1}>
                     Give this code to your rider when they arrive
                   </Text>
                 </Box>
@@ -539,68 +537,91 @@ const OrdersTab: React.FC = () => {
             />
           ) : (
             <Tabs 
-              variant="soft-rounded" 
-              colorScheme="purple" 
+              variant="line" 
               index={activeTab} 
               onChange={setActiveTab}
               isFitted={false}
               position="relative"
-              zIndex={2}
             >
               <TabList 
-                mb={4} 
+                mb={6} 
                 overflowX="auto" 
                 overflowY="hidden"
                 css={{
                   '&::-webkit-scrollbar': { display: 'none' },
                   scrollbarWidth: 'none',
                 }}
-                pb={2}
+                borderBottom="1px solid"
+                borderColor="gray.200"
               >
                 <Tab 
-                  fontSize={{ base: 'xs', md: 'sm' }}
-                  px={{ base: 3, md: 4 }}
-                  minW={{ base: 'auto', md: '100px' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontWeight="500"
+                  px={{ base: 4, md: 6 }}
+                  py={3}
+                  color="gray.600"
+                  borderBottom="2px solid transparent"
                   _selected={{ 
-                    bg: 'brand.primary', 
-                    color: 'white',
-                    fontWeight: '600'
+                    color: 'gray.900',
+                    fontWeight: '600',
+                    borderColor: 'gray.900'
+                  }}
+                  _hover={{
+                    color: 'gray.700'
                   }}
                 >
                   All ({allOrders.length})
                 </Tab>
                 <Tab 
-                  fontSize={{ base: 'xs', md: 'sm' }}
-                  px={{ base: 3, md: 4 }}
-                  minW={{ base: 'auto', md: '100px' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontWeight="500"
+                  px={{ base: 4, md: 6 }}
+                  py={3}
+                  color="gray.600"
+                  borderBottom="2px solid transparent"
                   _selected={{ 
-                    bg: 'orange.500', 
-                    color: 'white',
-                    fontWeight: '600'
+                    color: 'orange.600',
+                    fontWeight: '600',
+                    borderColor: 'orange.500'
+                  }}
+                  _hover={{
+                    color: 'orange.500'
                   }}
                 >
                   Active ({activeOrders.length})
                 </Tab>
                 <Tab 
-                  fontSize={{ base: 'xs', md: 'sm' }}
-                  px={{ base: 3, md: 4 }}
-                  minW={{ base: 'auto', md: '100px' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontWeight="500"
+                  px={{ base: 4, md: 6 }}
+                  py={3}
+                  color="gray.600"
+                  borderBottom="2px solid transparent"
                   _selected={{ 
-                    bg: 'green.500', 
-                    color: 'white',
-                    fontWeight: '600'
+                    color: 'green.600',
+                    fontWeight: '600',
+                    borderColor: 'green.500'
+                  }}
+                  _hover={{
+                    color: 'green.500'
                   }}
                 >
                   Completed ({completedOrders.length})
                 </Tab>
                 <Tab 
-                  fontSize={{ base: 'xs', md: 'sm' }}
-                  px={{ base: 3, md: 4 }}
-                  minW={{ base: 'auto', md: '100px' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontWeight="500"
+                  px={{ base: 4, md: 6 }}
+                  py={3}
+                  color="gray.600"
+                  borderBottom="2px solid transparent"
                   _selected={{ 
-                    bg: 'red.500', 
-                    color: 'white',
-                    fontWeight: '600'
+                    color: 'red.600',
+                    fontWeight: '600',
+                    borderColor: 'red.500'
+                  }}
+                  _hover={{
+                    color: 'red.500'
                   }}
                 >
                   Cancelled ({cancelledOrders.length})

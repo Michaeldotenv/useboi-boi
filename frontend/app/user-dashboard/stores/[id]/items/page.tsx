@@ -3,683 +3,369 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getAuthToken } from "@/lib/auth";
-import { Box, Heading, Text, VStack, HStack, Badge, Input, InputGroup, InputLeftElement, Flex, Button, Icon, Image, SimpleGrid, Card, Skeleton, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Button,
+  Icon,
+  Image,
+  SimpleGrid,
+  Skeleton,
+  useToast,
+  Flex,
+  Badge,
+} from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { FaBell, FaArrowLeft } from "react-icons/fa";
-import { FiStar, FiShoppingCart, FiEye, FiFilter } from "react-icons/fi";
-import { motion } from "framer-motion";
-import Wrapper from "../../../../components/Wrapper";
+import { FiArrowLeft, FiPlus, FiMinus, FiShoppingCart } from "react-icons/fi";
 import { useCartStore } from "@/lib/cartStore";
 
 export default function StoreItemsPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const toast = useToast();
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("name");
-  const [priceRange, setPriceRange] = useState<string>("all");
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [productImages, setProductImages] = useState<{[key: string]: string}>({});
-  const [visibleItemsCount, setVisibleItemsCount] = useState<number>(8);
-  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
-  const [categoryIndex, setCategoryIndex] = useState<number>(0);
-  const [isCatHovered, setIsCatHovered] = useState<boolean>(false);
-  const catRef = useRef<HTMLDivElement>(null);
-  let catTouchStartX = 0;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const { items: cartItems, addItem, increment, decrement, removeItem } = useCartStore();
 
   useEffect(() => {
     const token = getAuthToken();
     if (!token) router.replace("/login");
   }, [router]);
 
-  // Handle loading more items
-  const handleLoadMore = async () => {
-    setIsLoadingMore(true);
-    // Simulate loading delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 800));
-    setVisibleItemsCount(prev => prev + 8);
-    setIsLoadingMore(false);
-  };
-
-  // Handle showing less items
-  const handleShowLess = () => {
-    setVisibleItemsCount(8);
-  };
-
-  // Reset visible items count when filters change
-  useEffect(() => {
-    setVisibleItemsCount(8);
-  }, [selectedCategory, searchQuery, sortBy, priceRange]);
-
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["vendor-items", params.id],
     queryFn: () => api.vendorItems(params.id),
     enabled: Boolean(params.id),
   });
 
-  // Memoize items to prevent unnecessary re-renders
   const items = useMemo(() => (data as any)?.data || data || [], [data]);
 
-  // Map category IDs to readable names
-  const getCategoryName = (item: any): string => {
-    // Check if category is already a readable string
-    if (typeof item.category === 'string' && !item.category.match(/^[0-9a-f]{24}$/i)) {
-      return item.category;
-    }
-    
-    // Check for category name field
-    if (item.categoryName) {
-      return item.categoryName;
-    }
-    
-    // Check for category object with name
-    if (item.category && typeof item.category === 'object' && item.category.name) {
-      return item.category.name;
-    }
-    
-    // Default fallback categories based on common patterns
-    const categoryMap: { [key: string]: string } = {
-      '67d582619dfc3452b04e4c77': 'Restaurant',
-      '68035daf79fd624e59299358': 'Grocery',
-      '68035dd9f2c01460883c9e14': 'Supermarket',
-      // Add more mappings as needed
-    };
-    
-    if (item.category && categoryMap[item.category]) {
-      return categoryMap[item.category];
-    }
-    
-    // Final fallback
-    return 'Item';
-  };
-
-  // Extract unique categories from items
+  // Get unique categories
   const categories = useMemo(() => {
-    const cats = new Set<string>();
-    items.forEach((item: any) => {
-      const categoryName = getCategoryName(item);
-      if (categoryName && categoryName.trim()) {
-        cats.add(categoryName);
-      }
-    });
-    return Array.from(cats).sort();
+    const cats = new Set(items.map((item: any) => item.category || "Other"));
+    return ["all", ...Array.from(cats)];
   }, [items]);
 
-  // Set default category when categories are loaded
-  useEffect(() => {
-    if (categories.length > 0 && !selectedCategory) {
-      setSelectedCategory(categories[0]); // Set first category as default
-    }
-  }, [categories, selectedCategory]);
+  // Filter items
+  const filteredItems = useMemo(() => {
+    return items.filter((item: any) => {
+      const matchesSearch =
+        !searchQuery ||
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-  // Auto-slide categories horizontally
-  useEffect(() => {
-    if (!categories || categories.length <= 3 || isCatHovered) return;
-    const id = setInterval(() => {
-      setCategoryIndex((prev) => (prev + 1) % categories.length);
-    }, 3000);
-    return () => clearInterval(id);
-  }, [categories, isCatHovered]);
+      const matchesCategory =
+        selectedCategory === "all" || item.category === selectedCategory;
 
-  const handleCatTouchStart = (e: React.TouchEvent) => {
-    catTouchStartX = e.touches[0].clientX;
-  };
-  const handleCatTouchMove = (e: React.TouchEvent) => {
-    const touchEndX = e.touches[0].clientX;
-    const diff = catTouchStartX - touchEndX;
-    if (diff > 40) {
-      setCategoryIndex((prev) => (prev + 1) % categories.length);
-      catTouchStartX = touchEndX;
-    } else if (diff < -40) {
-      setCategoryIndex((prev) => (prev - 1 + categories.length) % categories.length);
-      catTouchStartX = touchEndX;
-    }
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, searchQuery, selectedCategory]);
+
+  const getItemQuantity = (itemId: string) => {
+    const cartItem = cartItems.find((i) => i.id === itemId);
+    return cartItem?.quantity || 0;
   };
 
-  // Use backend-provided item images (e.g., imgbb URLs) when data is ready
-  useEffect(() => {
-    if (items.length > 0) {
-      const imageMap: { [key: string]: string } = {};
-      items.forEach((item: any) => {
-        const id = item.id || item._id;
-        const img = item.image || item.Image; // prefer backend image if present
-        if (id && typeof img === 'string' && img.trim()) {
-          imageMap[id] = img;
-        }
-      });
-      setProductImages(imageMap);
-
-      const timer = setTimeout(() => setIsLoaded(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [items]);
-
-  // Get price ranges for filtering
-  const priceRanges = useMemo(() => {
-    if (items.length === 0) return [];
-    const prices = items.map((item: any) => item.price || 0).filter((price: number) => price > 0);
-    if (prices.length === 0) return [];
-
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
-    const mid = (min + max) / 2;
-
-    return [
-      { label: "Under ₦1,000", value: "under-1000", min: 0, max: 1000 },
-      { label: "₦1,000 - ₦5,000", value: "1000-5000", min: 1000, max: 5000 },
-      { label: "₦5,000 - ₦10,000", value: "5000-10000", min: 5000, max: 10000 },
-      { label: "Above ₦10,000", value: "above-10000", min: 10000, max: Infinity },
-    ];
-  }, [items]);
-
-  // Filter and sort items
-  const filteredAndSortedItems = useMemo(() => {
-    let filtered = items;
-
-    // Filter by category (only show items from selected category)
-    if (selectedCategory) {
-      filtered = filtered.filter((item: any) => getCategoryName(item) === selectedCategory);
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((item: any) =>
-        (item.name && item.name.toLowerCase().includes(query)) ||
-        (getCategoryName(item).toLowerCase().includes(query)) ||
-        (item.desc && item.desc.toLowerCase().includes(query))
-      );
-    }
-
-    // Filter by price range
-    if (priceRange !== "all") {
-      const range = priceRanges.find(r => r.value === priceRange);
-      if (range) {
-        filtered = filtered.filter((item: any) => {
-          const price = item.price || 0;
-          return price >= range.min && price <= range.max;
-        });
-      }
-    }
-
-    // Sort items
-    filtered.sort((a: any, b: any) => {
-      switch (sortBy) {
-        case "name":
-          return (a.name || "").localeCompare(b.name || "");
-        case "price-low":
-          return (a.price || 0) - (b.price || 0);
-        case "price-high":
-          return (b.price || 0) - (a.price || 0);
-        case "category":
-          return getCategoryName(a).localeCompare(getCategoryName(b));
-        default:
-          return 0;
-      }
+  const handleAddToCart = (item: any) => {
+    addItem({
+      id: item.id || item._id,
+      vendorId: params.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
     });
 
-    return filtered;
-  }, [items, selectedCategory, searchQuery, sortBy, priceRange, priceRanges]);
+    toast({
+      title: "Added to cart",
+      description: `${item.name} added to your cart`,
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
-  // Professional loading state
+  const handleIncrement = (itemId: string) => {
+    increment(itemId);
+  };
+
+  const handleDecrement = (itemId: string) => {
+    const quantity = getItemQuantity(itemId);
+    if (quantity === 1) {
+      removeItem(itemId);
+    } else {
+      decrement(itemId);
+    }
+  };
+
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   if (isLoading) {
     return (
-      <Box p={4}>
-        <Flex align="center" justify="space-between" mb={6}>
-          <Skeleton height="40px" width="150px" />
-          <Skeleton height="20px" width="120px" />
-        </Flex>
-
-        {/* Filter Bar Skeleton */}
-        <Card p={4} mb={6}>
-          <VStack spacing={4} align="stretch">
-            <Skeleton height="40px" width="100%" />
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={4}>
-              {[1, 2, 3, 4].map((i) => (
-                <Box key={i}>
-                  <Skeleton height="16px" width="80px" mb={2} />
-                  <Skeleton height="40px" width="100%" />
-                </Box>
-              ))}
-            </SimpleGrid>
-          </VStack>
-        </Card>
-
-        {/* Items Grid Skeleton */}
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Card key={i} p={4} h="full">
-              <VStack align="stretch" spacing={3} h="full">
-                <Skeleton height="20px" width="80px" />
-                <Skeleton height="20px" width="100%" />
-                <Skeleton height="16px" width="90%" />
-                <Skeleton height="16px" width="70%" />
-                <HStack justify="space-between" pt={2} borderTop="1px solid" borderColor="gray.100">
-                  <Skeleton height="20px" width="80px" />
-                  <Skeleton height="16px" width="60px" />
-                </HStack>
-              </VStack>
-            </Card>
-          ))}
-        </SimpleGrid>
+      <Box bg="#FAFAFA" minH="100vh">
+        <Container maxW="7xl" py={6}>
+          <Skeleton height="40px" width="200px" mb={6} />
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} height="300px" borderRadius="16px" />
+            ))}
+          </SimpleGrid>
+        </Container>
       </Box>
     );
   }
 
-  if (error) return <Box p={4}>Failed to load items</Box>;
-
-  const formatCurrency = (value: number) => {
-    try {
-      return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(value || 0);
-    } catch {
-      return `₦${Number(value || 0).toLocaleString()}`;
-    }
-  };
-
-  const clearFilters = () => {
-    setSelectedCategory(categories.length > 0 ? categories[0] : "");
-    setSearchQuery("");
-    setSortBy("name");
-    setPriceRange("all");
-  };
+  if (isLoading) {
+    return (
+      <Box bg="white" minH="100vh">
+        <Container maxW="6xl" py={3}>
+          <Skeleton height="28px" width="150px" mb={3} />
+          <Skeleton height="40px" mb={3} />
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={3}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Skeleton key={i} height="240px" borderRadius="10px" />
+            ))}
+          </SimpleGrid>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
-    <Box bg="#F2F2F7" minH="100vh">
-      {/* Header */}
-      <Box bg="#3B174F" w="100%" py={3}>
-        <Wrapper>
-          <Flex justifyContent="space-between" alignItems="center">
+    <Box bg="white" minH="100vh" pb={24}>
+      {/* Compact Header */}
+      <Box bg="white" borderBottom="1px" borderColor="gray.100" position="sticky" top={0} zIndex={10} boxShadow="sm">
+        <Container maxW="6xl" py={3}>
+          <VStack spacing={3} align="stretch">
             <HStack spacing={3}>
               <Icon
-                as={FaArrowLeft}
-                color="#fff"
-                fontSize="18px"
+                as={FiArrowLeft}
+                boxSize={5}
+                color="gray.600"
                 cursor="pointer"
                 onClick={() => router.back()}
+                _hover={{ color: "purple.600" }}
               />
-              <Text fontSize="15px" fontWeight="600" color="#fff">
-                Store Items
+              <Heading size="md" fontWeight="600" color="gray.900">
+                Menu
+              </Heading>
+              <Text fontSize="xs" color="gray.500" ml="auto">
+                {filteredItems.length} items
               </Text>
             </HStack>
-            <Text color="whiteAlpha.900" fontSize="13px">
-              {filteredAndSortedItems.length} items
-            </Text>
-          </Flex>
-        </Wrapper>
-      </Box>
 
-      <Wrapper>
-        {/* Content Section */}
-        <Box py={4}>
-          {/* Filter Bar */}
-          <Box bg="white" borderRadius="8px" p={3} border="1px solid" borderColor="gray.100" mb={4}>
-            <Box
-              ref={catRef}
-              onMouseEnter={() => setIsCatHovered(true)}
-              onMouseLeave={() => setIsCatHovered(false)}
-              onTouchStart={handleCatTouchStart}
-              onTouchMove={handleCatTouchMove}
-              overflow="hidden"
-              w="100%"
-            >
-              <Box display="flex" transition="transform 0.35s ease" style={{ transform: `translateX(-${categoryIndex * 88}px)` }}>
-                {categories.map((cat) => (
-                  <Button
-                    key={cat}
-                    size="sm"
-                    variant={selectedCategory === cat ? "solid" : "outline"}
-                    bg={selectedCategory === cat ? "#3B174F" : "transparent"}
-                    color={selectedCategory === cat ? "white" : "#000"}
-                    borderColor={selectedCategory === cat ? "#3B174F" : "#E2E8F0"}
-                    borderRadius="full"
-                    px={4}
-                    mr={2}
-                    fontSize="12px"
-                    fontWeight="500"
-                    onClick={() => setSelectedCategory(cat)}
-                    _hover={{
-                      bg: selectedCategory === cat ? "#5a2cc7" : "#F7FAFC"
-                    }}
-                    flexShrink={0}
-                  >
-                    {cat}
-                  </Button>
-                ))}
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Search Bar */}
-          <Box bg="white" borderRadius="8px" p={3} border="1px solid" borderColor="gray.100" mb={4}>
-            <InputGroup>
+            {/* Compact Search */}
+            <InputGroup size="sm">
               <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.400" />
+                <SearchIcon color="gray.400" boxSize={3.5} />
               </InputLeftElement>
               <Input
                 placeholder="Search items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                border="none"
-                _focus={{ boxShadow: "none" }}
+                bg="gray.50"
+                border="1px"
+                borderColor="gray.200"
+                borderRadius="8px"
+                fontSize="sm"
+                _focus={{ borderColor: "purple.400", bg: "white" }}
               />
             </InputGroup>
-          </Box>
 
-          {/* Results */}
-          {items.length === 0 ? (
-            <Box bg="white" borderRadius="12px" p={6} textAlign="center" boxShadow="0px 0px 2px rgba(0,0,0,0.1)">
-              <Text color="#8E8E93" fontSize="14px">No items found in this store.</Text>
-            </Box>
-          ) : filteredAndSortedItems.length === 0 ? (
-            <Box bg="white" borderRadius="12px" p={6} textAlign="center" boxShadow="0px 0px 2px rgba(0,0,0,0.1)">
-              <Text color="#8E8E93" fontSize="14px" mb={2}>
-                {selectedCategory ? `No items found in "${selectedCategory}" category.` : "No items match your search."}
-              </Text>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={clearFilters}
-                color="#3B174F"
-                _hover={{ bg: "#f7f3ff" }}
-              >
-                Clear filters
-              </Button>
-            </Box>
-          ) : (
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
-            {filteredAndSortedItems.slice(0, visibleItemsCount).map((it: any, index: number) => (
-              <motion.div
-                key={it.id || it._id}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 18 }}
-                transition={{ duration: 0.45, delay: 0.3 + (index * 0.06) }}
-              >
-                <Card
-                  p={0}
-                  h="280px"
-                  borderRadius="20px"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  background="linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)"
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                  _hover={{
-                    transform: "translateY(-4px) scale(1.02)",
-                    background: "linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)"
-                  }}
-                  cursor="pointer"
-                  overflow="hidden"
-                  position="relative"
-                  display="flex"
-                  flexDirection="column"
-                  role="group"
-                >
-                  {/* Subtle gradient overlay */}
-                  <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    right={0}
-                    bottom={0}
-                    bg="linear-gradient(135deg, rgba(59, 23, 79, 0.02) 0%, rgba(107, 42, 143, 0.01) 100%)"
-                    pointerEvents="none"
-                    zIndex={0}
-                  />
-
-                  {/* Hover Add to Cart overlay */}
-                  <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    right={0}
-                    bottom={0}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    bg="rgba(0,0,0,0.35)"
-                    opacity={0}
-                    transition="opacity 0.2s ease"
-                    _groupHover={{ opacity: 1 }}
-                    zIndex={2}
+            {/* Compact Categories */}
+            <HStack spacing={2} overflowX="auto" pb={1} css={{
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none'
+            }}>
+              {categories.map((cat) => {
+                const categoryStr = String(cat);
+                return (
+                  <Button
+                    key={categoryStr}
+                    size="xs"
+                    variant={selectedCategory === categoryStr ? "solid" : "outline"}
+                    colorScheme={selectedCategory === categoryStr ? "purple" : "gray"}
+                    borderRadius="md"
+                    onClick={() => setSelectedCategory(categoryStr)}
+                    flexShrink={0}
+                    fontWeight="600"
+                    px={3}
                   >
-                    <Button
-                      size="sm"
-                      bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
-                      color="white"
-                      borderRadius="12px"
-                      px={5}
-                      h="38px"
-                      leftIcon={<Icon as={FiShoppingCart} />}
-                      fontWeight={800}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        try {
-                          const vendorId = (params?.id as string) || "";
-                          await useCartStore.getState().addItem({
-                            id: it._id || it.id,
-                            vendorId: vendorId,
-                            name: it.name || it.title || 'Item',
-                            price: Number(it.price || 0),
-                            image: it.image || it.coverImage,
-                          }, 1);
-                          toast({ title: 'Added to cart', description: (it.name || 'Item') + ' added', status: 'success', duration: 1500 });
-                        } catch (error) {
-                          console.error('Failed to add to cart:', error);
-                          toast({ title: 'Failed to add to cart', description: 'Please try again', status: 'error', duration: 2000 });
-                        }
-                      }}
-                    >
-                      Add to Cart
-                    </Button>
-                  </Box>
+                    {categoryStr === "all" ? "All" : categoryStr}
+                  </Button>
+                );
+              })}
+            </HStack>
+          </VStack>
+        </Container>
+      </Box>
 
-                  <Box p={4} position="relative" zIndex={1} flex="1" display="flex" flexDirection="column">
-                    {/* Image Section */}
-                    <Box
-                      w="100%"
-                      h="140px"
-                      borderRadius="16px"
-                      overflow="hidden"
-                      bg="linear-gradient(135deg, #6B2A8F 0%, #8B5CF6 100%)"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      position="relative"
-                      mb={3}
-                    >
-                      {productImages[it.id || it._id] ? (
-                        <Image
-                          src={productImages[it.id || it._id]}
-                          alt={it.name}
-                          w="full"
-                          h="full"
-                          objectFit="cover"
-                          transition="transform 0.3s ease"
-                          _hover={{ transform: "scale(1.05)" }}
-                        />
-                      ) : (
-                        <Icon as={FiShoppingCart} boxSize={8} color="white" opacity={0.4} />
-                      )}
+      {/* Items Grid - Compact & Professional */}
+      <Container maxW="6xl" py={3}>
+        {filteredItems.length === 0 ? (
+          <Box textAlign="center" py={16}>
+            <Text fontSize="md" color="gray.500">
+              No items found
+            </Text>
+          </Box>
+        ) : (
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={3}>
+            {filteredItems.map((item: any) => {
+              const itemId = item.id || item._id;
+              const quantity = getItemQuantity(itemId);
 
-                      {/* Subtle shine effect */}
+              return (
+                <Box
+                  key={itemId}
+                  bg="white"
+                  borderRadius="10px"
+                  overflow="hidden"
+                  boxShadow="sm"
+                  border="1px"
+                  borderColor="gray.100"
+                  transition="all 0.2s"
+                  _hover={{ boxShadow: "md", borderColor: "purple.200" }}
+                >
+                  {/* Item Image - Compact */}
+                  <Box position="relative" h="120px" bg="gray.50">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        w="full"
+                        h="full"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <Flex h="full" align="center" justify="center">
+                        <Text fontSize="2xl">🍽️</Text>
+                      </Flex>
+                    )}
+                    
+                    {item.inStock === false && (
                       <Box
                         position="absolute"
                         top={0}
                         left={0}
                         right={0}
                         bottom={0}
-                        bg="linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%)"
-                        pointerEvents="none"
-                      />
-                    </Box>
+                        bg="blackAlpha.600"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Badge colorScheme="red" fontSize="2xs" px={2} py={1}>
+                          Out of Stock
+                        </Badge>
+                      </Box>
+                    )}
+                  </Box>
 
-                    {/* Content Section */}
-                    <VStack align="stretch" spacing={2} flex={1} py={1}>
-                      <HStack justify="space-between" align="start">
-                        <VStack align="start" spacing={0.5} flex={1}>
-                          <Text fontWeight={900} color="#0F172A" fontSize="md" noOfLines={1} lineHeight={1.2}>
-                            {it.name}
-                          </Text>
-                          {it.currentInventory !== undefined && (
-                            <Badge
-                              colorScheme={it.currentInventory > 10 ? "green" : it.currentInventory > 0 ? "orange" : "red"}
-                              fontSize="10px"
-                              borderRadius="full"
-                              px={2}
-                              py={0.5}
-                              fontWeight={600}
-                            >
-                              {it.currentInventory} available
-                            </Badge>
-                          )}
-                        </VStack>
-                      </HStack>
+                  {/* Item Info - Compact */}
+                  <Box p={2.5}>
+                    <VStack align="stretch" spacing={2}>
+                      <Heading size="xs" fontWeight="600" color="gray.900" noOfLines={1}>
+                        {item.name}
+                      </Heading>
 
-                      {it.desc && (
-                        <Text color="#64748B" fontSize="sm" noOfLines={1} lineHeight={1.3}>
-                          {it.desc}
+                      {item.description && (
+                        <Text fontSize="2xs" color="gray.600" noOfLines={2} h="28px">
+                          {item.description}
                         </Text>
                       )}
 
-                      <HStack spacing={3}>
-                        <HStack spacing={1}>
-                          <Icon as={FiStar} color="#F59E0B" boxSize={4} />
-                          <Text fontSize="xs" color="#374151" fontWeight={700}>4.5</Text>
-                          <Text fontSize="xs" color="#9CA3AF">(128 reviews)</Text>
-                        </HStack>
-                        {it.category && (
-                          <>
-                            <Text fontSize="xs" color="#D1D5DB">•</Text>
-                            <Text fontSize="xs" color="#6B7280" fontWeight={600}>{getCategoryName(it)}</Text>
-                          </>
-                        )}
-                      </HStack>
+                      <Flex justify="space-between" align="center" pt={1}>
+                        <Text fontSize="sm" fontWeight="700" color="purple.600">
+                          ₦{item.price?.toLocaleString()}
+                        </Text>
 
-                      <HStack justify="space-between" pt={1}>
-                        <VStack align="start" spacing={0}>
-                          <Text fontWeight={900} color="#3B174F" fontSize="lg" lineHeight={1}>
-                            {formatCurrency(it.price)}
-                          </Text>
-                          <Text fontSize="xs" color="#9CA3AF" textDecoration="line-through">
-                            {formatCurrency((it.price || 0) * 1.1)}
-                          </Text>
-                        </VStack>
-                        <Button
-                          size="sm"
-                          bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
-                          color="white"
-                          borderRadius="12px"
-                          px={4}
-                          h="36px"
-                          leftIcon={<Icon as={FiShoppingCart} />}
-                          fontWeight={700}
-                          fontSize="sm"
-                          _hover={{
-                            bg: "linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)",
-                            transform: "translateY(-1px)",
-                            boxShadow: "0 8px 20px rgba(124, 58, 237, 0.3)"
-                          }}
-                          transition="all 0.2s ease"
-                          onClick={async () => {
-                            try {
-                              const vendorId = (params?.id as string) || "";
-                              await useCartStore.getState().addItem({
-                                id: it._id || it.id,
-                                vendorId: vendorId,
-                                name: it.name || it.title || 'Item',
-                                price: Number(it.price || 0),
-                                image: it.image || it.coverImage,
-                              }, 1);
-                              toast({ title: 'Added to cart', description: (it.name || 'Item') + ' added', status: 'success', duration: 1500 });
-                            } catch (error) {
-                              console.error('Failed to add to cart:', error);
-                              toast({ title: 'Failed to add to cart', description: 'Please try again', status: 'error', duration: 2000 });
-                            }
-                          }}
-                        >
-                          Add to Cart
-                        </Button>
-                      </HStack>
+                        {quantity === 0 ? (
+                          <Button
+                            size="xs"
+                            colorScheme="purple"
+                            onClick={() => handleAddToCart(item)}
+                            isDisabled={item.inStock === false}
+                            borderRadius="md"
+                            fontWeight="600"
+                            px={2.5}
+                          >
+                            <Icon as={FiPlus} boxSize={3} />
+                          </Button>
+                        ) : (
+                          <HStack spacing={1}>
+                            <Button
+                              size="xs"
+                              colorScheme="purple"
+                              variant="outline"
+                              onClick={() => handleDecrement(itemId)}
+                              borderRadius="md"
+                              minW="24px"
+                              p={0}
+                            >
+                              <Icon as={FiMinus} boxSize={2.5} />
+                            </Button>
+                            <Text fontSize="xs" fontWeight="600" minW="20px" textAlign="center">
+                              {quantity}
+                            </Text>
+                            <Button
+                              size="xs"
+                              colorScheme="purple"
+                              onClick={() => handleIncrement(itemId)}
+                              borderRadius="md"
+                              minW="24px"
+                              p={0}
+                            >
+                              <Icon as={FiPlus} boxSize={2.5} />
+                            </Button>
+                          </HStack>
+                        )}
+                      </Flex>
                     </VStack>
                   </Box>
-                </Card>
-              </motion.div>
-            ))}
-            </SimpleGrid>
-          )}
+                </Box>
+              );
+            })}
+          </SimpleGrid>
+        )}
+      </Container>
 
-          {/* Load More / Show Less Buttons */}
-          {filteredAndSortedItems.length > visibleItemsCount && (
-            <Box mt={8} textAlign="center">
-              <Button
-                size="lg"
-                bg="#3B174F"
-                color="white"
-                borderRadius="16px"
-                px={8}
-                py={6}
-                fontSize="md"
-                fontWeight="600"
-                boxShadow="0 8px 24px rgba(59, 23, 79, 0.3)"
-                _hover={{
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 12px 32px rgba(59, 23, 79, 0.4)",
-                  bg: "#5a2cc7"
-                }}
-                _active={{
-                  transform: "translateY(0px)"
-                }}
-                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                isLoading={isLoadingMore}
-                loadingText="Loading more items..."
-                leftIcon={
-                  isLoadingMore ? undefined : (
-                    <Icon as={FiEye} boxSize={5} />
-                  )
-                }
-                onClick={handleLoadMore}
-                disabled={isLoadingMore}
-              >
-                {isLoadingMore ? "Loading..." : `View More Items (${filteredAndSortedItems.length - visibleItemsCount} remaining)`}
-              </Button>
-            </Box>
-          )}
-
-          {visibleItemsCount > 8 && filteredAndSortedItems.length > 8 && (
-            <Box mt={6} textAlign="center">
-              <Button
-                variant="outline"
-                size="md"
-                color="gray.600"
-                borderColor="gray.300"
-                borderRadius="12px"
-                px={6}
-                py={3}
-                fontSize="sm"
-                fontWeight="500"
-                _hover={{
-                  borderColor: "gray.400",
-                  color: "gray.700",
-                  bg: "gray.50",
-                  transform: "translateY(-1px)"
-                }}
-                transition="all 0.2s ease"
-                onClick={handleShowLess}
-              >
-                Show Less
-              </Button>
-            </Box>
-          )}
+      {/* Compact Floating Cart Button */}
+      {cartTotal > 0 && (
+        <Box
+          position="fixed"
+          bottom={16}
+          left={0}
+          right={0}
+          px={4}
+          zIndex={20}
+        >
+          <Container maxW="6xl">
+            <Button
+              w="full"
+              size="md"
+              bg="purple.600"
+              color="white"
+              fontWeight="600"
+              leftIcon={<Icon as={FiShoppingCart} boxSize={4} />}
+              onClick={() => router.push("/user-dashboard?tab=cart")}
+              borderRadius="10px"
+              _hover={{ bg: "purple.700" }}
+              boxShadow="lg"
+            >
+              View Cart ({cartTotal})
+            </Button>
+          </Container>
         </Box>
-
-        <Box mb={"5em"} />
-      </Wrapper>
+      )}
     </Box>
   );
 }
-
-
-
-  // H

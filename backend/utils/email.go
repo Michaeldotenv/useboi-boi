@@ -2,41 +2,71 @@ package utils
 
 import (
 	_ "embed"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
-	"gopkg.in/gomail.v2"
 )
 
 //go:embed templates/otp_template.html
 var otpTemplate string
 
-func SendOtpMail(email *string, otp string) error {
+// sendResendEmail sends an email using the Resend API
+func sendResendEmail(to, subject, htmlContent string) error {
+	apiKey := os.Getenv("RESEND_API_KEY")
+	if apiKey == "" {
+		return fmt.Errorf("RESEND_API_KEY not set")
+	}
 
-	m := gomail.NewMessage()
-	emailBody := strings.Replace(otpTemplate, "{{otp_code}}", otp, 1)
+	payload := map[string]interface{}{
+		"from":    "Boiboi Team <onboarding@resend.dev>",
+		"to":      []string{to},
+		"subject": subject,
+		"html":    htmlContent,
+	}
 
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Verify Your Account")
-	m.SetBody("text/html", emailBody)
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal email payload: %w", err)
+	}
 
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
+	req, err := http.NewRequest("POST", "https://api.resend.com/emails", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
 
-	if err := d.DialAndSend(m); err != nil {
-		return err
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("resend API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	return nil
+}
+
+func SendOtpMail(email *string, otp string) error {
+	emailBody := strings.Replace(otpTemplate, "{{otp_code}}", otp, 1)
+	return sendResendEmail(*email, "Verify Your Account", emailBody)
 }
 
 //go:embed templates/wallet_topup.html
 var walletTopupTemplate string
 
 func SendWalletTopupMail(email *string, customerName *string, amount *float64, reference *string, balance *float64) error {
-
-	m := gomail.NewMessage()
-
 	replacements := map[string]interface{}{
 		"{{customer_name}}": *customerName,
 		"{{amount}}":        strconv.FormatFloat(*amount/100, 'f', 2, 64),
@@ -49,28 +79,13 @@ func SendWalletTopupMail(email *string, customerName *string, amount *float64, r
 		result = strings.ReplaceAll(result, placeholder, value.(string))
 	}
 
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Successful Wallet Topup")
-	m.SetBody("text/html", result)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Successful Wallet Topup", result)
 }
 
 //go:embed templates/failed_wallet_topup.html
 var failedWalletTopupTemplate string
 
 func SendFailedWalletTopupMail(email *string, customerName *string, amount *float64, reference *string) error {
-
-	m := gomail.NewMessage()
-
 	replacements := map[string]interface{}{
 		"{{customer_name}}": *customerName,
 		"{{amount}}":        strconv.FormatFloat(*amount/100, 'f', 2, 64),
@@ -82,88 +97,31 @@ func SendFailedWalletTopupMail(email *string, customerName *string, amount *floa
 		result = strings.ReplaceAll(result, placeholder, value.(string))
 	}
 
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Failed Wallet Topup")
-	m.SetBody("text/html", result)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Failed Wallet Topup", result)
 }
 
 //go:embed templates/welcome_template.html
 var welcomeTemplate string
 
 func SendWelcomeMail(email *string, firstName *string) error {
-
-	m := gomail.NewMessage()
 	emailBody := strings.Replace(welcomeTemplate, "{{user}}", *firstName, 1)
-
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Welcome to Boiboi!")
-	m.SetBody("text/html", emailBody)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Welcome to Boiboi!", emailBody)
 }
 
 //go:embed templates/welcome_merchant_template.html
 var welcomeMerchantTemplate string
 
 func SendMerchantWelcomeMail(email *string, firstName *string) error {
-
-	m := gomail.NewMessage()
 	emailBody := strings.Replace(welcomeMerchantTemplate, "{{user}}", *firstName, 1)
-
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Welcome to Boiboi!")
-	m.SetBody("text/html", emailBody)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Welcome to Boiboi!", emailBody)
 }
 
 //go:embed templates/welcome_rider.html
 var welcomeRiderTemplate string
 
 func SendRiderWelcomeMail(email *string, firstName *string) error {
-
-	m := gomail.NewMessage()
 	emailBody := strings.Replace(welcomeRiderTemplate, "{{user}}", *firstName, 1)
-
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Welcome to Boiboi!")
-	m.SetBody("text/html", emailBody)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Welcome to Boiboi!", emailBody)
 }
 
 
@@ -172,9 +130,6 @@ func SendRiderWelcomeMail(email *string, firstName *string) error {
 var successfulWithdrawalTemplate string
 
 func SendSuccessfulWithdrawalMail(email *string, customerName *string, amount *float64, reference *string) error {
-
-	m := gomail.NewMessage()
-
 	replacements := map[string]interface{}{
 		"{{customer_name}}": *customerName,
 		"{{amount}}":        strconv.FormatFloat(*amount/100, 'f', 2, 64),
@@ -186,19 +141,7 @@ func SendSuccessfulWithdrawalMail(email *string, customerName *string, amount *f
 		result = strings.ReplaceAll(result, placeholder, value.(string))
 	}
 
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Successful Withdrawal")
-	m.SetBody("text/html", result)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Successful Withdrawal", result)
 }
 
 
@@ -207,9 +150,6 @@ func SendSuccessfulWithdrawalMail(email *string, customerName *string, amount *f
 var failedWithdrawalTemplate string
 
 func SendFailedWithdrawalMail(email *string, customerName *string, amount *float64, reference *string) error {
-
-	m := gomail.NewMessage()
-
 	replacements := map[string]interface{}{
 		"{{customer_name}}": *customerName,
 		"{{amount}}":        strconv.FormatFloat(*amount/100, 'f', 2, 64),
@@ -221,19 +161,7 @@ func SendFailedWithdrawalMail(email *string, customerName *string, amount *float
 		result = strings.ReplaceAll(result, placeholder, value.(string))
 	}
 
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Failed Withdrawal")
-	m.SetBody("text/html", result)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Failed Withdrawal", result)
 }
 
 
@@ -241,22 +169,7 @@ func SendFailedWithdrawalMail(email *string, customerName *string, amount *float
 var forgotPassowrdTemplate string
 
 func SendForgotPasswordMail(email *string, firstName *string, link *string) error {
-	
-	m := gomail.NewMessage()
 	emailBody := strings.Replace(forgotPassowrdTemplate, "{{user}}", *firstName, 1)
 	emailBody = strings.Replace(emailBody, "{{reset_link}}", *link, 1)
-
-	m.SetHeader("From", "Boiboi Team<hey@tackstry.com>")
-	m.SetHeader("To", *email)
-	m.SetHeader("Subject", "Password Reset")
-	m.SetBody("text/html", emailBody)
-
-	d := gomail.NewDialer("mail.privateemail.com", 465, "hey@tackstry.com", os.Getenv("BOIBOI_MAIL_PASSWORD"))
-
-	if err := d.DialAndSend(m); err != nil {
-		return err
-	}
-
-	return nil
-
+	return sendResendEmail(*email, "Password Reset", emailBody)
 }

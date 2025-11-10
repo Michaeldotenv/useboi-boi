@@ -10,7 +10,7 @@ import {
   useColorModeValue,
   Icon,
 } from '@chakra-ui/react';
-import { FaBox, FaBookmark, FaHeadset, FaUser, FaShoppingBag, FaExclamationTriangle } from 'react-icons/fa';
+import { FaBox, FaBookmark, FaHeadset, FaUser, FaShoppingBag, FaExclamationTriangle, FaMapMarkerAlt, FaTag, FaStore } from 'react-icons/fa';
 
 interface EmptyStateProps {
   icon?: string;
@@ -19,7 +19,7 @@ interface EmptyStateProps {
   actionText?: string;
   onAction?: () => void;
   variant?: 'default' | 'minimal' | 'illustrated';
-  iconType?: 'orders' | 'saved' | 'support' | 'profile' | 'cart' | 'error';
+  iconType?: 'orders' | 'saved' | 'support' | 'profile' | 'cart' | 'error' | 'location' | 'deals' | 'stores';
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -51,6 +51,12 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           return FaShoppingBag;
         case 'error':
           return FaExclamationTriangle;
+        case 'location':
+          return FaMapMarkerAlt;
+        case 'deals':
+          return FaTag;
+        case 'stores':
+          return FaStore;
         default:
           return FaBox;
       }

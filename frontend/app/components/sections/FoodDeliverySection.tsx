@@ -13,7 +13,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { FaLocationArrow, FaClock, FaShieldAlt, FaStar, FaFire } from "react-icons/fa";
+import { FaLocationArrow, FaClock, FaShieldAlt, FaStar, FaFire, FaUtensils, FaRocket } from "react-icons/fa";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
@@ -100,7 +100,7 @@ export default function FoodDeliverySection() {
     <Box
       ref={containerRef}
       py={{ base: 20, md: 28 }}
-      bgGradient="linear(to-br, #faf5ff, #f3e8ff, #fae8ff)"
+      bg="white"
       position="relative"
       overflow="hidden"
     >
@@ -212,7 +212,6 @@ export default function FoodDeliverySection() {
               borderRadius="3xl"
               transform="rotate(-3deg)"
               zIndex={0}
-              boxShadow="0 20px 60px rgba(124, 58, 237, 0.15)"
               animate={{
                 rotate: [-3, -5, -3],
               }}
@@ -229,8 +228,8 @@ export default function FoodDeliverySection() {
               zIndex={1}
               borderRadius="2xl"
               overflow="hidden"
-              boxShadow="0 30px 80px rgba(124, 58, 237, 0.25)"
-              border="4px solid white"
+              border="1px solid"
+              borderColor="gray.200"
               animate={{
                 y: [0, -15, 0],
               }}
@@ -269,9 +268,8 @@ export default function FoodDeliverySection() {
               px={4}
               py={3}
               borderRadius="xl"
-              boxShadow="0 12px 40px rgba(124, 58, 237, 0.2)"
-              border="2px solid"
-              borderColor="purple.100"
+              border="1px solid"
+              borderColor="orange.200"
               zIndex={2}
               animate={{
                 y: [0, -10, 0],
@@ -314,9 +312,8 @@ export default function FoodDeliverySection() {
               px={4}
               py={3}
               borderRadius="xl"
-              boxShadow="0 12px 40px rgba(124, 58, 237, 0.2)"
-              border="2px solid"
-              borderColor="purple.100"
+              border="1px solid"
+              borderColor="purple.200"
               zIndex={2}
               animate={{
                 y: [0, 10, 0],
@@ -373,30 +370,35 @@ export default function FoodDeliverySection() {
                   fontSize="sm"
                   border="1px solid"
                   borderColor="purple.200"
-                  boxShadow="0 4px 14px rgba(124, 58, 237, 0.1)"
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
                 >
-                  🍽️ Food Delivery
+                  <Icon as={FaUtensils} />
+                  Food Delivery
                 </Badge>
               </MotionBox>
 
               {/* Heading */}
               <MotionBox variants={itemVariants}>
-                <Text
-                  fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
-                  fontWeight="800"
-                  color="gray.900"
-                  lineHeight="1.1"
-                >
-                  Discover, order & track{" "}
-                  <Box
-                    as="span"
-                    bgGradient="linear(to-r, purple.600, fuchsia.500)"
-                    bgClip="text"
+                <HStack spacing={3} align="center" flexWrap="wrap">
+                  <Text
+                    fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
+                    fontWeight="800"
+                    color="gray.900"
+                    lineHeight="1.1"
                   >
-                    instantly
-                  </Box>{" "}
-                  🚀
-                </Text>
+                    Discover, order & track{" "}
+                    <Box
+                      as="span"
+                      bgGradient="linear(to-r, purple.600, fuchsia.500)"
+                      bgClip="text"
+                    >
+                      instantly
+                    </Box>
+                  </Text>
+                  <Icon as={FaRocket} color="purple.500" boxSize={{ base: 6, md: 8 }} />
+                </HStack>
               </MotionBox>
 
               {/* Feature Cards */}
@@ -405,15 +407,13 @@ export default function FoodDeliverySection() {
                   <MotionBox key={i} variants={itemVariants}>
                     <MotionBox
                       p={5}
-                      bg="white"
+                      bg="gray.50"
                       borderRadius="2xl"
                       border="1px solid"
-                      borderColor="purple.100"
-                      boxShadow="0 4px 20px rgba(124, 58, 237, 0.08)"
+                      borderColor="gray.200"
                       whileHover={{
                         scale: 1.02,
-                        boxShadow: "0 12px 40px rgba(124, 58, 237, 0.15)",
-                        borderColor: "purple.200",
+                        borderColor: "purple.300",
                       }}
                       transition={{ duration: 0.3 }}
                       cursor="pointer"
@@ -424,7 +424,6 @@ export default function FoodDeliverySection() {
                           bg={feature.bg}
                           borderRadius="xl"
                           color={feature.color}
-                          boxShadow="sm"
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.6 }}
                         >
@@ -444,32 +443,7 @@ export default function FoodDeliverySection() {
                 ))}
               </VStack>
 
-              {/* CTA Button */}
-              <MotionBox variants={itemVariants} w={{ base: "full", sm: "auto" }}>
-                <MotionButton
-                  size="lg"
-                  bgGradient="linear(to-r, purple.500, fuchsia.500)"
-                  color="white"
-                  px={10}
-                  py={7}
-                  borderRadius="xl"
-                  fontWeight="700"
-                  fontSize="lg"
-                  boxShadow="0 8px 30px rgba(124, 58, 237, 0.3)"
-                  rightIcon={<ArrowForwardIcon />}
-                  whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0 12px 40px rgba(124, 58, 237, 0.4)",
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  _hover={{
-                    bgGradient: "linear(to-r, purple.600, fuchsia.600)",
-                  }}
-                  w={{ base: "full", sm: "auto" }}
-                >
-                  Order food online
-                </MotionButton>
-              </MotionBox>
+
             </VStack>
           </MotionBox>
         </SimpleGrid>

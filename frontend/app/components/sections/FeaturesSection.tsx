@@ -12,19 +12,18 @@ import {
   Image,
   Icon,
 } from "@chakra-ui/react";
-import { FaRocket, FaClock, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
+import { FaRocket, FaClock, FaShieldAlt, FaCheckCircle, FaGem } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 // Enhanced Card Component with glassmorphism
 const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest }) => (
   <Box
-    bg="white"
+    bg="gray.50"
     backdropFilter="blur(10px)"
     borderRadius="2xl"
     p={{ base: 5, md: 7 }}
-    boxShadow="0 8px 32px rgba(124, 58, 237, 0.08)"
     border="1px solid"
-    borderColor="rgba(124, 58, 237, 0.1)"
+    borderColor="gray.200"
     transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
     position="relative"
     overflow="hidden"
@@ -41,8 +40,7 @@ const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest })
     }}
     _hover={{
       transform: "translateY(-8px)",
-      boxShadow: "0 20px 60px rgba(124, 58, 237, 0.15)",
-      borderColor: "purple.200",
+      borderColor: "purple.300",
       _before: {
         opacity: 1,
       },
@@ -215,9 +213,12 @@ export default function FeaturesSection() {
                 textTransform="uppercase"
                 letterSpacing="wider"
                 fontWeight="600"
-                boxShadow="0 4px 14px rgba(124, 58, 237, 0.15)"
+                display="flex"
+                alignItems="center"
+                gap={2}
               >
-                ✨ Our Services
+                <Icon as={FaGem} boxSize={3} />
+                Our Services
               </Badge>
             </MotionBox>
 
@@ -276,7 +277,6 @@ export default function FeaturesSection() {
                         placeItems="center"
                         borderRadius="xl"
                         bgGradient={feature.gradient}
-                        boxShadow="0 8px 24px rgba(124, 58, 237, 0.12)"
                         whileHover={{ rotate: 360, scale: 1.1 }}
                         transition={{ duration: 0.6 }}
                       >
@@ -345,9 +345,8 @@ export default function FeaturesSection() {
                 borderRadius="3xl"
                 transform="rotate(4deg)"
                 zIndex={1}
-                boxShadow="0 30px 90px rgba(124, 58, 237, 0.12)"
-                border="2px solid"
-                borderColor="purple.100"
+                border="1px solid"
+                borderColor="gray.200"
                 animate={{
                   rotate: [4, 6, 4],
                 }}
@@ -364,9 +363,9 @@ export default function FeaturesSection() {
                 zIndex={2}
                 borderRadius="2xl"
                 overflow="hidden"
-                boxShadow="0 25px 70px rgba(124, 58, 237, 0.2)"
                 maxW={{ base: "260px", md: "380px", lg: "460px" }}
-                border="4px solid white"
+                border="1px solid"
+                borderColor="gray.200"
                 animate={floatingAnimation}
               >
                 <Image
@@ -388,9 +387,8 @@ export default function FeaturesSection() {
                 px={4}
                 py={3}
                 borderRadius="xl"
-                boxShadow="0 12px 40px rgba(124, 58, 237, 0.15)"
                 border="1px solid"
-                borderColor="purple.100"
+                borderColor="purple.200"
                 zIndex={3}
                 animate={{
                   y: [0, -8, 0],
@@ -434,9 +432,8 @@ export default function FeaturesSection() {
                 px={4}
                 py={3}
                 borderRadius="xl"
-                boxShadow="0 12px 40px rgba(124, 58, 237, 0.15)"
                 border="1px solid"
-                borderColor="purple.100"
+                borderColor="purple.200"
                 zIndex={3}
                 animate={{
                   y: [0, 8, 0],
@@ -480,7 +477,7 @@ export default function FeaturesSection() {
                 color="white"
                 p={3}
                 borderRadius="full"
-                boxShadow="0 8px 30px rgba(72, 187, 120, 0.3)"
+                border="2px solid white"
                 zIndex={3}
                 animate={{
                   scale: [1, 1.2, 1],

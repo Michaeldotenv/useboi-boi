@@ -109,11 +109,20 @@ const SavedTab: React.FC = () => {
       <Wrapper>
         <Box py={4}>
           <Flex justifyContent="space-between" alignItems="center" mt={4} mb={6}>
-            <Text fontSize="24px" fontWeight="700" color="#000">
-              Saved
-            </Text>
+            <HStack spacing={4}>
+              <Box
+                p={3}
+                borderRadius="12px"
+                bg="gray.50"
+              >
+                <GoHeartFill color="#ef4444" size="20px" />
+              </Box>
+              <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="700" color="gray.900">
+                Saved Stores
+              </Text>
+            </HStack>
             {savedVendors.length > 0 && (
-              <Text fontSize="14px" color="#8E8E93">
+              <Text fontSize="14px" color="gray.500" fontWeight="500">
                 {savedVendors.length} {savedVendors.length === 1 ? 'store' : 'stores'}
               </Text>
             )}
@@ -137,13 +146,13 @@ const SavedTab: React.FC = () => {
                 <Box
                   key={vendor._id || vendor.id}
                   bg="white"
-                  borderRadius="16px"
+                  borderRadius="12px"
                   overflow="hidden"
                   border="1px solid"
                   borderColor="gray.200"
                   cursor="pointer"
-                  _hover={{ transform: "translateY(-2px)", shadow: "lg" }}
-                  transition="all 0.3s ease"
+                  _hover={{ borderColor: "gray.300" }}
+                  transition="all 0.2s ease"
                   onClick={() => {
                     const storeId = vendor._id || vendor.id;
                     if (storeId) {
@@ -160,15 +169,15 @@ const SavedTab: React.FC = () => {
                       bgPosition="center"
                     >
                       <Text
-                        fontSize="17px"
-                        fontWeight="700"
+                        fontSize="14px"
+                        fontWeight="600"
                         position="absolute"
-                        left="5"
-                        bottom="5"
-                        borderRadius="16px"
-                        color="#000"
-                        bg="#fff"
-                        px="12px"
+                        left="4"
+                        bottom="4"
+                        borderRadius="8px"
+                        color="white"
+                        bg="rgba(0, 0, 0, 0.7)"
+                        px="8px"
                         py="4px"
                       >
                         {vendor.deliveryTime || "40"} min
@@ -192,35 +201,35 @@ const SavedTab: React.FC = () => {
                     </Box>
                   </Box>
                   
-                  <Box p={4}>
-                    <Flex justifyContent="space-between" alignItems="center" mb={2}>
-                      <Text fontSize="18px" fontWeight="700" color="#000">
+                  <Box p={5}>
+                    <Flex justifyContent="space-between" alignItems="center" mb={3}>
+                      <Text fontSize="18px" fontWeight="600" color="gray.900">
                         {vendor.businessName || vendor.name || vendor.Name}
                       </Text>
                       <HStack spacing={1}>
-                        <Image src="/Star.png" alt="Rating" width="20px" height="20px" />
-                        <Text fontSize="16px" fontWeight="700" color="#000">
+                        <Text fontSize="14px" color="gray.500">★</Text>
+                        <Text fontSize="14px" fontWeight="600" color="gray.700">
                           {vendor.rating ?? vendor.Ratings ?? "4.8"}
                         </Text>
                       </HStack>
                     </Flex>
                     
-                    <Text fontSize="15px" fontWeight="400" color="gray.600" mb={2}>
+                    <Text fontSize="14px" fontWeight="400" color="gray.600" mb={3}>
                       {vendor.location || vendor.address || "University of Ibadan"}
                     </Text>
                     
                     <HStack spacing={2} flexWrap="wrap">
-                      <Text fontSize="12px" color="#8E8E93">
+                      <Text fontSize="12px" color="gray.500">
                         {getCategoryName(vendor)}
                       </Text>
-                      <Text fontSize="12px" color="#8E8E93">•</Text>
-                      <Text fontSize="12px" color="#8E8E93">
+                      <Text fontSize="12px" color="gray.400">•</Text>
+                      <Text fontSize="12px" color="gray.500">
                         {(vendor.distance || "0.6") + "km"}
                       </Text>
                       {vendor.isOpen !== undefined && (
                         <>
-                          <Text fontSize="12px" color="#8E8E93">•</Text>
-                          <Text fontSize="12px" color={vendor.isOpen ? "green.500" : "red.500"}>
+                          <Text fontSize="12px" color="gray.400">•</Text>
+                          <Text fontSize="12px" color={vendor.isOpen ? "green.500" : "red.500"} fontWeight="500">
                             {vendor.isOpen ? "Open" : "Closed"}
                           </Text>
                         </>

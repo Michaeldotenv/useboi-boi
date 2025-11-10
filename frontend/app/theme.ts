@@ -4,8 +4,9 @@ import './globals.css';
 
 export const theme = extendTheme({
   fonts: {
-    heading: `'Inter', 'Roboto', sans-serif`,
-    body: `'Inter', 'Roboto', sans-serif`,
+    heading: `var(--font-jakarta), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif`,
+    body: `var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif`,
+    mono: `var(--font-mono), 'JetBrains Mono', 'Courier New', monospace`,
   },
 
   breakpoints: {

@@ -132,21 +132,56 @@ export const useCartStore = create<CartState>()(
 
       createBackendCart: async (storeId: string) => {
         try {
+          if (!storeId || storeId.trim() === '') {
+            throw new Error("Store ID is required to create a cart");
+          }
+          
           const response = await api.createCart({ storeId });
-          const cartData = (response as any).data || response;
-          const newCartId = cartData.id;
-          set({ cartId: newCartId });
-          return newCartId;
-        } catch (error) {
+          
+          // Handle different response formats
+          let cartData: any;
+          if (typeof response === 'object' && response !== null) {
+            cartData = (response as any).data || response;
+          } else {
+            throw new Error("Invalid response format from cart creation API");
+          }
+          
+          const newCartId = cartData?.id || cartData?._id;
+          
+          if (!newCartId || (typeof newCartId === 'string' && newCartId.trim() === '')) {
+            console.error("Cart creation response:", response);
+            throw new Error("Cart ID not returned from server. Please try again.");
+          }
+          
+          // Ensure cartId is a string
+          const cartIdString = String(newCartId).trim();
+          
+          // Set cartId in state immediately
+          set({ cartId: cartIdString });
+          
+          return cartIdString;
+        } catch (error: any) {
           console.error("Failed to create backend cart:", error);
-          // If backend creation fails, we already have a client-side ID
-          return get().cartId;
+          const errorMessage = error?.message || "Failed to create cart. Please try again.";
+          // Re-throw the error so syncWithBackend can handle it
+          throw new Error(errorMessage);
         }
       },
 
       syncWithBackend: async () => {
         const state = get();
-        if (state.isSyncing || !state.vendorId || state.items.length === 0) return;
+        if (state.isSyncing || !state.vendorId || state.items.length === 0) {
+          // If already syncing, wait for it to complete
+          if (state.isSyncing) {
+            // Wait for sync to complete (max 5 seconds)
+            let attempts = 0;
+            while (get().isSyncing && attempts < 50) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+              attempts++;
+            }
+          }
+          return;
+        }
 
         set({ isSyncing: true });
         
@@ -156,24 +191,45 @@ export const useCartStore = create<CartState>()(
           // Create backend cart if it doesn't exist
           if (!cartId) {
             cartId = await get().createBackendCart(state.vendorId);
-            if (!cartId) {
-              throw new Error("Failed to get cart ID");
+            if (!cartId || cartId.trim() === '') {
+              throw new Error("Failed to create cart. Please try again.");
             }
+            // Ensure cartId is immediately set in state
+            set({ cartId });
+            // Wait a bit for state to persist
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+
+          // Double-check cartId is still valid after state update
+          const currentState = get();
+          const finalCartId = currentState.cartId || cartId;
+          
+          if (!finalCartId || finalCartId.trim() === '') {
+            throw new Error("Cart ID is missing after creation. Please try again.");
           }
 
           // Sync each item in the cart with the backend
-          for (const item of state.items) {
+          for (const item of currentState.items) {
             try {
-              await api.addCartItem(cartId, {
+              await api.addCartItem(finalCartId, {
                 itemId: item.id,
                 quantity: item.quantity
               });
             } catch (error) {
               console.error(`Failed to sync item ${item.id}:`, error);
+              // Continue with other items even if one fails
             }
+          }
+
+          // Final verification that cartId is set
+          const finalState = get();
+          if (!finalState.cartId || finalState.cartId.trim() === '') {
+            set({ cartId: finalCartId });
           }
         } catch (error) {
           console.error("Failed to sync cart with backend:", error);
+          // Re-throw the error so caller can handle it
+          throw error;
         } finally {
           set({ isSyncing: false });
         }

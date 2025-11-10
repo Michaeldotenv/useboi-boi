@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Preloader from "./components/Preloader";
@@ -7,7 +7,24 @@ import GlobalNavigationLayout from "./components/GlobalNavigationLayout";
 import { Suspense } from "react";
 // import ClientSetup from "./components/ClientSetup";
 
-const inter = Inter({ subsets: ["latin"] });
+// Font configurations
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({ 
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Boiboi",
@@ -24,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}>
         <Providers>
           <Suspense fallback={<Preloader />}>
             <GlobalNavigationLayout>

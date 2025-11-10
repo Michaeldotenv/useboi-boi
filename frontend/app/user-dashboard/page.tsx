@@ -43,7 +43,7 @@ function BoiboiWebApp() {
   return (
     <Box 
       minH="100vh" 
-      bg="#F2F2F7"
+      bg="gray.50"
       position="relative"
     >
       <Box position="relative" zIndex={1}>

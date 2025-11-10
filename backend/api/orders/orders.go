@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -811,7 +810,7 @@ type OrderData struct {
 	data.Order `bson:",inline"`
 	Store      data.Store `json:"store"`
 	Customer   data.User  `json:"customer"`
-	Cart       data.Cart  `json:"cart"`
+	Rider      *data.User `json:"cart"`
 }
 
 func GetOrders(c *gin.Context, db *mongo.Database) {

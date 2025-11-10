@@ -189,43 +189,101 @@ const ExploreTab: React.FC = () => {
   if (vendorsLoading) {
     return (
       <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
-        <Box bg="brand.primary" w="100%" py={4}>
+        <Box 
+          bg="linear-gradient(135deg, #6B2A8F 0%, #3B174F 100%)" 
+          w="100%" 
+          py={{ base: 6, md: 8 }}
+          position="relative"
+          overflow="hidden"
+        >
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="url('/pattern.svg')"
+            opacity={0.1}
+            bgSize="200px"
+            bgRepeat="repeat"
+          />
           <Wrapper>
-            <Flex justifyContent="space-between" alignItems="center" mb={4}>
-              <HStack spacing={1}>
-                <Text fontSize="15px" fontWeight="400" color="#fff">
-                  University of Ibadan
+            <Flex justifyContent="space-between" alignItems="center" mb={6} position="relative" zIndex={1}>
+              <VStack align="start" spacing={1}>
+                <Text fontSize="13px" fontWeight="600" color="whiteAlpha.900" letterSpacing="wide">
+                  Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}! 👋
                 </Text>
-                <Box as="span" color="#fff" fontSize="12px">▼</Box>
-              </HStack>
-              <Icon as={FaBell} color="#fff" fontSize="20px" />
+                <HStack spacing={2}>
+                  <Text fontSize={{ base: "20px", md: "22px" }} fontWeight="700" color="white">
+                    University of Ibadan
+                  </Text>
+                  <Box as="span" color="whiteAlpha.800" fontSize="14px">▼</Box>
+                </HStack>
+              </VStack>
+              <Flex 
+                alignItems="center"
+                justifyContent="center"
+                w={{ base: 10, md: 11 }}
+                h={{ base: 10, md: 11 }}
+                borderRadius="full"
+                bg="whiteAlpha.200"
+                backdropFilter="blur(10px)"
+                cursor="pointer"
+                transition="all 0.2s"
+                _hover={{ bg: "whiteAlpha.300", transform: "scale(1.05)" }}
+                _active={{ transform: "scale(0.95)" }}
+              >
+                <Icon as={FaBell} color="white" fontSize="20px" />
+              </Flex>
             </Flex>
-            <InputGroup>
-              <InputLeftElement pointerEvents="none" h="44px">
-                <SearchIcon ml="10px" width="18px" h="18px" color="#8E8E93" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search stores and items..."
-                width="100%"
-                fontSize="17px"
-                bg="#fff"
-                fontWeight="400"
-                h="44px"
-                borderRadius="10px"
-                color="#000"
-                _placeholder={{ color: "#8E8E93" }}
-                border="none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </InputGroup>
+            <Box position="relative" zIndex={1}>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none" h="56px">
+                  <SearchIcon ml="16px" width="20px" h="20px" color="gray.500" />
+                </InputLeftElement>
+                <Input
+                  placeholder="Search for food, groceries, or stores..."
+                  width="100%"
+                  fontSize="15px"
+                  bg="white"
+                  fontWeight="500"
+                  h="56px"
+                  borderRadius="16px"
+                  border="none"
+                  color="gray.900"
+                  _placeholder={{ color: "gray.500" }}
+                  boxShadow="0 8px 24px rgba(0,0,0,0.12)"
+                  _focus={{
+                    boxShadow: "0 8px 32px rgba(107, 42, 143, 0.2)",
+                    outline: "none"
+                  }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </InputGroup>
+            </Box>
           </Wrapper>
         </Box>
         <Wrapper>
-          <Box py={4}>
-            <VStack spacing={4} align="stretch">
-              <Spinner size="lg" mx="auto" mt={8} />
-              <Text textAlign="center" color="gray.500">Loading stores...</Text>
+          <Box py={8}>
+            <VStack spacing={6} align="stretch">
+              <Box textAlign="center">
+                <Spinner 
+                  size="xl" 
+                  thickness="4px"
+                  speed="0.65s"
+                  color="blue.500"
+                  emptyColor="gray.200"
+                />
+              </Box>
+              <VStack spacing={2}>
+                <Text fontSize="lg" fontWeight="600" color="gray.900" textAlign="center">
+                  Finding amazing stores for you...
+                </Text>
+                <Text fontSize="sm" color="gray.500" textAlign="center">
+                  This might take a moment
+                </Text>
+              </VStack>
             </VStack>
           </Box>
         </Wrapper>
@@ -240,111 +298,171 @@ const ExploreTab: React.FC = () => {
     >
       {/* Header Section */}
       <Box 
-        bg="brand.primary" 
+        bg="linear-gradient(135deg, #6B2A8F 0%, #3B174F 100%)" 
         w="100%" 
-        py={6}
+        py={{ base: 6, md: 8 }}
         position="relative"
+        overflow="hidden"
       >
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg="url('/pattern.svg')"
+          opacity={0.1}
+          bgSize="200px"
+          bgRepeat="repeat"
+        />
         <Wrapper>
-          <Flex justifyContent="space-between" alignItems="center" mb={6}>
-            <HStack spacing={3}>
-              <Box
-                p={2}
-                borderRadius="12px"
-                bg="rgba(255, 255, 255, 0.2)"
-                border="1px solid rgba(255, 255, 255, 0.3)"
-              >
-                <Text fontSize="16px" fontWeight="600" color="#fff">
+          <Flex justifyContent="space-between" alignItems="center" mb={6} position="relative" zIndex={1}>
+            <VStack align="start" spacing={1}>
+              <Text fontSize="12px" fontWeight="500" color="whiteAlpha.800">
+                Good morning! 👋
+              </Text>
+              <HStack spacing={2}>
+                <Text fontSize="18px" fontWeight="700" color="white">
                   University of Ibadan
                 </Text>
-              </Box>
-              <Box 
-                as="span" 
-                color="#fff" 
-                fontSize="14px"
-                p={1}
-                borderRadius="6px"
-                bg="rgba(255, 255, 255, 0.2)"
-              >
-                ▼
-              </Box>
-            </HStack>
-            <Box
-              p={2}
-              borderRadius="12px"
-              bg="rgba(255, 255, 255, 0.2)"
-              border="1px solid rgba(255, 255, 255, 0.3)"
-              transition="all 0.3s ease"
+                <Box 
+                  as="span" 
+                  color="whiteAlpha.700" 
+                  fontSize="12px"
+                  cursor="pointer"
+                  _hover={{ color: "white" }}
+                  transition="color 0.2s"
+                >
+                  ▼
+                </Box>
+              </HStack>
+            </VStack>
+            <Flex 
+              alignItems="center"
+              justifyContent="center"
+              w={10}
+              h={10}
+              borderRadius="full"
+              bg="whiteAlpha.200"
+              backdropFilter="blur(10px)"
+              transition="all 0.2s ease"
               _hover={{
-                bg: "rgba(255, 255, 255, 0.3)",
+                bg: "whiteAlpha.300",
+                transform: "scale(1.05)"
               }}
+              cursor="pointer"
             >
-              <Icon as={FaBell} color="#fff" fontSize="20px" />
-            </Box>
+              <Icon as={FaBell} color="white" fontSize="18px" />
+            </Flex>
           </Flex>
 
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" h="52px">
-              <SearchIcon ml="12px" width="20px" h="20px" color="brand.primary" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search stores and items..."
-              width="100%"
-              fontSize="16px"
-              bg="white"
-              fontWeight="500"
-              h="52px"
-              borderRadius="16px"
-              border="1px solid"
-              borderColor="gray.200"
-              color="#000"
-              _placeholder={{ color: "#8E8E93" }}
-              _focus={{ 
-                borderColor: "gray.300",
-                bg: "white"
-              }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </InputGroup>
+          <Box position="relative" zIndex={1}>
+            <InputGroup>
+              <InputLeftElement pointerEvents="none" h="52px">
+                <SearchIcon ml="14px" width="20px" h="20px" color="gray.400" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search for food, groceries, or stores..."
+                width="100%"
+                fontSize="16px"
+                bg="white"
+                fontWeight="400"
+                h="52px"
+                borderRadius="16px"
+                border="none"
+                color="gray.900"
+                _placeholder={{ color: "gray.400" }}
+                _focus={{ 
+                  outline: "none",
+                  boxShadow: "0 0 0 3px rgba(255,255,255,0.3)"
+                }}
+                boxShadow="0 4px 20px rgba(0,0,0,0.1)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </InputGroup>
+          </Box>
         </Wrapper>
       </Box>
 
       <Wrapper>
         {/* Content Section */}
-        <Box py={4}>
+        <Box py={6}>
+          {/* Quick Actions Header */}
+          <Text fontSize="20px" fontWeight="700" color="gray.900" mb={4}>
+            What do you need? 🍽️
+          </Text>
+          
           {/* Category Grid */}
-          <Grid templateColumns={{ base: "repeat(3, 1fr)", sm: "repeat(4, 1fr)" }} gap={3} mb={6}>
-            {["Grocery", "Supermarket", "Restaurant", "Send package", "Market runs", "More"].map(
-              (label, idx) => (
-                <VStack
+          <Grid templateColumns="repeat(3, 1fr)" gap={3} mb={8}>
+            {[
+              { label: "Grocery", icon: "🍅", color: "green", desc: "Fresh groceries" },
+              { label: "Restaurant", icon: "🍴", color: "orange", desc: "Delicious meals" },
+              { label: "Supermarket", icon: "🏢", color: "blue", desc: "Everything you need" },
+              { label: "Send Package", icon: "📦", color: "purple", desc: "Quick delivery" },
+              { label: "Market Runs", icon: "🛍️", color: "pink", desc: "Shop for you" },
+              { label: "More", icon: "✨", color: "gray", desc: "Explore more" }
+            ].map(
+              (category, idx) => (
+                <motion.div
                   key={idx}
-                  bg="#fff"
-                  borderRadius="10px"
-                  py={3}
-                  spacing={2}
-                  border="1px solid"
-                  borderColor="gray.200"
-                  cursor="pointer"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.1 }}
                 >
-                  <Box w="32px" h="32px" bg="#1DA169" borderRadius="4px" />
-                  <Text fontSize="11px" color="#000" fontWeight="400" textAlign="center">
-                    {label}
-                  </Text>
-                </VStack>
+                  <VStack
+                    bg="white"
+                    borderRadius="16px"
+                    py={4}
+                    px={3}
+                    spacing={2}
+                    border="1px solid"
+                    borderColor="gray.100"
+                    cursor="pointer"
+                    transition="all 0.3s ease"
+                    _hover={{
+                      borderColor: `${category.color}.200`,
+                      transform: "translateY(-4px)",
+                      boxShadow: `0 8px 25px rgba(0,0,0,0.1)`
+                    }}
+                    _active={{
+                      transform: "translateY(-2px)"
+                    }}
+                    boxShadow="0 2px 8px rgba(0,0,0,0.04)"
+                  >
+                    <Flex
+                      w="44px"
+                      h="44px"
+                      borderRadius="12px"
+                      bg={`${category.color}.50`}
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize="22px"
+                      mb={1}
+                    >
+                      {category.icon}
+                    </Flex>
+                    <Text fontSize="11px" color="gray.900" fontWeight="600" textAlign="center" lineHeight={1.2}>
+                      {category.label}
+                    </Text>
+                    <Text fontSize="9px" color="gray.500" fontWeight="400" textAlign="center" lineHeight={1.1}>
+                      {category.desc}
+                    </Text>
+                  </VStack>
+                </motion.div>
               )
             )}
           </Grid>
         </Box>
 
         {/* Buy Again Section */}
-        <Box w="100%" mb={6}>
-          <Flex justifyContent="space-between" alignItems="center" mb={3}>
-            <Text fontSize={{ base: "16px", md: "17px" }} fontWeight="600" color="#000">
+        <Box w="100%" mb={8}>
+          <Flex justifyContent="space-between" alignItems="center" mb={4}>
+            <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" color="gray.900">
               Buy again
             </Text>
-                    <Text fontSize={{ base: "12px", md: "13px" }} fontWeight="400" color="#8E8E93" cursor="pointer">
-              see all
+            <Text fontSize={{ base: "14px", md: "14px" }} fontWeight="500" color="gray.500" cursor="pointer">
+              See all
             </Text>
           </Flex>
           
@@ -385,15 +503,26 @@ const ExploreTab: React.FC = () => {
                       }}
                       cursor="pointer"
                     >
-                      <Box
+                      <Flex
                         w="100%"
                         h="140px"
                         borderRadius="12px"
-                        bgImage={getStoreImage(v)}
+                        bg="gray.100"
+                        bgImage={getStoreImage(v) !== "Food-item-1.jpeg" ? `url(${getStoreImage(v)})` : undefined}
                         bgSize="cover"
                         bgPosition="center"
                         position="relative"
+                        alignItems="center"
+                        justifyContent="center"
                       >
+                        {getStoreImage(v) === "Food-item-1.jpeg" && (
+                          <VStack spacing={2}>
+                            <Text fontSize="2xl">🏢</Text>
+                            <Text fontSize="xs" color="gray.600" fontWeight="500">
+                              {v.businessName || v.name || "Store"}
+                            </Text>
+                          </VStack>
+                        )}
                         <IconButton
                           aria-label="Like"
                           icon={likedStores.has(v._id || v.id) ? <GoHeartFill /> : <GoHeart />}
@@ -407,7 +536,7 @@ const ExploreTab: React.FC = () => {
                           _hover={{ bg: "white" }}
                           onClick={(e) => handleToggleLike(v._id || v.id, e)}
                         />
-                      </Box>
+                      </Flex>
                       <Flex justifyContent="space-between" alignItems="center" mt={2}>
                         <Box>
                           <Text fontSize={{ base: "12px", md: "13px" }} fontWeight="600" color="#000" noOfLines={1}>
@@ -430,7 +559,7 @@ const ExploreTab: React.FC = () => {
               </Box>
 
               {/* Pagination Dots */}
-              <Flex justify="center" gap={2} mt={4}>
+              <Flex justifyContent="center" gap={2} mt={4}>
                 {filteredVendorList.map((_, index) => (
                   <Box
                     key={index}
@@ -449,13 +578,13 @@ const ExploreTab: React.FC = () => {
         </Box>
 
         {/* Vendors Near You */}
-        <Box w="100%" mb={6}>
-          <Flex justifyContent="space-between" alignItems="center" mb={3}>
-            <Text fontSize={{ base: "16px", md: "17px" }} fontWeight="600" color="#000">
+        <Box w="100%" mb={8}>
+          <Flex justifyContent="space-between" alignItems="center" mb={4}>
+            <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" color="gray.900">
               Vendors near you
             </Text>
-            <Text fontSize="13px" fontWeight="400" color="#8E8E93" cursor="pointer">
-              see all
+            <Text fontSize="14px" fontWeight="500" color="gray.500" cursor="pointer">
+              See all
             </Text>
           </Flex>
           
@@ -495,13 +624,25 @@ const ExploreTab: React.FC = () => {
                         border="1px solid"
                         borderColor="gray.200"
                       >
-                        <Box
+                        <Flex
                           w="100%"
                           h="110px"
-                          bgImage={getStoreImage(v)}
+                          bg="gray.100"
+                          bgImage={getStoreImage(v) !== "Food-item-1.jpeg" ? `url(${getStoreImage(v)})` : undefined}
                           bgSize="cover"
                           bgPosition="center"
-                        />
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          {getStoreImage(v) === "Food-item-1.jpeg" && (
+                            <VStack spacing={1}>
+                              <Text fontSize="xl">🏢</Text>
+                              <Text fontSize="10px" color="gray.600" fontWeight="500" textAlign="center">
+                                {(v.businessName || v.name || "Store").slice(0, 12)}...
+                              </Text>
+                            </VStack>
+                          )}
+                        </Flex>
                         <Box p={3}>
                           <Flex justifyContent="space-between" alignItems="center">
                             <Box>
@@ -530,8 +671,8 @@ const ExploreTab: React.FC = () => {
         </Box>
 
         {/* Best Deals */}
-        <Box w="100%" mb={6}>
-          <Text fontSize={{ base: "16px", md: "17px" }} fontWeight="600" mb={3} color="#000">
+        <Box w="100%" mb={8}>
+          <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" mb={4} color="gray.900">
             Best deals for you
           </Text>
           
@@ -582,15 +723,26 @@ const ExploreTab: React.FC = () => {
                           display="flex"
                           flexDirection="column"
                         >
-                          <Box
+                          <Flex
                             w="100%"
                             h="160px"
-                            bgImage={getStoreImage(v)}
+                            bg="gray.100"
+                            bgImage={getStoreImage(v) !== "Food-item-1.jpeg" ? `url(${getStoreImage(v)})` : undefined}
                             bgSize="cover"
                             bgPosition="center"
                             position="relative"
                             overflow="hidden"
+                            alignItems="center"
+                            justifyContent="center"
                           >
+                            {getStoreImage(v) === "Food-item-1.jpeg" && (
+                              <VStack spacing={2}>
+                                <Text fontSize="3xl">🏢</Text>
+                                <Text fontSize="sm" color="gray.600" fontWeight="600" textAlign="center">
+                                  {v.businessName || v.name || "Store"}
+                                </Text>
+                              </VStack>
+                            )}
                             <Text
                               position="absolute"
                               bottom="8px"
@@ -605,7 +757,7 @@ const ExploreTab: React.FC = () => {
                             >
                               Up to 40% off
                             </Text>
-                          </Box>
+                          </Flex>
                           <Box p={4} flex="1" display="flex" flexDirection="column" justifyContent="space-between">
                             <Box>
                               <Text fontSize="15px" fontWeight="600" color="#1A1A1A" noOfLines={1} mb={1}>
@@ -634,8 +786,8 @@ const ExploreTab: React.FC = () => {
         </Box>
 
         {/* More Stores */}
-        <Box w="100%" mb={6}>
-          <Text fontSize={{ base: "16px", md: "17px" }} fontWeight="600" mb={3} color="#000">
+        <Box w="100%" mb={8}>
+          <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" mb={4} color="gray.900">
             More stores
           </Text>
           
@@ -670,11 +822,24 @@ const ExploreTab: React.FC = () => {
                     w="100%"
                     h="150px"
                     borderRadius="12px"
-                    bgImage={getStoreImage(v)}
+                    bg="gray.100"
+                    bgImage={getStoreImage(v) !== "Food-item-1.jpeg" ? `url(${getStoreImage(v)})` : undefined}
                     bgSize="cover"
                     bgPosition="center"
                     mb={2}
-                  />
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {getStoreImage(v) === "Food-item-1.jpeg" && (
+                      <VStack spacing={2}>
+                        <Text fontSize="2xl">🏢</Text>
+                        <Text fontSize="xs" color="gray.600" fontWeight="600" textAlign="center">
+                          {v.businessName || v.name || "Store"}
+                        </Text>
+                      </VStack>
+                    )}
+                  </Box>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Box>
                       <Text fontSize={{ base: "12px", md: "13px" }} fontWeight="600" color="#000" noOfLines={1}>
@@ -705,11 +870,16 @@ const ExploreTab: React.FC = () => {
             justifyContent="center"
             w="56px"
             h="56px"
-            bg="#000"
+            bg="gray.900"
             borderRadius="full"
             cursor="pointer"
+            transition="all 0.2s ease"
+            _hover={{
+              bg: "gray.800",
+              transform: "scale(1.05)"
+            }}
           >
-            <Icon as={FaBox} color="white" fontSize="24px" />
+            <Icon as={FaBox} color="white" fontSize="20px" />
           </Flex>
           <Flex
             position="absolute"
@@ -717,13 +887,13 @@ const ExploreTab: React.FC = () => {
             right="-2"
             alignItems="center"
             justifyContent="center"
-            w="20px"
-            h="20px"
-            bg="white"
+            w="18px"
+            h="18px"
+            bg="red.500"
             borderRadius="full"
-            border="2px solid #000"
+            border="2px solid white"
           >
-            <Text fontSize="10px" fontWeight="700" color="#000">{cartQty}</Text>
+            <Text fontSize="10px" fontWeight="600" color="white">{cartQty}</Text>
           </Flex>
         </Box>
       </Box>
