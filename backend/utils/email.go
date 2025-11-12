@@ -23,7 +23,7 @@ func sendResendEmail(to, subject, htmlContent string) error {
 	}
 
 	payload := map[string]interface{}{
-		"from":    "Boiboi Team <onboarding@resend.dev>",
+		"from":    "Boiboi Team <hello@useboiboi.com>",
 		"to":      []string{to},
 		"subject": subject,
 		"html":    htmlContent,
