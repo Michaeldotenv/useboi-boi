@@ -19,13 +19,24 @@ import (
 )
 
 type GoogleTokenInfo struct {
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Name          string `json:"name"`
-	GivenName     string `json:"given_name"`
-	FamilyName    string `json:"family_name"`
-	Picture       string `json:"picture"`
-	Sub           string `json:"sub"`
+	Email         string      `json:"email"`
+	EmailVerified interface{} `json:"email_verified"` // Can be bool or string
+	Name          string      `json:"name"`
+	GivenName     string      `json:"given_name"`
+	FamilyName    string      `json:"family_name"`
+	Picture       string      `json:"picture"`
+	Sub           string      `json:"sub"`
+}
+
+func (g *GoogleTokenInfo) IsEmailVerified() bool {
+	switch v := g.EmailVerified.(type) {
+	case bool:
+		return v
+	case string:
+		return v == "true"
+	default:
+		return false
+	}
 }
 
 // GoogleAuth godoc
@@ -64,7 +75,7 @@ func GoogleAuth(c *gin.Context, db *mongo.Database) {
 		return
 	}
 
-	if !tokenInfo.EmailVerified {
+	if !tokenInfo.IsEmailVerified() {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email not verified with Google"})
 		return
 	}

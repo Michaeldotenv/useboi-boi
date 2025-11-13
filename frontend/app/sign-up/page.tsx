@@ -25,7 +25,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BASE_URL } from "../lib/endpoints";
 import GoogleSignInButton from "../components/GoogleSignInButton";
-import GoogleSignInProvider from "../components/GoogleSignInProvider";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -147,7 +146,6 @@ export default function SignUp() {
   };
 
   return (
-    <GoogleSignInProvider>
     <Flex minH="100vh" maxH="100vh" overflow="hidden" bg="white">
       {/* Left Side - Image (Hidden on mobile) */}
       <Box
@@ -421,6 +419,5 @@ export default function SignUp() {
         </Container>
       </Flex>
     </Flex>
-    </GoogleSignInProvider>
   );
 }

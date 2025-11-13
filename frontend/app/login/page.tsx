@@ -26,7 +26,6 @@ import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { BASE_URL } from "../lib/endpoints";
 import GoogleSignInButton from "../components/GoogleSignInButton";
-import GoogleSignInProvider from "../components/GoogleSignInProvider";
 
 export default function Login() {
   const router = useRouter();
@@ -121,7 +120,6 @@ export default function Login() {
   };
 
   return (
-    <GoogleSignInProvider>
     <Flex minH="100vh" maxH="100vh" overflow="hidden" bg="white">
       {/* Left Side - Image (Hidden on mobile) */}
       <Box
@@ -323,6 +321,5 @@ export default function Login() {
         </Container>
       </Flex>
     </Flex>
-    </GoogleSignInProvider>
   );
 }
