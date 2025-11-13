@@ -37,7 +37,7 @@ func CreateDedicatedVirtualAccount(c *gin.Context, customer *data.User) error {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal JSON data"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to marshal JSON data: "+err.Error())
 		return err
 	}
 
@@ -45,7 +45,7 @@ func CreateDedicatedVirtualAccount(c *gin.Context, customer *data.User) error {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to create request: "+err.Error())
 		return err
 	}
 
@@ -55,20 +55,20 @@ func CreateDedicatedVirtualAccount(c *gin.Context, customer *data.User) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send request"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to send request: "+err.Error())
 		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to read response: "+err.Error())
 		return err
 	}
 
 	if resp.StatusCode >= 400 || resp.StatusCode >= 500 {
-		c.Data(resp.StatusCode, "application/json", body)
-		return fmt.Errorf("error creating dedicated virtual account for user")
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Paystack error: "+string(body))
+		return fmt.Errorf("error creating dedicated virtual account for user: %s", string(body))
 	}
 
 	slog.Info("payment", "message", "successfully created virtual account"+string(body))
