@@ -154,7 +154,11 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
     }
   };
 
-  const recentTransactions = (transactions as any)?.data?.slice(0, 3) || [];
+  // Handle both response formats: direct array or wrapped in data field
+  const allTransactions = Array.isArray(transactions) 
+    ? transactions 
+    : (Array.isArray((transactions as any)?.data) ? (transactions as any).data : []);
+  const recentTransactions = allTransactions.slice(0, 3);
 
   return (
     <>
@@ -162,49 +166,49 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
       <Box
         bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
         borderRadius="xl"
-        p={6}
+        p={{ base: 4, md: 6 }}
         color="white"
         boxShadow="0 10px 30px rgba(102, 126, 234, 0.3)"
         position="relative"
         overflow="hidden"
       >
         {/* Decorative circles */}
-        <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" borderRadius="full" bg="whiteAlpha.200" />
-        <Box position="absolute" bottom="-30px" left="-30px" w="120px" h="120px" borderRadius="full" bg="whiteAlpha.100" />
+        <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" borderRadius="full" bg="whiteAlpha.200" display={{ base: "none", md: "block" }} />
+        <Box position="absolute" bottom="-30px" left="-30px" w="120px" h="120px" borderRadius="full" bg="whiteAlpha.100" display={{ base: "none", md: "block" }} />
         
-        <VStack align="stretch" spacing={4} position="relative" zIndex={1}>
+        <VStack align="stretch" spacing={3} position="relative" zIndex={1}>
           {/* Header */}
           <Flex justify="space-between" align="center">
             <HStack spacing={2}>
               <Flex
-                w={8}
-                h={8}
+                w={{ base: 7, md: 8 }}
+                h={{ base: 7, md: 8 }}
                 bg="whiteAlpha.300"
                 borderRadius="lg"
                 align="center"
                 justify="center"
               >
-                <Icon as={FiDollarSign} boxSize={5} />
+                <Icon as={FiDollarSign} boxSize={{ base: 4, md: 5 }} />
               </Flex>
-              <Text fontSize="sm" fontWeight="600" opacity={0.9}>
+              <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="600" opacity={0.9}>
                 Wallet Balance
               </Text>
             </HStack>
-            <Badge bg="whiteAlpha.300" color="white" px={2} py={1} borderRadius="md" fontSize="xs">
+            <Badge bg="whiteAlpha.300" color="white" px={2} py={0.5} borderRadius="md" fontSize="xs">
               Active
             </Badge>
           </Flex>
 
           {/* Balance */}
           <Box>
-            <Text fontSize="3xl" fontWeight="800" letterSpacing="tight">
+            <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="800" letterSpacing="tight">
               ₦{walletBalance.toLocaleString()}
             </Text>
-            <VStack align="start" spacing={1} mt={2} opacity={0.9}>
-              <HStack spacing={2}>
+            <VStack align="start" spacing={0.5} mt={1.5} opacity={0.9}>
+              <HStack spacing={1.5}>
                 <Text fontSize="xs" fontWeight="600">Paystack Titan</Text>
               </HStack>
-              <HStack spacing={2}>
+              <HStack spacing={1.5}>
                 <Text fontSize="xs">Account: {accountNumber}</Text>
                 <Icon
                   as={FiCopy}
@@ -250,11 +254,11 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
 
       {/* Recent Transactions */}
       {recentTransactions.length > 0 && (
-        <Box bg="white" borderRadius="xl" p={4} mt={3} boxShadow="sm">
-          <HStack justify="space-between" mb={3}>
-            <HStack spacing={2}>
-              <Icon as={FiClock} boxSize={4} color="gray.600" />
-              <Text fontSize="sm" fontWeight="600" color="gray.900">
+        <Box bg="white" borderRadius="xl" p={{ base: 3, md: 4 }} mt={3} boxShadow="sm">
+          <HStack justify="space-between" mb={2}>
+            <HStack spacing={1.5}>
+              <Icon as={FiClock} boxSize={3.5} color="gray.600" />
+              <Text fontSize="xs" fontWeight="600" color="gray.900">
                 Recent Activity
               </Text>
             </HStack>
@@ -263,24 +267,26 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
               variant="ghost"
               color="purple.600"
               fontWeight="600"
+              fontSize="xs"
               onClick={() => window.location.href = '/user-dashboard/profile/transactions'}
+              px={2}
             >
               View All
             </Button>
           </HStack>
 
-          <VStack spacing={2} align="stretch">
+          <VStack spacing={1.5} align="stretch">
             {transactionsLoading ? (
-              <Flex justify="center" py={4}>
+              <Flex justify="center" py={3}>
                 <Spinner size="sm" color="purple.600" />
               </Flex>
             ) : (
               recentTransactions.map((transaction: any, index: number) => (
-                <Flex key={index} justify="space-between" align="center" py={2}>
-                  <HStack spacing={3}>
+                <Flex key={index} justify="space-between" align="center" py={1.5}>
+                  <HStack spacing={2}>
                     <Flex
-                      w={8}
-                      h={8}
+                      w={7}
+                      h={7}
                       bg={transaction.type === 'debit' ? 'red.50' : 'green.50'}
                       borderRadius="lg"
                       align="center"
@@ -288,7 +294,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
                     >
                       <Icon
                         as={transaction.type === 'debit' ? FiArrowDownLeft : FiArrowUpRight}
-                        boxSize={4}
+                        boxSize={3.5}
                         color={transaction.type === 'debit' ? 'red.500' : 'green.500'}
                       />
                     </Flex>
@@ -296,7 +302,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
                       <Text fontSize="xs" fontWeight="600" color="gray.900">
                         {transaction.type === 'debit' ? 'Payment' : 'Top-up'}
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="10px" color="gray.500">
                         {new Date(transaction.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'
@@ -305,7 +311,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
                     </VStack>
                   </HStack>
                   <Text
-                    fontSize="sm"
+                    fontSize="xs"
                     fontWeight="700"
                     color={transaction.type === 'debit' ? 'red.500' : 'green.500'}
                   >

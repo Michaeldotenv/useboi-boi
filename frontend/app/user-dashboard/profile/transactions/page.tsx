@@ -38,7 +38,10 @@ export default function TransactionsPage() {
     refetchInterval: 30000,
   });
 
-  const allTransactions = (transactions as any)?.data || [];
+  // Handle both response formats: direct array or wrapped in data field
+  const allTransactions = Array.isArray(transactions) 
+    ? transactions 
+    : (Array.isArray((transactions as any)?.data) ? (transactions as any).data : []);
 
   // Filter transactions
   const filteredTransactions = allTransactions.filter((transaction: any) => {
@@ -58,10 +61,18 @@ export default function TransactionsPage() {
     .filter((t: any) => t.type === 'debit')
     .reduce((sum: number, t: any) => sum + t.amount, 0);
 
+  // Debug logging
+  console.log('Transactions raw data:', transactions);
+  console.log('All transactions processed:', allTransactions);
+  console.log('Total transactions:', allTransactions.length);
+
   if (isLoading) {
     return (
-      <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center">
-        <Spinner size="xl" color="purple.600" />
+      <Box minH="100vh" bg="white" display="flex" alignItems="center" justifyContent="center">
+        <VStack spacing={4}>
+          <Spinner size="xl" color="purple.600" thickness="4px" />
+          <Text color="gray.600" fontWeight="600">Loading transactions...</Text>
+        </VStack>
       </Box>
     );
   }

@@ -279,12 +279,12 @@ export default function ProfilePage() {
       <Wrapper>
         <Box py={4}>
           {/* Header */}
-          <Flex justify="space-between" align="center" mb={6}>
-            <VStack align="start" spacing={1}>
-              <Text fontSize="2xl" fontWeight="800" color="gray.900">
+          <Flex justify="space-between" align="center" mb={4}>
+            <VStack align="start" spacing={0.5}>
+              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="800" color="gray.900">
                 Profile
               </Text>
-              <Text fontSize="sm" color="gray.500" fontWeight="500">
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500" fontWeight="500">
                 Manage your account information
               </Text>
             </VStack>
@@ -292,7 +292,7 @@ export default function ProfilePage() {
               <IconButton
                 aria-label="Edit profile"
                 icon={<FiEdit2 />}
-                size="md"
+                size={{ base: "sm", md: "md" }}
                 bg="purple.500"
                 color="white"
                 borderRadius="12px"
@@ -501,13 +501,13 @@ export default function ProfilePage() {
           </Box>
 
           {/* Quick Actions */}
-          <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }} gap={3} mb={4}>
+          <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }} gap={2.5} mb={4}>
             {quickActions.map((action, index) => (
               <Box
                 key={index}
                 bg="white"
-                borderRadius="16px"
-                p={4}
+                borderRadius="14px"
+                p={3}
                 boxShadow="0 2px 8px rgba(0, 0, 0, 0.06)"
                 cursor="pointer"
                 onClick={action.action}
@@ -515,27 +515,27 @@ export default function ProfilePage() {
                 border="1px solid"
                 borderColor="gray.100"
                 _hover={{ 
-                  transform: "translateY(-4px)", 
-                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.12)",
+                  transform: "translateY(-2px)", 
+                  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.1)",
                   borderColor: action.color
                 }}
               >
-                <VStack spacing={3} align="start">
+                <VStack spacing={2} align="start">
                   <Flex
-                    w={12}
-                    h={12}
+                    w={{ base: 9, md: 10 }}
+                    h={{ base: 9, md: 10 }}
                     bg={action.bg}
-                    borderRadius="14px"
+                    borderRadius="12px"
                     align="center"
                     justify="center"
                   >
-                    <Icon as={action.icon} color={action.color} boxSize={6} />
+                    <Icon as={action.icon} color={action.color} boxSize={{ base: 4.5, md: 5 }} />
                   </Flex>
                   <Box>
-                    <Text fontSize="xl" fontWeight="800" color="gray.900">
+                    <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="800" color="gray.900">
                       {action.value}
                     </Text>
-                    <Text fontSize="xs" color="gray.500" fontWeight="600" mt={0.5}>
+                    <Text fontSize="10px" color="gray.500" fontWeight="600" mt={0.5}>
                       {action.label}
                     </Text>
                   </Box>
@@ -545,20 +545,20 @@ export default function ProfilePage() {
           </Grid>
 
           {/* Settings Menu */}
-          <Box bg="white" borderRadius="20px" p={5} mb={4} boxShadow="0 2px 8px rgba(0, 0, 0, 0.06)" border="1px solid" borderColor="gray.100">
-            <HStack spacing={2} mb={4}>
+          <Box bg="white" borderRadius="16px" p={{ base: 3, md: 4 }} mb={4} boxShadow="0 2px 8px rgba(0, 0, 0, 0.06)" border="1px solid" borderColor="gray.100">
+            <HStack spacing={2} mb={3}>
               <Box
-                w={10}
-                h={10}
+                w={{ base: 8, md: 9 }}
+                h={{ base: 8, md: 9 }}
                 bg="gray.100"
-                borderRadius="12px"
+                borderRadius="10px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
               >
-                <Icon as={FiSettings} color="gray.700" boxSize={5} />
+                <Icon as={FiSettings} color="gray.700" boxSize={{ base: 4, md: 4.5 }} />
               </Box>
-              <Text fontSize="lg" fontWeight="800" color="gray.900">
+              <Text fontSize={{ base: "md", md: "lg" }} fontWeight="800" color="gray.900">
                 Settings
               </Text>
             </HStack>
@@ -566,35 +566,35 @@ export default function ProfilePage() {
               {settingsMenu.map((item, index) => (
                 <Flex
                   key={index}
-                  py={4}
-                  px={3}
+                  py={{ base: 3, md: 3.5 }}
+                  px={2}
                   align="center"
                   cursor="pointer"
-                  borderRadius="12px"
+                  borderRadius="10px"
                   transition="all 0.2s"
-                  _hover={{ bg: "gray.50", transform: "translateX(4px)" }}
+                  _hover={{ bg: "gray.50", transform: "translateX(2px)" }}
                   onClick={item.action}
                 >
                   <Flex
-                    w={12}
-                    h={12}
+                    w={{ base: 9, md: 10 }}
+                    h={{ base: 9, md: 10 }}
                     bg="gray.50"
-                    borderRadius="12px"
+                    borderRadius="10px"
                     align="center"
                     justify="center"
-                    mr={3}
+                    mr={2.5}
                   >
-                    <Icon as={item.icon} color="gray.700" boxSize={5} />
+                    <Icon as={item.icon} color="gray.700" boxSize={{ base: 4, md: 4.5 }} />
                   </Flex>
                   <Box flex={1}>
-                    <Text fontSize="sm" fontWeight="700" color="gray.900">
+                    <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="700" color="gray.900">
                       {item.title}
                     </Text>
-                    <Text fontSize="xs" color="gray.500" mt={0.5}>
+                    <Text fontSize="10px" color="gray.500" mt={0.5}>
                       {item.description}
                     </Text>
                   </Box>
-                  <Icon as={FiChevronRight} color="gray.400" boxSize={5} />
+                  <Icon as={FiChevronRight} color="gray.400" boxSize={{ base: 4, md: 4.5 }} />
                 </Flex>
               ))}
             </VStack>
@@ -607,10 +607,11 @@ export default function ProfilePage() {
             color="white"
             w="full"
             onClick={handleLogout}
-            size="lg"
-            borderRadius="14px"
+            size={{ base: "md", md: "lg" }}
+            borderRadius="12px"
             fontWeight="700"
-            py={7}
+            fontSize={{ base: "sm", md: "md" }}
+            py={{ base: 6, md: 7 }}
             _hover={{ bg: "red.600", transform: "translateY(-2px)" }}
             _active={{ bg: "red.700" }}
             boxShadow="0 4px 12px rgba(239, 68, 68, 0.3)"
