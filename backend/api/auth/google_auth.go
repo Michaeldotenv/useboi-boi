@@ -140,6 +140,8 @@ func GoogleAuth(c *gin.Context, db *mongo.Database) {
 	}
 	defer session.EndSession(c)
 
+	var jwtToken string
+
 	_, err = session.WithTransaction(c, func(sessCtx mongo.SessionContext) (interface{}, error) {
 		_, err = userCollection.InsertOne(sessCtx, newUser)
 		if err != nil {
@@ -153,19 +155,21 @@ func GoogleAuth(c *gin.Context, db *mongo.Database) {
 			fmt.Println("Warning: Failed to create virtual account:", err.Error())
 		}
 
-		jwt, err := utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
+		jwtToken, err = utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
 		if err != nil {
 			return nil, err
 		}
 
-		c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwt})
 		return nil, nil
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create user: " + err.Error()})
 		return
 	}
+
+	// Send response after transaction completes
+	c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwtToken})
 
 	// Send welcome email and get PayStack account asynchronously
 	go func() {
