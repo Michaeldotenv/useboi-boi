@@ -172,24 +172,35 @@ export default function CardsPage() {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pb={24}>
-      {/* Header */}
-      <Box bg="white" borderBottom="1px solid" borderColor="gray.200" pt={6} pb={6} px={6}>
-        <HStack spacing={4} mb={3}>
+    <Box minH="100vh" bg="white" pb={24}>
+      {/* Header with Gradient */}
+      <Box 
+        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+        pt={6} 
+        pb={8} 
+        px={6}
+        position="relative"
+        overflow="hidden"
+      >
+        {/* Decorative circles */}
+        <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" borderRadius="full" bg="whiteAlpha.200" />
+        <Box position="absolute" bottom="-30px" left="-30px" w="120px" h="120px" borderRadius="full" bg="whiteAlpha.100" />
+        
+        <HStack spacing={4} mb={3} position="relative" zIndex={1}>
           <IconButton
             aria-label="Back"
             icon={<ArrowBackIcon />}
             onClick={() => router.back()}
-            bg="gray.100"
-            color="gray.700"
-            _hover={{ bg: "gray.200" }}
-            _active={{ bg: "gray.300" }}
-            borderRadius="10px"
+            bg="whiteAlpha.300"
+            color="white"
+            _hover={{ bg: "whiteAlpha.400" }}
+            _active={{ bg: "whiteAlpha.500" }}
+            borderRadius="12px"
             size="md"
           />
           <VStack align="start" spacing={0}>
-            <Heading size="lg" color="gray.900" fontWeight="600">Payment Cards</Heading>
-            <Text fontSize="sm" color="gray.500" fontWeight="400">
+            <Heading size="lg" color="white" fontWeight="800">Payment Cards</Heading>
+            <Text fontSize="sm" color="whiteAlpha.900" fontWeight="500">
               Manage your saved payment methods
             </Text>
           </VStack>
@@ -197,40 +208,52 @@ export default function CardsPage() {
       </Box>
 
       {/* Cards List */}
-      <Box px={6} mt={6}>
+      <Box px={6} mt={-4}>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
           {userCards.length === 0 ? (
               <Card
                 bg="white"
-                borderRadius="16px"
+                borderRadius="20px"
                 p={10}
                 textAlign="center"
-                border="1px solid"
-                borderColor="gray.200"
+                border="none"
+                boxShadow="0 4px 20px rgba(0, 0, 0, 0.08)"
               >
-              <Box bg="gray.100" borderRadius="full" w="80px" h="80px" display="flex" alignItems="center" justifyContent="center" mx="auto" mb={5}>
-                <Icon as={FaCreditCard} boxSize={10} color="gray.400" />
+              <Box 
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+                borderRadius="full" 
+                w="100px" 
+                h="100px" 
+                display="flex" 
+                alignItems="center" 
+                justifyContent="center" 
+                mx="auto" 
+                mb={6}
+              >
+                <Icon as={FaCreditCard} boxSize={12} color="white" />
               </Box>
-              <Text fontSize="xl" fontWeight="600" mb={2} color="gray.900">
+              <Text fontSize="2xl" fontWeight="800" mb={3} color="gray.900">
                 No cards saved
               </Text>
-              <Text color="gray.500" mb={8} fontSize="sm">
-                Add a payment card to enable faster checkouts
+              <Text color="gray.500" mb={8} fontSize="md" lineHeight="1.6">
+                Add a payment card to enable faster checkouts and seamless payments
               </Text>
               <Button
                 leftIcon={<AddIcon />}
-                bg="gray.900"
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                 color="white"
-                _hover={{ bg: "gray.800" }}
-                _active={{ bg: "gray.700" }}
+                _hover={{ transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(102, 126, 234, 0.4)" }}
+                _active={{ transform: "translateY(0)" }}
                 onClick={handleAddCard}
                 isLoading={isAddingCard}
                 loadingText="Redirecting..."
                 size="lg"
-                borderRadius="10px"
-                fontWeight="500"
+                borderRadius="14px"
+                fontWeight="700"
+                py={7}
+                transition="all 0.3s"
               >
-                Add Card
+                Add Your First Card
               </Button>
             </Card>
           ) : (
@@ -239,12 +262,12 @@ export default function CardsPage() {
                 <Card
                   key={card.id}
                   bg="white"
-                  borderRadius="16px"
-                  border="1px solid"
-                  borderColor="gray.200"
+                  borderRadius="20px"
+                  border="none"
                   overflow="hidden"
-                  transition="all 0.2s"
-                  _hover={{ borderColor: "gray.300", bg: "gray.50" }}
+                  transition="all 0.3s"
+                  boxShadow="0 4px 20px rgba(0, 0, 0, 0.08)"
+                  _hover={{ transform: "translateY(-4px)", boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)" }}
                 >
                   <CardBody p={6}>
                     <Flex justify="space-between" align="start">
@@ -252,27 +275,39 @@ export default function CardsPage() {
                         <Box
                           bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                           color="white"
-                          p={3.5}
-                          borderRadius="12px"
+                          p={4}
+                          borderRadius="16px"
+                          boxShadow="0 4px 12px rgba(102, 126, 234, 0.3)"
                         >
-                          <Icon as={FaCreditCard} boxSize={6} />
+                          <Icon as={FaCreditCard} boxSize={7} />
                         </Box>
-                        <VStack align="start" spacing={1.5}>
+                        <VStack align="start" spacing={2}>
                           <HStack>
-                            <Text fontSize="lg" fontWeight="600" color="gray.900">
+                            <Text fontSize="xl" fontWeight="800" color="gray.900">
                               {card.bank}
                             </Text>
                             {card.isSelected && (
-                              <Badge bg="green.100" color="green.700" display="flex" alignItems="center" gap={1} px={2} py={0.5} borderRadius="6px" fontWeight="500">
+                              <Badge 
+                                bg="green.500" 
+                                color="white" 
+                                display="flex" 
+                                alignItems="center" 
+                                gap={1} 
+                                px={3} 
+                                py={1} 
+                                borderRadius="full" 
+                                fontWeight="700"
+                                fontSize="xs"
+                              >
                                 <CheckIcon boxSize={2.5} />
                                 Default
                               </Badge>
                             )}
                           </HStack>
-                          <Text fontSize="sm" color="gray.500" fontWeight="500">
+                          <Text fontSize="sm" color="gray.600" fontWeight="600">
                             {card.cardType}
                           </Text>
-                          <Text fontSize="xs" color="gray.400" letterSpacing="wider">
+                          <Text fontSize="sm" color="gray.400" letterSpacing="wider" fontFamily="mono">
                             •••• •••• •••• ••••
                           </Text>
                         </VStack>
@@ -280,7 +315,7 @@ export default function CardsPage() {
                       <IconButton
                         aria-label="Remove card"
                         icon={<DeleteIcon />}
-                        size="sm"
+                        size="md"
                         variant="ghost"
                         color="gray.400"
                         onClick={(e) => {
@@ -290,6 +325,7 @@ export default function CardsPage() {
                           }
                         }}
                         isLoading={deleteCardMutation.isPending}
+                        borderRadius="12px"
                         _hover={{ bg: "red.50", color: "red.500" }}
                       />
                     </Flex>
@@ -301,18 +337,25 @@ export default function CardsPage() {
               <Button
                 leftIcon={<AddIcon />}
                 bg="white"
-                border="1.5px solid"
-                borderColor="gray.300"
-                color="gray.700"
-                _hover={{ bg: "gray.900", color: "white", borderColor: "gray.900" }}
+                border="2px dashed"
+                borderColor="purple.300"
+                color="purple.600"
+                _hover={{ 
+                  bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", 
+                  color: "white", 
+                  borderColor: "transparent",
+                  transform: "translateY(-4px)",
+                  boxShadow: "0 8px 30px rgba(102, 126, 234, 0.3)"
+                }}
                 onClick={handleAddCard}
                 isLoading={isAddingCard}
                 loadingText="Redirecting..."
                 size="lg"
-                borderRadius="14px"
-                fontWeight="500"
+                borderRadius="20px"
+                fontWeight="700"
                 h="auto"
-                py={6}
+                py={8}
+                transition="all 0.3s"
               >
                 Add Another Card
               </Button>
@@ -323,16 +366,28 @@ export default function CardsPage() {
 
       {/* Info Boxes */}
       <Box px={6} mt={6}>
-        <VStack spacing={3}>
-          <Card bg="blue.50" borderRadius="14px" border="1px solid" borderColor="blue.200">
-            <CardBody p={5}>
-              <HStack align="start" spacing={3}>
-                <Text fontSize="lg">💳</Text>
+        <VStack spacing={4}>
+          <Card 
+            bg="linear-gradient(135deg, #EBF8FF 0%, #E0E7FF 100%)" 
+            borderRadius="20px" 
+            border="none"
+            boxShadow="0 2px 12px rgba(59, 130, 246, 0.15)"
+          >
+            <CardBody p={6}>
+              <HStack align="start" spacing={4}>
+                <Box
+                  bg="blue.500"
+                  borderRadius="12px"
+                  p={3}
+                  color="white"
+                >
+                  <Text fontSize="2xl">💳</Text>
+                </Box>
                 <Box flex={1}>
-                  <Text fontSize="sm" fontWeight="600" color="blue.900" mb={1}>
+                  <Text fontSize="md" fontWeight="800" color="blue.900" mb={2}>
                     Secure Payment
                   </Text>
-                  <Text fontSize="sm" color="blue.800">
+                  <Text fontSize="sm" color="blue.800" lineHeight="1.6">
                     Your card details are encrypted and stored securely with Paystack. We never store your full card number.
                   </Text>
                 </Box>
@@ -340,15 +395,27 @@ export default function CardsPage() {
             </CardBody>
           </Card>
           
-          <Card bg="purple.50" borderRadius="14px" border="1px solid" borderColor="purple.200">
-            <CardBody p={5}>
-              <HStack align="start" spacing={3}>
-                <Text fontSize="lg">💡</Text>
+          <Card 
+            bg="linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 100%)" 
+            borderRadius="20px" 
+            border="none"
+            boxShadow="0 2px 12px rgba(147, 51, 234, 0.15)"
+          >
+            <CardBody p={6}>
+              <HStack align="start" spacing={4}>
+                <Box
+                  bg="purple.500"
+                  borderRadius="12px"
+                  p={3}
+                  color="white"
+                >
+                  <Text fontSize="2xl">💡</Text>
+                </Box>
                 <Box flex={1}>
-                  <Text fontSize="sm" fontWeight="600" color="purple.900" mb={1}>
+                  <Text fontSize="md" fontWeight="800" color="purple.900" mb={2}>
                     Card Verification Fee
                   </Text>
-                  <Text fontSize="sm" color="purple.800">
+                  <Text fontSize="sm" color="purple.800" lineHeight="1.6">
                     A ₦100 verification charge is required to add your card. This amount will be refunded to your wallet immediately after verification.
                   </Text>
                 </Box>
@@ -356,15 +423,27 @@ export default function CardsPage() {
             </CardBody>
           </Card>
           
-          <Card bg="orange.50" borderRadius="14px" border="1px solid" borderColor="orange.200">
-            <CardBody p={5}>
-              <HStack align="start" spacing={3}>
-                <Text fontSize="lg">⚠️</Text>
+          <Card 
+            bg="linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)" 
+            borderRadius="20px" 
+            border="none"
+            boxShadow="0 2px 12px rgba(249, 115, 22, 0.15)"
+          >
+            <CardBody p={6}>
+              <HStack align="start" spacing={4}>
+                <Box
+                  bg="orange.500"
+                  borderRadius="12px"
+                  p={3}
+                  color="white"
+                >
+                  <Text fontSize="2xl">⚠️</Text>
+                </Box>
                 <Box flex={1}>
-                  <Text fontSize="sm" fontWeight="600" color="orange.900" mb={1}>
+                  <Text fontSize="md" fontWeight="800" color="orange.900" mb={2}>
                     Card Payment Setup Required
                   </Text>
-                  <Text fontSize="sm" color="orange.800">
+                  <Text fontSize="sm" color="orange.800" lineHeight="1.6">
                     If you see "No active channel" error, card payments need to be activated in your Paystack dashboard. Use wallet payment in the meantime.
                   </Text>
                 </Box>

@@ -52,6 +52,7 @@ export default function ProfilePage() {
     email: "",
     phoneNumber: "",
   });
+  const [canEditPhone, setCanEditPhone] = useState(false);
   
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -69,7 +70,7 @@ export default function ProfilePage() {
   const me = useMemo(() => (data as any)?.data || data || {}, [data]);
 
   const updateMutation = useMutation({
-    mutationFn: (payload: { firstName: string; lastName: string }) => 
+    mutationFn: (payload: { firstName: string; lastName: string; phoneNumber?: string }) => 
       api.updateUser(me.id || me._id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
@@ -81,6 +82,7 @@ export default function ProfilePage() {
         isClosable: true,
       });
       setIsEditing(false);
+      setCanEditPhone(false);
     },
     onError: () => {
       toast({
@@ -116,10 +118,17 @@ export default function ProfilePage() {
       return;
     }
 
-    updateMutation.mutate({
+    const payload: any = {
       firstName: editForm.firstName.trim(),
       lastName: editForm.lastName.trim(),
-    });
+    };
+
+    // Include phone number if it was edited
+    if (canEditPhone && editForm.phoneNumber.trim()) {
+      payload.phoneNumber = editForm.phoneNumber.trim();
+    }
+
+    updateMutation.mutate(payload);
   };
 
   const handleCancel = () => {
@@ -413,17 +422,33 @@ export default function ProfilePage() {
                     </Box>
 
                     <Box>
-                      <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900" mb={1.5}>
-                        PHONE NUMBER
-                      </Text>
+                      <HStack justify="space-between" mb={1.5}>
+                        <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900">
+                          PHONE NUMBER
+                        </Text>
+                        {!canEditPhone && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            color="whiteAlpha.900"
+                            onClick={() => setCanEditPhone(true)}
+                            _hover={{ bg: "whiteAlpha.200" }}
+                          >
+                            Edit
+                          </Button>
+                        )}
+                      </HStack>
                       <Input
                         value={editForm.phoneNumber}
-                        isDisabled
+                        onChange={(e) => setEditForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                        isDisabled={!canEditPhone}
                         size="md"
-                        bg="whiteAlpha.100"
+                        bg={canEditPhone ? "whiteAlpha.200" : "whiteAlpha.100"}
                         border="1px solid"
-                        borderColor="whiteAlpha.200"
-                        color="whiteAlpha.700"
+                        borderColor={canEditPhone ? "whiteAlpha.300" : "whiteAlpha.200"}
+                        color="white"
+                        _placeholder={{ color: "whiteAlpha.600" }}
+                        _focus={{ bg: "whiteAlpha.300", borderColor: "whiteAlpha.500" }}
                       />
                     </Box>
 

@@ -121,8 +121,9 @@ func EditUser(c *gin.Context, db *mongo.Database) {
 
 	// Only accept specific fields for update
 	var updateData struct {
-		FirstName string `json:"firstName"`
-		LastName  string `json:"lastName"`
+		FirstName   string `json:"firstName"`
+		LastName    string `json:"lastName"`
+		PhoneNumber string `json:"phoneNumber"`
 	}
 	
 	if err := c.ShouldBindJSON(&updateData); err != nil {
@@ -139,12 +140,20 @@ func EditUser(c *gin.Context, db *mongo.Database) {
 
 	userCollection := db.Collection(utils.USER)
 
+	// Build update fields
+	updateFields := bson.M{
+		"firstName": updateData.FirstName,
+		"lastName":  updateData.LastName,
+	}
+	
+	// Only update phone number if provided
+	if updateData.PhoneNumber != "" {
+		updateFields["phoneNumber"] = updateData.PhoneNumber
+	}
+
 	// Only update allowed fields
 	update := bson.M{
-		"$set": bson.M{
-			"firstName": updateData.FirstName,
-			"lastName":  updateData.LastName,
-		},
+		"$set": updateFields,
 	}
 	
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)

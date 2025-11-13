@@ -67,67 +67,80 @@ export default function TransactionsPage() {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pb={24}>
-      {/* Header */}
-      <Box bg="white" borderBottom="1px solid" borderColor="gray.200" pt={6} pb={6} px={6}>
-        <HStack spacing={4} mb={3}>
+    <Box minH="100vh" bg="white" pb={24}>
+      {/* Header with Gradient */}
+      <Box 
+        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+        pt={6} 
+        pb={8} 
+        px={6}
+        position="relative"
+        overflow="hidden"
+      >
+        {/* Decorative circles */}
+        <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" borderRadius="full" bg="whiteAlpha.200" />
+        <Box position="absolute" bottom="-30px" left="-30px" w="120px" h="120px" borderRadius="full" bg="whiteAlpha.100" />
+        
+        <HStack spacing={4} mb={4} position="relative" zIndex={1}>
           <IconButton
             aria-label="Back"
             icon={<ArrowBackIcon />}
             onClick={() => router.back()}
-            bg="gray.100"
-            color="gray.700"
-            _hover={{ bg: "gray.200" }}
-            _active={{ bg: "gray.300" }}
-            borderRadius="10px"
+            bg="whiteAlpha.300"
+            color="white"
+            _hover={{ bg: "whiteAlpha.400" }}
+            _active={{ bg: "whiteAlpha.500" }}
+            borderRadius="12px"
             size="md"
           />
           <VStack align="start" spacing={0}>
-            <Text fontSize="xl" fontWeight="700" color="gray.900">
+            <Text fontSize="xl" fontWeight="800" color="white">
               Transaction History
             </Text>
-            <Text fontSize="sm" color="gray.500" fontWeight="400">
+            <Text fontSize="sm" color="whiteAlpha.900" fontWeight="500">
               View all your wallet transactions
             </Text>
           </VStack>
         </HStack>
 
         {/* Summary Cards */}
-        <HStack spacing={3} mt={4}>
+        <HStack spacing={3} mt={4} position="relative" zIndex={1}>
           <Box
             flex={1}
-            bg="green.50"
-            borderRadius="12px"
+            bg="whiteAlpha.300"
+            backdropFilter="blur(10px)"
+            borderRadius="16px"
             p={4}
             border="1px solid"
-            borderColor="green.200"
+            borderColor="whiteAlpha.400"
           >
-            <HStack spacing={2} mb={1}>
-              <Icon as={FiArrowUpRight} color="green.600" boxSize={4} />
-              <Text fontSize="xs" color="green.700" fontWeight="600">
-                Total Credit
+            <HStack spacing={2} mb={2}>
+              <Icon as={FiArrowUpRight} color="white" boxSize={5} />
+              <Text fontSize="xs" color="whiteAlpha.900" fontWeight="700">
+                TOTAL CREDIT
               </Text>
             </HStack>
-            <Text fontSize="xl" fontWeight="800" color="green.700">
+            <Text fontSize="2xl" fontWeight="900" color="white">
               ₦{totalCredit.toLocaleString()}
             </Text>
           </Box>
 
           <Box
             flex={1}
-            bg="red.50"
-            borderRadius="12px"
+            bg="whiteAlpha.300"
+            backdropFilter="blur(10px)"
+            borderRadius="16px"
             p={4}
             border="1px solid"
-            borderColor="red.200"
+            borderColor="whiteAlpha.400"
           >
-            <HStack spacing={2} mb={1}>
-              <Icon as={FiArrowDownLeft} color="red.600" boxSize={4} />
-              <Text fontSize="xs" color="red.700" fontWeight="600">
-                Total Debit
+            <HStack spacing={2} mb={2}>
+              <Icon as={FiArrowDownLeft} color="white" boxSize={5} />
+              <Text fontSize="xs" color="whiteAlpha.900" fontWeight="700">
+                TOTAL DEBIT
               </Text>
             </HStack>
-            <Text fontSize="xl" fontWeight="800" color="red.700">
+            <Text fontSize="2xl" fontWeight="900" color="white">
               ₦{totalDebit.toLocaleString()}
             </Text>
           </Box>
@@ -135,48 +148,66 @@ export default function TransactionsPage() {
       </Box>
 
       {/* Filters */}
-      <Box px={6} mt={4}>
+      <Box px={6} mt={-2}>
         <VStack spacing={3} align="stretch">
           {/* Search */}
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
+          <InputGroup size="lg">
+            <InputLeftElement pointerEvents="none" h="full">
               <SearchIcon color="gray.400" />
             </InputLeftElement>
             <Input
               placeholder="Search transactions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              bg="white"
-              borderRadius="10px"
+              bg="gray.50"
+              border="none"
+              borderRadius="16px"
+              fontSize="md"
+              _focus={{ bg: "white", boxShadow: "0 0 0 3px rgba(102, 126, 234, 0.1)" }}
             />
           </InputGroup>
 
           {/* Filter Tabs */}
           <HStack spacing={2}>
             <Button
-              size="sm"
-              variant={filterType === "all" ? "solid" : "outline"}
-              colorScheme={filterType === "all" ? "purple" : "gray"}
+              size="md"
+              bg={filterType === "all" ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : "white"}
+              color={filterType === "all" ? "white" : "gray.700"}
               onClick={() => setFilterType("all")}
-              borderRadius="8px"
+              borderRadius="12px"
+              fontWeight="700"
+              border={filterType === "all" ? "none" : "2px solid"}
+              borderColor="gray.200"
+              _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
+              transition="all 0.2s"
             >
               All
             </Button>
             <Button
-              size="sm"
-              variant={filterType === "credit" ? "solid" : "outline"}
-              colorScheme={filterType === "credit" ? "green" : "gray"}
+              size="md"
+              bg={filterType === "credit" ? "green.500" : "white"}
+              color={filterType === "credit" ? "white" : "gray.700"}
               onClick={() => setFilterType("credit")}
-              borderRadius="8px"
+              borderRadius="12px"
+              fontWeight="700"
+              border={filterType === "credit" ? "none" : "2px solid"}
+              borderColor="gray.200"
+              _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
+              transition="all 0.2s"
             >
               Credits
             </Button>
             <Button
-              size="sm"
-              variant={filterType === "debit" ? "solid" : "outline"}
-              colorScheme={filterType === "debit" ? "red" : "gray"}
+              size="md"
+              bg={filterType === "debit" ? "red.500" : "white"}
+              color={filterType === "debit" ? "white" : "gray.700"}
               onClick={() => setFilterType("debit")}
-              borderRadius="8px"
+              borderRadius="12px"
+              fontWeight="700"
+              border={filterType === "debit" ? "none" : "2px solid"}
+              borderColor="gray.200"
+              _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
+              transition="all 0.2s"
             >
               Debits
             </Button>
@@ -189,16 +220,28 @@ export default function TransactionsPage() {
         {filteredTransactions.length === 0 ? (
           <Box
             bg="white"
-            borderRadius="16px"
-            p={10}
+            borderRadius="20px"
+            p={12}
             textAlign="center"
-            border="1px solid"
-            borderColor="gray.200"
+            boxShadow="0 4px 20px rgba(0, 0, 0, 0.08)"
           >
-            <Text fontSize="lg" fontWeight="600" color="gray.600" mb={2}>
+            <Box
+              bg="gray.100"
+              borderRadius="full"
+              w="100px"
+              h="100px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              mx="auto"
+              mb={4}
+            >
+              <Text fontSize="4xl">📊</Text>
+            </Box>
+            <Text fontSize="xl" fontWeight="800" color="gray.900" mb={2}>
               No transactions found
             </Text>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="md" color="gray.500">
               {searchQuery ? "Try a different search term" : "Your transactions will appear here"}
             </Text>
           </Box>
@@ -208,45 +251,47 @@ export default function TransactionsPage() {
               <Box
                 key={index}
                 bg="white"
-                borderRadius="12px"
-                p={4}
-                border="1px solid"
-                borderColor="gray.200"
-                _hover={{ borderColor: "gray.300", bg: "gray.50" }}
-                transition="all 0.2s"
+                borderRadius="20px"
+                p={5}
+                boxShadow="0 2px 12px rgba(0, 0, 0, 0.06)"
+                _hover={{ transform: "translateY(-2px)", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)" }}
+                transition="all 0.3s"
               >
                 <Flex justify="space-between" align="center">
-                  <HStack spacing={3}>
+                  <HStack spacing={4}>
                     <Flex
-                      w={12}
-                      h={12}
-                      bg={transaction.type === 'debit' ? 'red.50' : 'green.50'}
-                      borderRadius="12px"
+                      w={14}
+                      h={14}
+                      bg={transaction.type === 'debit' ? 'linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%)' : 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)'}
+                      borderRadius="16px"
                       align="center"
                       justify="center"
+                      boxShadow={transaction.type === 'debit' ? '0 4px 12px rgba(239, 68, 68, 0.2)' : '0 4px 12px rgba(16, 185, 129, 0.2)'}
                     >
                       <Icon
                         as={transaction.type === 'debit' ? FiArrowDownLeft : FiArrowUpRight}
-                        boxSize={6}
-                        color={transaction.type === 'debit' ? 'red.500' : 'green.500'}
+                        boxSize={7}
+                        color={transaction.type === 'debit' ? 'red.600' : 'green.600'}
                       />
                     </Flex>
-                    <VStack align="start" spacing={1}>
+                    <VStack align="start" spacing={1.5}>
                       <HStack spacing={2}>
-                        <Text fontSize="sm" fontWeight="700" color="gray.900">
+                        <Text fontSize="md" fontWeight="800" color="gray.900">
                           {transaction.type === 'debit' ? 'Payment' : 'Wallet Top-up'}
                         </Text>
                         <Badge
-                          colorScheme={transaction.type === 'debit' ? 'red' : 'green'}
+                          bg={transaction.type === 'debit' ? 'red.500' : 'green.500'}
+                          color="white"
                           fontSize="xs"
-                          px={2}
+                          px={2.5}
                           py={0.5}
                           borderRadius="full"
+                          fontWeight="700"
                         >
                           {transaction.type}
                         </Badge>
                       </HStack>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="xs" color="gray.500" fontWeight="500">
                         {new Date(transaction.createdAt).toLocaleDateString('en-US', {
                           month: 'long',
                           day: 'numeric',
@@ -256,7 +301,7 @@ export default function TransactionsPage() {
                         })}
                       </Text>
                       {transaction.paymentTransactionId && (
-                        <Text fontSize="xs" color="gray.400" fontFamily="mono">
+                        <Text fontSize="xs" color="gray.400" fontFamily="mono" fontWeight="600">
                           Ref: {transaction.paymentTransactionId.slice(-8)}
                         </Text>
                       )}
@@ -264,9 +309,9 @@ export default function TransactionsPage() {
                   </HStack>
                   <VStack align="end" spacing={0}>
                     <Text
-                      fontSize="lg"
-                      fontWeight="800"
-                      color={transaction.type === 'debit' ? 'red.500' : 'green.500'}
+                      fontSize="xl"
+                      fontWeight="900"
+                      color={transaction.type === 'debit' ? 'red.600' : 'green.600'}
                     >
                       {transaction.type === 'debit' ? '-' : '+'}₦{transaction.amount.toLocaleString()}
                     </Text>
