@@ -15,15 +15,37 @@ Enhanced order tracking system with full 6-stage progress tracking, comprehensiv
 5. Rider on His Way
 6. Rider at your location
 
-### 🔧 Issue 2: Rider Phone Number Not Displaying
+### 🔧 Issue 2: Rider Phone Number Not Displaying - FIXED! ✅
 **Problem**: Rider information wasn't showing even when rider was assigned
-**Solution**: 
-- Backend already had proper rider lookup (added in previous changes)
-- Added comprehensive debugging logs to track rider data flow
-- Added debug info box in UI to help troubleshoot
-- Console logs at multiple points to trace data
+**Root Cause**: Backend `OrderData` struct had wrong JSON tag - `Rider` field was tagged as `json:"cart"` instead of `json:"rider"`
 
-**Debug Features Added**:
+**Solution**: 
+1. Fixed OrderData struct JSON tag from `json:"cart"` to `json:"rider"`
+2. Added separate `Cart` field with proper `json:"cart"` tag
+3. Backend now properly returns rider data in `rider` field and cart data in `cart` field
+
+**Before**:
+```go
+type OrderData struct {
+    data.Order `bson:",inline"`
+    Store      data.Store `json:"store"`
+    Customer   data.User  `json:"customer"`
+    Rider      *data.User `json:"cart"`  // ❌ Wrong tag!
+}
+```
+
+**After**:
+```go
+type OrderData struct {
+    data.Order `bson:",inline"`
+    Store      data.Store `json:"store"`
+    Customer   data.User  `json:"customer"`
+    Rider      *data.User `json:"rider"`  // ✅ Correct!
+    Cart       any        `json:"cart"`   // ✅ Added cart field
+}
+```
+
+**Debug Features Added** (can be removed after verification):
 - Console logs showing full order object
 - Console logs showing rider extraction
 - Visual debug box showing all rider fields

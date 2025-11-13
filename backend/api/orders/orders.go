@@ -810,7 +810,8 @@ type OrderData struct {
 	data.Order `bson:",inline"`
 	Store      data.Store `json:"store"`
 	Customer   data.User  `json:"customer"`
-	Rider      *data.User `json:"cart"`
+	Rider      *data.User `json:"rider"`
+	Cart       any        `json:"cart"`
 }
 
 func GetOrders(c *gin.Context, db *mongo.Database) {
