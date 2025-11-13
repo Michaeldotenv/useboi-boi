@@ -134,6 +134,9 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	authRoute.POST("/resetPassword", func(ctx *gin.Context) {
 		auth.ResetPassword(ctx, db)
 	})
+	authRoute.POST("/google", func(ctx *gin.Context) {
+		auth.GoogleAuth(ctx, db)
+	})
 
 	// Vendors and Items
 	mainRoute.GET("/vendors", func(ctx *gin.Context) {

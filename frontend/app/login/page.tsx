@@ -18,12 +18,15 @@ import {
   Link as ChakraLink,
   Container,
   Checkbox,
+  Divider,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { BASE_URL } from "../lib/endpoints";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+import GoogleSignInProvider from "../components/GoogleSignInProvider";
 
 export default function Login() {
   const router = useRouter();
@@ -118,6 +121,7 @@ export default function Login() {
   };
 
   return (
+    <GoogleSignInProvider>
     <Flex minH="100vh" maxH="100vh" overflow="hidden" bg="white">
       {/* Left Side - Image (Hidden on mobile) */}
       <Box
@@ -288,6 +292,18 @@ export default function Login() {
                   Sign In
                 </Button>
 
+                {/* Divider */}
+                <HStack w="full" my={1}>
+                  <Divider />
+                  <Text fontSize="xs" color="gray.500" whiteSpace="nowrap" px={2}>
+                    or
+                  </Text>
+                  <Divider />
+                </HStack>
+
+                {/* Google Sign In */}
+                <GoogleSignInButton mode="signin" />
+
                 {/* Sign Up Link */}
                 <Text textAlign="center" color="gray.600" fontSize="xs">
                   Don't have an account?{" "}
@@ -307,5 +323,6 @@ export default function Login() {
         </Container>
       </Flex>
     </Flex>
+    </GoogleSignInProvider>
   );
 }
