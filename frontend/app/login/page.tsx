@@ -120,7 +120,7 @@ export default function Login() {
   };
 
   return (
-    <Flex minH="100vh" maxH="100vh" overflow="hidden" bg="white">
+    <Flex minH="100vh" bg="white">
       {/* Left Side - Image (Hidden on mobile) */}
       <Box
         display={{ base: "none", lg: "block" }}
@@ -155,7 +155,7 @@ export default function Login() {
         p={{ base: 6, md: 8 }}
         position="relative"
         bg="white"
-        overflow="hidden"
+        overflowY="auto"
       >
         {/* Vibrant Decorative Elements - Mobile Only */}
         <Box display={{ base: "block", lg: "none" }} pointerEvents="none">
@@ -163,7 +163,7 @@ export default function Login() {
           <Box position="absolute" bottom="-40px" left="-40px" w="150px" h="150px" borderRadius="full" bg="pink.200" opacity={0.3} filter="blur(40px)" />
           <Box position="absolute" top="30%" right="10%" w="80px" h="80px" borderRadius="full" bg="blue.200" opacity={0.25} filter="blur(25px)" />
         </Box>
-        <Container maxW="420px" maxH="100vh" overflow="hidden">
+        <Container maxW="420px" py={6}>
           <VStack spacing={5} align="stretch">
             {/* Logo */}
             <Box textAlign="center">

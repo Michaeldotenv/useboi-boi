@@ -260,26 +260,28 @@ export default function ProfilePage() {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pb="calc(env(safe-area-inset-bottom, 0px) + 80px)">
+    <Box minH="100vh" bg="white" pb="calc(env(safe-area-inset-bottom, 0px) + 80px)">
       <Wrapper>
         <Box py={4}>
           {/* Header */}
           <Flex justify="space-between" align="center" mb={6}>
-            <Box>
-              <Text fontSize="2xl" fontWeight="700" color="gray.900">
+            <VStack align="start" spacing={1}>
+              <Text fontSize="2xl" fontWeight="800" color="gray.900">
                 Profile
               </Text>
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="gray.500" fontWeight="500">
                 Manage your account information
               </Text>
-            </Box>
+            </VStack>
             {!isEditing && (
               <IconButton
                 aria-label="Edit profile"
                 icon={<FiEdit2 />}
                 size="md"
-                colorScheme="purple"
-                variant="ghost"
+                bg="purple.500"
+                color="white"
+                borderRadius="12px"
+                _hover={{ bg: "purple.600" }}
                 onClick={() => setIsEditing(true)}
               />
             )}
@@ -291,35 +293,67 @@ export default function ProfilePage() {
           </Box>
 
           {/* Profile Card */}
-          <Box bg="white" borderRadius="xl" p={6} mb={4} boxShadow="sm">
-            <Flex gap={4} align="start">
+          <Box 
+            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+            borderRadius="20px" 
+            p={6} 
+            mb={4} 
+            boxShadow="0 10px 30px rgba(102, 126, 234, 0.3)"
+            position="relative"
+            overflow="hidden"
+          >
+            {/* Decorative circles */}
+            <Box
+              position="absolute"
+              top="-20px"
+              right="-20px"
+              w="100px"
+              h="100px"
+              bg="whiteAlpha.200"
+              borderRadius="full"
+            />
+            <Box
+              position="absolute"
+              bottom="-30px"
+              left="-30px"
+              w="120px"
+              h="120px"
+              bg="whiteAlpha.100"
+              borderRadius="full"
+            />
+            
+            <Flex gap={4} align="start" position="relative" zIndex={1}>
               <Avatar
                 size="xl"
                 name={`${me.firstName} ${me.lastName}`}
-                bg="purple.600"
-                color="white"
-                fontWeight="600"
+                bg="white"
+                color="purple.600"
+                fontWeight="700"
+                border="4px solid"
+                borderColor="whiteAlpha.300"
               />
               
               <Box flex={1}>
                 {!isEditing ? (
                   <VStack align="start" spacing={3}>
                     <Box>
-                      <Text fontSize="2xl" fontWeight="700" color="gray.900">
+                      <Text fontSize="2xl" fontWeight="800" color="white">
                         {me.firstName} {me.lastName}
                       </Text>
-                      <Badge colorScheme="green" mt={1}>Active</Badge>
+                      <Badge colorScheme="green" mt={2} px={3} py={1} borderRadius="full" fontSize="11px" fontWeight="600">
+                        ✓ Active Account
+                      </Badge>
                     </Box>
                     
-                    <VStack align="start" spacing={2} w="full">
-                      <HStack spacing={2} color="gray.600">
+                    <VStack align="start" spacing={2} w="full" mt={2}>
+                      <HStack spacing={2} color="whiteAlpha.900">
                         <Icon as={FiMail} boxSize={4} />
-                        <Text fontSize="sm">{me.email}</Text>
+                        <Text fontSize="sm" fontWeight="500">{me.email}</Text>
                       </HStack>
                       {me.phoneNumber && (
-                        <HStack spacing={2} color="gray.600">
+                        <HStack spacing={2} color="whiteAlpha.900">
                           <Icon as={FiPhone} boxSize={4} />
-                          <Text fontSize="sm">{me.phoneNumber}</Text>
+                          <Text fontSize="sm" fontWeight="500">{me.phoneNumber}</Text>
                         </HStack>
                       )}
                     </VStack>
@@ -328,7 +362,7 @@ export default function ProfilePage() {
                   <VStack align="stretch" spacing={4}>
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
                       <Box>
-                        <Text fontSize="xs" fontWeight="600" color="gray.600" mb={1.5}>
+                        <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900" mb={1.5}>
                           FIRST NAME
                         </Text>
                         <Input
@@ -336,10 +370,16 @@ export default function ProfilePage() {
                           onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
                           placeholder="First name"
                           size="md"
+                          bg="whiteAlpha.200"
+                          border="1px solid"
+                          borderColor="whiteAlpha.300"
+                          color="white"
+                          _placeholder={{ color: "whiteAlpha.600" }}
+                          _focus={{ bg: "whiteAlpha.300", borderColor: "whiteAlpha.500" }}
                         />
                       </Box>
                       <Box>
-                        <Text fontSize="xs" fontWeight="600" color="gray.600" mb={1.5}>
+                        <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900" mb={1.5}>
                           LAST NAME
                         </Text>
                         <Input
@@ -347,49 +387,67 @@ export default function ProfilePage() {
                           onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
                           placeholder="Last name"
                           size="md"
+                          bg="whiteAlpha.200"
+                          border="1px solid"
+                          borderColor="whiteAlpha.300"
+                          color="white"
+                          _placeholder={{ color: "whiteAlpha.600" }}
+                          _focus={{ bg: "whiteAlpha.300", borderColor: "whiteAlpha.500" }}
                         />
                       </Box>
                     </Grid>
 
                     <Box>
-                      <Text fontSize="xs" fontWeight="600" color="gray.600" mb={1.5}>
+                      <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900" mb={1.5}>
                         EMAIL ADDRESS
                       </Text>
                       <Input
                         value={editForm.email}
                         isDisabled
                         size="md"
-                        bg="gray.50"
+                        bg="whiteAlpha.100"
+                        border="1px solid"
+                        borderColor="whiteAlpha.200"
+                        color="whiteAlpha.700"
                       />
                     </Box>
 
                     <Box>
-                      <Text fontSize="xs" fontWeight="600" color="gray.600" mb={1.5}>
+                      <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900" mb={1.5}>
                         PHONE NUMBER
                       </Text>
                       <Input
                         value={editForm.phoneNumber}
                         isDisabled
                         size="md"
-                        bg="gray.50"
+                        bg="whiteAlpha.100"
+                        border="1px solid"
+                        borderColor="whiteAlpha.200"
+                        color="whiteAlpha.700"
                       />
                     </Box>
 
                     <HStack spacing={2}>
                       <Button
                         leftIcon={<FiCheck />}
-                        colorScheme="purple"
+                        bg="white"
+                        color="purple.600"
                         onClick={handleSave}
                         isLoading={updateMutation.isPending}
                         size="sm"
+                        fontWeight="600"
+                        _hover={{ bg: "whiteAlpha.900" }}
                       >
                         Save Changes
                       </Button>
                       <Button
                         leftIcon={<FiX />}
-                        variant="ghost"
+                        bg="whiteAlpha.200"
+                        color="white"
                         onClick={handleCancel}
                         size="sm"
+                        fontWeight="600"
+                        _hover={{ bg: "whiteAlpha.300" }}
                       >
                         Cancel
                       </Button>
@@ -406,30 +464,36 @@ export default function ProfilePage() {
               <Box
                 key={index}
                 bg="white"
-                borderRadius="lg"
+                borderRadius="16px"
                 p={4}
-                boxShadow="sm"
+                boxShadow="0 2px 8px rgba(0, 0, 0, 0.06)"
                 cursor="pointer"
                 onClick={action.action}
-                transition="all 0.2s"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
+                transition="all 0.3s"
+                border="1px solid"
+                borderColor="gray.100"
+                _hover={{ 
+                  transform: "translateY(-4px)", 
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.12)",
+                  borderColor: action.color
+                }}
               >
-                <VStack spacing={2} align="start">
+                <VStack spacing={3} align="start">
                   <Flex
-                    w={10}
-                    h={10}
+                    w={12}
+                    h={12}
                     bg={action.bg}
-                    borderRadius="lg"
+                    borderRadius="14px"
                     align="center"
                     justify="center"
                   >
-                    <Icon as={action.icon} color={action.color} boxSize={5} />
+                    <Icon as={action.icon} color={action.color} boxSize={6} />
                   </Flex>
                   <Box>
-                    <Text fontSize="xl" fontWeight="700" color="gray.900">
+                    <Text fontSize="xl" fontWeight="800" color="gray.900">
                       {action.value}
                     </Text>
-                    <Text fontSize="xs" color="gray.600" fontWeight="500">
+                    <Text fontSize="xs" color="gray.500" fontWeight="600" mt={0.5}>
                       {action.label}
                     </Text>
                   </Box>
@@ -439,39 +503,52 @@ export default function ProfilePage() {
           </Grid>
 
           {/* Settings Menu */}
-          <Box bg="white" borderRadius="xl" p={4} mb={4} boxShadow="sm">
-            <Text fontSize="lg" fontWeight="700" color="gray.900" mb={4}>
-              Settings
-            </Text>
+          <Box bg="white" borderRadius="20px" p={5} mb={4} boxShadow="0 2px 8px rgba(0, 0, 0, 0.06)" border="1px solid" borderColor="gray.100">
+            <HStack spacing={2} mb={4}>
+              <Box
+                w={10}
+                h={10}
+                bg="gray.100"
+                borderRadius="12px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon as={FiSettings} color="gray.700" boxSize={5} />
+              </Box>
+              <Text fontSize="lg" fontWeight="800" color="gray.900">
+                Settings
+              </Text>
+            </HStack>
             <VStack spacing={0} align="stretch" divider={<Divider />}>
               {settingsMenu.map((item, index) => (
                 <Flex
                   key={index}
-                  py={3}
-                  px={2}
+                  py={4}
+                  px={3}
                   align="center"
                   cursor="pointer"
-                  borderRadius="md"
+                  borderRadius="12px"
                   transition="all 0.2s"
-                  _hover={{ bg: "gray.50" }}
+                  _hover={{ bg: "gray.50", transform: "translateX(4px)" }}
                   onClick={item.action}
                 >
                   <Flex
-                    w={10}
-                    h={10}
+                    w={12}
+                    h={12}
                     bg="gray.50"
-                    borderRadius="lg"
+                    borderRadius="12px"
                     align="center"
                     justify="center"
                     mr={3}
                   >
-                    <Icon as={item.icon} color="gray.600" boxSize={5} />
+                    <Icon as={item.icon} color="gray.700" boxSize={5} />
                   </Flex>
                   <Box flex={1}>
-                    <Text fontSize="sm" fontWeight="600" color="gray.900">
+                    <Text fontSize="sm" fontWeight="700" color="gray.900">
                       {item.title}
                     </Text>
-                    <Text fontSize="xs" color="gray.600">
+                    <Text fontSize="xs" color="gray.500" mt={0.5}>
                       {item.description}
                     </Text>
                   </Box>
@@ -484,11 +561,18 @@ export default function ProfilePage() {
           {/* Logout Button */}
           <Button
             leftIcon={<FiLogOut />}
-            colorScheme="red"
-            variant="outline"
+            bg="red.500"
+            color="white"
             w="full"
             onClick={handleLogout}
             size="lg"
+            borderRadius="14px"
+            fontWeight="700"
+            py={7}
+            _hover={{ bg: "red.600", transform: "translateY(-2px)" }}
+            _active={{ bg: "red.700" }}
+            boxShadow="0 4px 12px rgba(239, 68, 68, 0.3)"
+            transition="all 0.2s"
           >
             Logout
           </Button>

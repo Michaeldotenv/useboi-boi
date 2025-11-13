@@ -506,129 +506,193 @@ const CartTab: React.FC = () => {
           </Box>
 
           {/* Payment Method */}
-          <Box bg="white" borderRadius="12px" p={{ base: 4, md: 5 }} border="1px solid" borderColor="gray.200">
-            <Text fontSize="18px" fontWeight="600" color="gray.900" mb={4}>
-              Payment Method
-            </Text>
+          <Box bg="white" borderRadius="16px" p={{ base: 4, md: 5 }} border="1px solid" borderColor="gray.200" boxShadow="sm">
+            <HStack spacing={2} mb={4}>
+              <Box
+                w={10}
+                h={10}
+                bg="purple.50"
+                borderRadius="10px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="20px">💳</Text>
+              </Box>
+              <VStack align="start" spacing={0}>
+                <Text fontSize="18px" fontWeight="700" color="gray.900">
+                  Payment Method
+                </Text>
+                <Text fontSize="12px" color="gray.500">
+                  Choose how you want to pay
+                </Text>
+              </VStack>
+            </HStack>
             
             <RadioGroup value={checkoutType} onChange={(value: 'wallet' | 'card') => setCheckoutType(value)}>
               <VStack spacing={3} align="stretch">
                 {/* Wallet Balance Option */}
                 <Box
-                  p={3}
-                  border="1px solid"
-                  borderColor={checkoutType === 'wallet' ? 'gray.900' : 'gray.200'}
-                  borderRadius="8px"
-                  bg={checkoutType === 'wallet' ? 'gray.50' : 'white'}
+                  p={4}
+                  border="2px solid"
+                  borderColor={checkoutType === 'wallet' ? 'green.500' : 'gray.200'}
+                  borderRadius="12px"
+                  bg={checkoutType === 'wallet' ? 'green.50' : 'white'}
+                  cursor="pointer"
+                  onClick={() => setCheckoutType('wallet')}
+                  transition="all 0.2s"
+                  _hover={{ borderColor: checkoutType === 'wallet' ? 'green.600' : 'gray.300', transform: 'translateY(-2px)' }}
+                  boxShadow={checkoutType === 'wallet' ? 'md' : 'sm'}
                 >
-                  <Radio value="wallet" size="md">
-                    <Box ml={3}>
-                      <HStack justify="space-between" align="center" w="full">
-                        <VStack align="start" spacing={1}>
-                          <Text fontSize="15px" fontWeight="600" color="gray.900">Wallet Balance</Text>
-                          <Text fontSize="13px" color="gray.600">Pay from your Boiboi wallet</Text>
-                        </VStack>
-                        <VStack align="end" spacing={0}>
-                          <Text fontSize="14px" fontWeight="600" color="green.600">
+                  <Radio value="wallet" size="lg" colorScheme="green">
+                    <HStack spacing={3} ml={2}>
+                      <Box
+                        w={12}
+                        h={12}
+                        bg="green.100"
+                        borderRadius="10px"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text fontSize="24px">💰</Text>
+                      </Box>
+                      <VStack align="start" spacing={1} flex={1}>
+                        <Text fontSize="16px" fontWeight="700" color="gray.900">Wallet Balance</Text>
+                        <Text fontSize="13px" color="gray.600">Pay from your Boiboi wallet</Text>
+                        <HStack spacing={2} mt={1}>
+                          <Text fontSize="15px" fontWeight="700" color="green.600">
                             ₦{(meObj.virtualBankAccount?.balance || 0).toLocaleString()}
                           </Text>
                           {(meObj.virtualBankAccount?.balance || 0) < grandTotal && (
-                            <Text fontSize="10px" color="red.500">Insufficient balance</Text>
+                            <Badge colorScheme="red" fontSize="10px">Insufficient</Badge>
                           )}
-                        </VStack>
-                      </HStack>
-                    </Box>
+                        </HStack>
+                      </VStack>
+                    </HStack>
                   </Radio>
                 </Box>
                 
                 {/* Card Payment Options */}
                 {meObj.cards && meObj.cards.length > 0 ? (
-                  <VStack spacing={2} align="stretch">
-                    <Text fontSize="16px" fontWeight="600" color="gray.900">Saved Cards</Text>
+                  <VStack spacing={3} align="stretch">
+                    <Divider />
+                    <HStack spacing={2}>
+                      <Text fontSize="15px" fontWeight="700" color="gray.900">💳 Pay with Card</Text>
+                      <Badge colorScheme="blue" fontSize="10px">{meObj.cards.length} saved</Badge>
+                    </HStack>
                     {meObj.cards.map((card: any, index: number) => (
                       <Box
                         key={card.id || index}
-                        p={3}
-                        border="1px solid"
+                        p={4}
+                        border="2px solid"
                         borderColor={checkoutType === 'card' && selectedCardId === card.id ? 'blue.500' : 'gray.200'}
-                        borderRadius="8px"
+                        borderRadius="12px"
                         bg={checkoutType === 'card' && selectedCardId === card.id ? 'blue.50' : 'white'}
                         onClick={() => {
                           setCheckoutType('card');
                           setSelectedCardId(card.id);
                         }}
                         cursor="pointer"
-                        _hover={{ bg: 'gray.50' }}
+                        transition="all 0.2s"
+                        _hover={{ borderColor: checkoutType === 'card' && selectedCardId === card.id ? 'blue.600' : 'gray.300', transform: 'translateY(-2px)' }}
+                        boxShadow={checkoutType === 'card' && selectedCardId === card.id ? 'md' : 'sm'}
                       >
                         <Radio 
                           value="card" 
-                          size="md" 
+                          size="lg" 
+                          colorScheme="blue"
                           isChecked={checkoutType === 'card' && selectedCardId === card.id}
-                          onClick={() => {
-                            setCheckoutType('card');
-                            setSelectedCardId(card.id);
-                          }}
                         >
-                          <Box ml={3}>
-                            <HStack justify="space-between" align="center" w="full">
-                              <VStack align="start" spacing={1}>
-                                <Text fontSize="15px" fontWeight="600" color="gray.900">
-                                  {card.bank} {card.cardType}
+                          <HStack spacing={3} ml={2}>
+                            <Box
+                              w={12}
+                              h={12}
+                              bg="blue.100"
+                              borderRadius="10px"
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              <Text fontSize="24px">💳</Text>
+                            </Box>
+                            <VStack align="start" spacing={1} flex={1}>
+                              <HStack spacing={2}>
+                                <Text fontSize="16px" fontWeight="700" color="gray.900">
+                                  {card.bank}
                                 </Text>
-                                <Text fontSize="13px" color="gray.600">
-                                  •••• •••• •••• ••••
-                                </Text>
-                              </VStack>
-                              {card.isSelected && (
-                                <Badge colorScheme="green" fontSize="10px">Default</Badge>
-                              )}
-                            </HStack>
-                          </Box>
+                                {card.isSelected && (
+                                  <Badge colorScheme="green" fontSize="10px">Default</Badge>
+                                )}
+                              </HStack>
+                              <Text fontSize="13px" color="gray.600" fontWeight="600">
+                                {card.cardType} •••• {card.last4 || '••••'}
+                              </Text>
+                            </VStack>
+                          </HStack>
                         </Radio>
                       </Box>
                     ))}
                     
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="md"
                       borderColor="blue.500"
                       color="blue.500"
-                      _hover={{ bg: "blue.50" }}
+                      borderWidth="2px"
+                      _hover={{ bg: "blue.50", borderColor: "blue.600" }}
                       onClick={() => router.push('/user-dashboard/profile/cards')}
-                      leftIcon={<Text>+</Text>}
+                      leftIcon={<Text fontSize="18px">+</Text>}
+                      fontWeight="600"
+                      borderRadius="10px"
+                      py={6}
                     >
                       Add New Card
                     </Button>
                   </VStack>
                 ) : (
-                  <Box
-                    p={3}
-                    border="1px solid"
-                    borderColor={checkoutType === 'card' ? 'gray.900' : 'gray.200'}
-                    borderRadius="8px"
-                    bg={checkoutType === 'card' ? 'gray.50' : 'white'}
-                  >
-                    <VStack spacing={3}>
-                      <Radio value="card" size="md" isDisabled>
-                        <Box ml={3}>
-                          <Text fontSize="15px" fontWeight="600" color="gray.400">Card Payment</Text>
-                          <Text fontSize="13px" color="gray.400">No saved cards</Text>
+                  <VStack spacing={3} align="stretch">
+                    <Divider />
+                    <Box
+                      p={4}
+                      border="2px dashed"
+                      borderColor="gray.300"
+                      borderRadius="12px"
+                      bg="gray.50"
+                    >
+                      <VStack spacing={3}>
+                        <Box
+                          w={16}
+                          h={16}
+                          bg="gray.200"
+                          borderRadius="full"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          <Text fontSize="32px">💳</Text>
                         </Box>
-                      </Radio>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        borderColor="blue.500"
-                        color="blue.500"
-                        _hover={{ bg: "blue.50" }}
-                        onClick={() => router.push('/user-dashboard/profile/cards')}
-                        leftIcon={<Text>+</Text>}
-                        w="full"
-                      >
-                        Add Payment Card
-                      </Button>
-                    </VStack>
-                  </Box>
+                        <VStack spacing={1}>
+                          <Text fontSize="15px" fontWeight="600" color="gray.700">No Cards Added</Text>
+                          <Text fontSize="12px" color="gray.500" textAlign="center">
+                            Add a payment card to use this option
+                          </Text>
+                        </VStack>
+                        <Button
+                          colorScheme="blue"
+                          size="md"
+                          onClick={() => router.push('/user-dashboard/profile/cards')}
+                          leftIcon={<Text fontSize="18px">+</Text>}
+                          fontWeight="600"
+                          borderRadius="10px"
+                          w="full"
+                          py={6}
+                        >
+                          Add Payment Card
+                        </Button>
+                      </VStack>
+                    </Box>
+                  </VStack>
                 )}
               </VStack>
             </RadioGroup>
