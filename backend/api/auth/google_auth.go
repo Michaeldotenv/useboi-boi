@@ -135,10 +135,11 @@ func GoogleAuth(c *gin.Context, db *mongo.Database) {
 			return nil, err
 		}
 
-		// Create virtual account for the user
+		// Try to create virtual account, but don't fail signup if it errors
 		err = payments.CreateDedicatedVirtualAccount(c, &newUser)
 		if err != nil {
-			return nil, err
+			// Log the error but continue with signup
+			fmt.Println("Warning: Failed to create virtual account:", err.Error())
 		}
 
 		jwt, err := utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
