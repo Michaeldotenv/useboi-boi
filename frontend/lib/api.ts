@@ -131,6 +131,16 @@ export const api = {
   }),
   verifyCardAndAdd: (reference: string) => apiFetch(`/api/payment/cards/verify/${reference}`),
 
+  // Password Reset
+  forgotPassword: (email: string) => apiFetch(`/api/auth/forgotPassword`, { 
+    method: "POST", 
+    body: { email } 
+  }),
+  resetPassword: (email: string, token: string, password: string) => apiFetch(`/api/auth/resetPassword`, { 
+    method: "POST", 
+    body: { email, token, password } 
+  }),
+
   // Admin
   adminLogin: (key: string) => apiFetch<{ token: string }>(`/api/auth/admin/login`, { method: "POST", body: { key } }),
   adminStores: (token: string) => apiFetch(`/api/admin/stores`, { headers: { Authorization: `Bearer ${token}` } }),

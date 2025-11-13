@@ -73,8 +73,8 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
     try {
       const response = await api.initTopup({
         email: user.email,
-        amount: parseFloat(topupAmount), // Send as number, not string in kobo
-        callback_url: `${window.location.origin}/payment-callback`,
+        amount: parseFloat(topupAmount), // Send as naira, backend will convert to kobo
+        callback_url: `${window.location.origin}/user-dashboard/profile`, // Redirect back to profile
         metadata: {
           userId: user.id || user._id,
           type: 'wallet_topup',

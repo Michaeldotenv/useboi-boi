@@ -294,17 +294,10 @@ const OrderDetailsPage: React.FC = () => {
 
             {/* Prominent Rider Contact Card - Shows when rider is assigned */}
             {(() => {
-              // Debug: Log the entire order object to see rider structure
-              console.log('🔍 Order object:', JSON.stringify(order, null, 2));
-              console.log('🔍 Rider object:', order.rider);
-              console.log('🔍 RiderId:', order.riderId);
-              
               const riderPhone = order.riderPhone || order.rider?.phoneNumber || order.rider?.phone;
               const riderName = order.rider?.firstName || order.rider?.name;
               const riderLastName = order.rider?.lastName;
               const riderId = order.riderId || order.rider?.id || order.rider?._id;
-              
-              console.log('🔍 Extracted - Phone:', riderPhone, 'Name:', riderName, 'ID:', riderId);
               
               // Show prominent rider card when rider is actively involved
               const showProminentRiderCard = (
@@ -591,9 +584,6 @@ const OrderDetailsPage: React.FC = () => {
                     const riderLastName = order.rider?.lastName;
                     const riderId = order.riderId || order.rider?.id || order.rider?._id;
                     
-                    console.log('📞 Contact Section - Phone:', riderPhone, 'Name:', riderName, 'ID:', riderId);
-                    console.log('📞 Full rider object:', order.rider);
-                    
                     // Show rider section if we have any rider info or if order is in progress
                     const showRiderSection = riderPhone || riderName || riderId || 
                       (orderProgressStatus && (
@@ -653,16 +643,6 @@ const OrderDetailsPage: React.FC = () => {
                               🚴 Rider assigned (ID: {String(riderId).slice(-6)})
                             </Text>
                           )}
-                          
-                          {/* Debug info - Always show to help troubleshoot */}
-                          <Box bg="blue.50" p={2} borderRadius="4px" fontSize="10px" color="blue.700" w="full">
-                            <Text fontWeight="600" mb={1}>Debug Info:</Text>
-                            <Text>RiderId: {riderId ? String(riderId) : 'null'}</Text>
-                            <Text>Phone: {riderPhone || 'null'}</Text>
-                            <Text>Name: {riderName || 'null'} {riderLastName || ''}</Text>
-                            <Text>Status: {orderProgressStatus}</Text>
-                            <Text>Rider Object: {order.rider ? 'exists' : 'null'}</Text>
-                          </Box>
                         </VStack>
                       </Box>
                     );

@@ -362,12 +362,16 @@ func CreateVirtualBankAccountForUser(ctx *gin.Context, db *mongo.Database) {
 }
 
 type FundAmount struct {
-	Amount int64 `json:"amount"`
+	Amount      float64                `json:"amount"`
+	CallbackUrl string                 `json:"callback_url"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 type InitializeTransactionRequest struct {
-	Email  string `json:"email"`
-	Amount string `json:"amount"`
+	Email       string                 `json:"email"`
+	Amount      string                 `json:"amount"`
+	CallbackUrl string                 `json:"callback_url,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
 func InitializeTransaction(ctx *gin.Context, db *mongo.Database) {
@@ -379,7 +383,7 @@ func InitializeTransaction(ctx *gin.Context, db *mongo.Database) {
 	}
 
 	var fundAmount FundAmount
-	if err := ctx.ShouldBindJSON(&fundAmount); err != nil {
+	if err := ctx.ShouldBindJSON(&fundAmount); err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error binding json " + err.Error()})
 		return
 	}
@@ -387,9 +391,14 @@ func InitializeTransaction(ctx *gin.Context, db *mongo.Database) {
 	transactionInitializeUrl := "https://api.paystack.co/transaction/initialize"
 	secretKey := os.Getenv("PAYSTACK_SECRET_KEY")
 
+	// Convert amount to kobo (multiply by 100) - Paystack expects amount in kobo
+	amountInKobo := int(fundAmount.Amount * 100)
+
 	reqBody := InitializeTransactionRequest{
-		Email:  userEmail.(string),
-		Amount: strconv.Itoa(int(fundAmount.Amount)),
+		Email:       userEmail.(string),
+		Amount:      strconv.Itoa(amountInKobo),
+		CallbackUrl: fundAmount.CallbackUrl,
+		Metadata:    fundAmount.Metadata,
 	}
 
 	jsonData, err := json.Marshal(reqBody)

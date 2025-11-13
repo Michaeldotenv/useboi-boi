@@ -358,8 +358,6 @@ export default function OrdersPage() {
                     const riderId = order.riderId || order.rider?.id || order.rider?._id;
                     const orderProgressStatus = order.orderProgressStatus || order.status || '';
                     
-                    console.log('📋 Order List - Order:', order._id, 'Rider:', order.rider, 'Phone:', riderPhone);
-                    
                     // Show rider info for in-progress orders
                     const showRiderInfo = (displayStatus === "In Progress" || displayStatus === "Active") && 
                       (riderPhone || riderName || riderId || 
