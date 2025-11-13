@@ -189,6 +189,12 @@ export default function ProfilePage() {
 
   const settingsMenu = [
     {
+      icon: FiClock,
+      title: "Transaction History",
+      description: "View all wallet transactions",
+      action: () => router.push("/user-dashboard/profile/transactions"),
+    },
+    {
       icon: FiCreditCard,
       title: "Payment Methods",
       description: "Manage cards and payment options",
@@ -305,7 +311,7 @@ export default function ProfilePage() {
           <Box 
             bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
             borderRadius="20px" 
-            p={6} 
+            p={{ base: 4, md: 6 }} 
             mb={4} 
             boxShadow="0 10px 30px rgba(102, 126, 234, 0.3)"
             position="relative"
@@ -320,6 +326,7 @@ export default function ProfilePage() {
               h="100px"
               bg="whiteAlpha.200"
               borderRadius="full"
+              display={{ base: "none", md: "block" }}
             />
             <Box
               position="absolute"
@@ -329,11 +336,18 @@ export default function ProfilePage() {
               h="120px"
               bg="whiteAlpha.100"
               borderRadius="full"
+              display={{ base: "none", md: "block" }}
             />
             
-            <Flex gap={4} align="start" position="relative" zIndex={1}>
+            <Flex 
+              gap={{ base: 3, md: 4 }} 
+              align="start" 
+              position="relative" 
+              zIndex={1}
+              direction={{ base: "column", sm: "row" }}
+            >
               <Avatar
-                size="xl"
+                size={{ base: "lg", md: "xl" }}
                 name={`${me.firstName} ${me.lastName}`}
                 bg="white"
                 color="purple.600"
@@ -342,11 +356,11 @@ export default function ProfilePage() {
                 borderColor="whiteAlpha.300"
               />
               
-              <Box flex={1}>
+              <Box flex={1} w={{ base: "full", sm: "auto" }}>
                 {!isEditing ? (
                   <VStack align="start" spacing={3}>
                     <Box>
-                      <Text fontSize="2xl" fontWeight="800" color="white">
+                      <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="800" color="white">
                         {me.firstName} {me.lastName}
                       </Text>
                       <Badge colorScheme="green" mt={2} px={3} py={1} borderRadius="full" fontSize="11px" fontWeight="600">
@@ -355,21 +369,21 @@ export default function ProfilePage() {
                     </Box>
                     
                     <VStack align="start" spacing={2} w="full" mt={2}>
-                      <HStack spacing={2} color="whiteAlpha.900">
+                      <HStack spacing={2} color="whiteAlpha.900" flexWrap="wrap">
                         <Icon as={FiMail} boxSize={4} />
-                        <Text fontSize="sm" fontWeight="500">{me.email}</Text>
+                        <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="500" wordBreak="break-all">{me.email}</Text>
                       </HStack>
                       {me.phoneNumber && (
                         <HStack spacing={2} color="whiteAlpha.900">
                           <Icon as={FiPhone} boxSize={4} />
-                          <Text fontSize="sm" fontWeight="500">{me.phoneNumber}</Text>
+                          <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="500">{me.phoneNumber}</Text>
                         </HStack>
                       )}
                     </VStack>
                   </VStack>
                 ) : (
-                  <VStack align="stretch" spacing={4}>
-                    <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
+                  <VStack align="stretch" spacing={3} w="full">
+                    <Grid templateColumns={{ base: "1fr", sm: "1fr 1fr" }} gap={3}>
                       <Box>
                         <Text fontSize="xs" fontWeight="600" color="whiteAlpha.900" mb={1.5}>
                           FIRST NAME
@@ -378,7 +392,7 @@ export default function ProfilePage() {
                           value={editForm.firstName}
                           onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
                           placeholder="First name"
-                          size="md"
+                          size={{ base: "sm", md: "md" }}
                           bg="whiteAlpha.200"
                           border="1px solid"
                           borderColor="whiteAlpha.300"
@@ -395,7 +409,7 @@ export default function ProfilePage() {
                           value={editForm.lastName}
                           onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
                           placeholder="Last name"
-                          size="md"
+                          size={{ base: "sm", md: "md" }}
                           bg="whiteAlpha.200"
                           border="1px solid"
                           borderColor="whiteAlpha.300"
@@ -413,11 +427,12 @@ export default function ProfilePage() {
                       <Input
                         value={editForm.email}
                         isDisabled
-                        size="md"
+                        size={{ base: "sm", md: "md" }}
                         bg="whiteAlpha.100"
                         border="1px solid"
                         borderColor="whiteAlpha.200"
                         color="whiteAlpha.700"
+                        fontSize={{ base: "xs", md: "sm" }}
                       />
                     </Box>
 
@@ -442,7 +457,7 @@ export default function ProfilePage() {
                         value={editForm.phoneNumber}
                         onChange={(e) => setEditForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
                         isDisabled={!canEditPhone}
-                        size="md"
+                        size={{ base: "sm", md: "md" }}
                         bg={canEditPhone ? "whiteAlpha.200" : "whiteAlpha.100"}
                         border="1px solid"
                         borderColor={canEditPhone ? "whiteAlpha.300" : "whiteAlpha.200"}
@@ -452,16 +467,17 @@ export default function ProfilePage() {
                       />
                     </Box>
 
-                    <HStack spacing={2}>
+                    <HStack spacing={2} flexWrap="wrap">
                       <Button
                         leftIcon={<FiCheck />}
                         bg="white"
                         color="purple.600"
                         onClick={handleSave}
                         isLoading={updateMutation.isPending}
-                        size="sm"
+                        size={{ base: "sm", md: "md" }}
                         fontWeight="600"
                         _hover={{ bg: "whiteAlpha.900" }}
+                        flex={{ base: "1", sm: "0" }}
                       >
                         Save Changes
                       </Button>
@@ -470,9 +486,10 @@ export default function ProfilePage() {
                         bg="whiteAlpha.200"
                         color="white"
                         onClick={handleCancel}
-                        size="sm"
+                        size={{ base: "sm", md: "md" }}
                         fontWeight="600"
                         _hover={{ bg: "whiteAlpha.300" }}
+                        flex={{ base: "1", sm: "0" }}
                       >
                         Cancel
                       </Button>
