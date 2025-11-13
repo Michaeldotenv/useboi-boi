@@ -313,6 +313,11 @@ func AddBankAccount(c *gin.Context, db *mongo.Database) {
 
 }
 
+type WalletTransactionWithOrder struct {
+	data.WalletTransactions `bson:",inline"`
+	Order                   *data.Order `json:"order,omitempty"`
+}
+
 func GetWalletTransactions(c *gin.Context, db *mongo.Database) {
 
 	userIdStr := c.GetString("userId")
@@ -324,15 +329,50 @@ func GetWalletTransactions(c *gin.Context, db *mongo.Database) {
 	}
 
 	transactionCollection := db.Collection(utils.WALLET_TRANSACTIONS)
+	orderCollection := db.Collection(utils.ORDER)
 
-	cursor, err := transactionCollection.Find(c, bson.M{"userId": userId})
+	// Use aggregation to join with orders
+	pipeline := []bson.M{
+		{"$match": bson.M{"userId": userId}},
+		{"$sort": bson.M{"createdAt": -1}}, // Sort by newest first
+		{"$lookup": bson.M{
+			"from":         "Order",
+			"localField":   "paymentTransactionId",
+			"foreignField": "orderTransactionID",
+			"as":           "orderData",
+		}},
+		{"$addFields": bson.M{
+			"order": bson.M{
+				"$cond": bson.M{
+					"if":   bson.M{"$gt": []interface{}{bson.M{"$size": "$orderData"}, 0}},
+					"then": bson.M{"$arrayElemAt": []interface{}{"$orderData", 0}},
+					"else": nil,
+				},
+			},
+		}},
+		{"$project": bson.M{
+			"_id":                   1,
+			"paymentTransactionId":  1,
+			"userId":                1,
+			"amount":                1,
+			"type":                  1,
+			"createdAt":             1,
+			"order._id":             1,
+			"order.storeId":         1,
+			"order.price":           1,
+			"order.status":          1,
+			"order.deliveryLocation": 1,
+		}},
+	}
+
+	cursor, err := transactionCollection.Aggregate(c, pipeline)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get wallet transaction. " + err.Error()})
 		slog.Info("Failed to get wallet transaction", "error", err)
 		return
 	}
 
-	transactions := []data.WalletTransactions{}
+	transactions := []WalletTransactionWithOrder{}
 	if err := cursor.All(c, &transactions); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode transactions. " + err.Error()})
 		slog.Info("Failed to decode wallet transaction", "error", err)

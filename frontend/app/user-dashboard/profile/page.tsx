@@ -62,12 +62,38 @@ export default function ProfilePage() {
     if (!token) router.replace("/login");
   }, [router]);
 
-  const { data, isLoading, error } = useQuery({ 
+  const { data, isLoading, error, refetch } = useQuery({ 
     queryKey: ["me"], 
     queryFn: api.me 
   });
 
   const me = useMemo(() => (data as any)?.data || data || {}, [data]);
+
+  // Check for payment callback and refetch user data
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const reference = urlParams.get('reference');
+    const trxref = urlParams.get('trxref');
+    
+    if (reference || trxref) {
+      // User returned from payment, refetch user data
+      setTimeout(() => {
+        refetch();
+        queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
+      }, 1000);
+      
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      toast({
+        title: "Payment processed",
+        description: "Your wallet will be updated shortly",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }, [refetch, queryClient, toast]);
 
   const updateMutation = useMutation({
     mutationFn: (payload: { firstName: string; lastName: string; phoneNumber?: string }) => 
@@ -275,7 +301,17 @@ export default function ProfilePage() {
   }
 
   return (
-    <Box minH="100vh" bg="white" pb="calc(env(safe-area-inset-bottom, 0px) + 80px)">
+    <Box 
+      minH="100vh" 
+      bg="white" 
+      pb="calc(env(safe-area-inset-bottom, 0px) + 80px)"
+      overflowX="hidden"
+      css={{
+        '&::-webkit-scrollbar': { display: 'none' },
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+      }}
+    >
       <Wrapper>
         <Box py={4}>
           {/* Header */}
@@ -304,7 +340,13 @@ export default function ProfilePage() {
 
           {/* Wallet Section */}
           <Box mb={4}>
-            <WalletSection user={me} />
+            <WalletSection 
+              user={me} 
+              onBalanceUpdate={() => {
+                refetch();
+                queryClient.invalidateQueries({ queryKey: ["me"] });
+              }}
+            />
           </Box>
 
           {/* Profile Card */}

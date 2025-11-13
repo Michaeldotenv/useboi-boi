@@ -18,24 +18,38 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-jakarta);
 }
 
-/* Beautiful scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* Hide scrollbars on mobile, show on desktop */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
+/* Beautiful scrollbar for desktop */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: #3B174F;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #6B2A8F;
+  ::-webkit-scrollbar-thumb {
+    background: #3B174F;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6B2A8F;
+  }
 }
 
 /* Smooth animations */

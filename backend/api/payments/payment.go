@@ -482,7 +482,10 @@ func CapturePayment(ctx *gin.Context, db *mongo.Database) {
 			paymentType = "wallet"
 		}
 
-		if paymentType != "wallet" {
+		slog.Info("payment", "metadata", metaData, "paymentType", paymentType)
+
+		if paymentType != "wallet" && paymentType != "wallet_topup" {
+			slog.Info("payment", "skipping non-wallet payment", paymentType)
 			ctx.Data(http.StatusOK, "application/json", nil)
 			return
 		}
@@ -538,11 +541,16 @@ func CapturePayment(ctx *gin.Context, db *mongo.Database) {
 
 			virtualAccount.Balance = virtualAccount.Balance + requestedAmount/100
 
-			userCollection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{
+			updateResult := userCollection.FindOneAndUpdate(sessCtx, bson.M{"_id": user.ID}, bson.M{
 				"$set": bson.M{
 					"virtualBankAccount": virtualAccount,
 				},
 			})
+
+			if updateResult.Err() != nil {
+				slog.Error("payment", "failed to update virtual account balance", updateResult.Err().Error())
+				return nil, updateResult.Err()
+			}
 
 			slog.Info("msg", "virtual account update ", virtualAccount.Balance)
 

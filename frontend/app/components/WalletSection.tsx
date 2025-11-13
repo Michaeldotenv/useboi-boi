@@ -27,9 +27,10 @@ import { api } from '@/lib/api';
 
 interface WalletSectionProps {
   user: any;
+  onBalanceUpdate?: () => void;
 }
 
-const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
+const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) => {
   const { isOpen: isTopupOpen, onOpen: onTopupOpen, onClose: onTopupClose } = useDisclosure();
   const { isOpen: isWithdrawOpen, onOpen: onWithdrawOpen, onClose: onWithdrawClose } = useDisclosure();
   const [topupAmount, setTopupAmount] = useState('');
@@ -37,11 +38,18 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const toast = useToast();
 
-  const { data: transactions, isLoading: transactionsLoading } = useQuery({
+  const { data: transactions, isLoading: transactionsLoading, refetch: refetchTransactions } = useQuery({
     queryKey: ['wallet-transactions'],
     queryFn: api.getWalletTransactions,
     refetchInterval: 30000,
   });
+
+  // Trigger parent refetch when transactions update
+  React.useEffect(() => {
+    if (transactions && onBalanceUpdate) {
+      onBalanceUpdate();
+    }
+  }, [transactions, onBalanceUpdate]);
 
   const walletBalance = user?.virtualBankAccount?.balance || 0;
   const accountNumber = user?.virtualBankAccount?.account_number || 'Not available';
