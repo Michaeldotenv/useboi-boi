@@ -119,22 +119,40 @@ func EditUser(c *gin.Context, db *mongo.Database) {
 		return
 	}
 
-	var updateUser data.User
-	if err := c.ShouldBindJSON(&updateUser); err != nil {
+	// Only accept specific fields for update
+	var updateData struct {
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+	}
+	
+	if err := c.ShouldBindJSON(&updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		slog.Info("Invalid request body", "error", err)
 		return
 	}
 
+	// Validate required fields
+	if updateData.FirstName == "" || updateData.LastName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "firstName and lastName are required"})
+		return
+	}
+
 	userCollection := db.Collection(utils.USER)
 
-	update := bson.M{"$set": updateUser}
+	// Only update allowed fields
+	update := bson.M{
+		"$set": bson.M{
+			"firstName": updateData.FirstName,
+			"lastName":  updateData.LastName,
+		},
+	}
+	
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
 	var user data.User
 	if err := userCollection.FindOneAndUpdate(c, bson.M{"_id": userId}, update, options).Decode(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch user"})
-		slog.Info("Failed to fetch user", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update user"})
+		slog.Info("Failed to update user", "error", err)
 		return
 	}
 

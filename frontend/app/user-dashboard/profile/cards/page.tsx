@@ -98,6 +98,30 @@ export default function CardsPage() {
     },
   });
 
+  // Delete card mutation
+  const deleteCardMutation = useMutation({
+    mutationFn: (cardId: number) => api.deleteCard(cardId),
+    onSuccess: () => {
+      toast({
+        title: "Card removed",
+        description: "Your card has been removed successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to remove card",
+        description: error.message || "Please try again",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+  });
+
   const handleAddCard = () => {
     setIsAddingCard(true);
     addCardMutation.mutate();
@@ -259,7 +283,13 @@ export default function CardsPage() {
                         size="sm"
                         variant="ghost"
                         color="gray.400"
-                        isDisabled
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Are you sure you want to remove this card?")) {
+                            deleteCardMutation.mutate(card.id);
+                          }
+                        }}
+                        isLoading={deleteCardMutation.isPending}
                         _hover={{ bg: "red.50", color: "red.500" }}
                       />
                     </Flex>

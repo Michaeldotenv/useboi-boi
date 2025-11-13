@@ -200,16 +200,21 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
             <Text fontSize="3xl" fontWeight="800" letterSpacing="tight">
               ₦{walletBalance.toLocaleString()}
             </Text>
-            <HStack spacing={2} mt={1} opacity={0.8}>
-              <Text fontSize="xs">Account: {accountNumber}</Text>
-              <Icon
-                as={FiCopy}
-                boxSize={3}
-                cursor="pointer"
-                onClick={handleCopyAccount}
-                _hover={{ opacity: 1 }}
-              />
-            </HStack>
+            <VStack align="start" spacing={1} mt={2} opacity={0.9}>
+              <HStack spacing={2}>
+                <Text fontSize="xs" fontWeight="600">Paystack Titan</Text>
+              </HStack>
+              <HStack spacing={2}>
+                <Text fontSize="xs">Account: {accountNumber}</Text>
+                <Icon
+                  as={FiCopy}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={handleCopyAccount}
+                  _hover={{ opacity: 1 }}
+                />
+              </HStack>
+            </VStack>
           </Box>
 
           {/* Action Buttons */}
@@ -253,6 +258,15 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {
                 Recent Activity
               </Text>
             </HStack>
+            <Button
+              size="xs"
+              variant="ghost"
+              color="purple.600"
+              fontWeight="600"
+              onClick={() => window.location.href = '/user-dashboard/profile/transactions'}
+            >
+              View All
+            </Button>
           </HStack>
 
           <VStack spacing={2} align="stretch">

@@ -812,6 +812,50 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 
 }
 
+func DeleteCard(c *gin.Context, db *mongo.Database) {
+	cardIdStr := c.Param("cardId")
+	cardId, err := strconv.ParseFloat(cardIdStr, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid card ID"})
+		return
+	}
+
+	userId, ok := c.Get("userId")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userObjectId, err := primitive.ObjectIDFromHex(userId.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	userCollection := db.Collection(utils.USER)
+
+	// Remove card from user's cards array
+	result := userCollection.FindOneAndUpdate(
+		c,
+		bson.M{"_id": userObjectId},
+		bson.M{
+			"$pull": bson.M{
+				"cards": bson.M{"id": cardId},
+			},
+		},
+	)
+
+	if result.Err() != nil {
+		slog.Error("DeleteCard: Failed to delete card", "error", result.Err().Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete card"})
+		return
+	}
+
+	slog.Info("DeleteCard: Card deleted successfully", "userId", userObjectId, "cardId", cardId)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Card deleted successfully"})
+}
+
 func WithdrawlFromWallet(c *gin.Context, db *mongo.Database) {
 
 	userId, ok := c.Get("userId")

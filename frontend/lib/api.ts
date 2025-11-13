@@ -130,6 +130,7 @@ export const api = {
     }
   }),
   verifyCardAndAdd: (reference: string) => apiFetch(`/api/payment/cards/verify/${reference}`),
+  deleteCard: (cardId: number) => apiFetch(`/api/payment/cards/${cardId}`, { method: "DELETE" }),
 
   // Password Reset
   forgotPassword: (email: string) => apiFetch(`/api/auth/forgotPassword`, { 

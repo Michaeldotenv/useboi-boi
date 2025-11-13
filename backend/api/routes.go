@@ -253,6 +253,9 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	mainRoute.GET("/payment/cards/verify/:reference", func(ctx *gin.Context) {
 		payments.VerifyCardChargeAndAddCard(ctx, db)
 	})
+	mainRoute.DELETE("/payment/cards/:cardId", func(ctx *gin.Context) {
+		payments.DeleteCard(ctx, db)
+	})
 	mainRoute.POST("/wallet/withdrawals", func(ctx *gin.Context) {
 		payments.WithdrawlFromWallet(ctx, db)
 	})
