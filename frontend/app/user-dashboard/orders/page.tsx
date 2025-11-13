@@ -358,6 +358,8 @@ export default function OrdersPage() {
                     const riderId = order.riderId || order.rider?.id || order.rider?._id;
                     const orderProgressStatus = order.orderProgressStatus || order.status || '';
                     
+                    console.log('📋 Order List - Order:', order._id, 'Rider:', order.rider, 'Phone:', riderPhone);
+                    
                     // Show rider info for in-progress orders
                     const showRiderInfo = (displayStatus === "In Progress" || displayStatus === "Active") && 
                       (riderPhone || riderName || riderId || 
@@ -367,17 +369,17 @@ export default function OrdersPage() {
                     if (!showRiderInfo) return null;
 
                     return (
-                      <HStack spacing={1} fontSize="xs" color="blue.600" bg="blue.50" px={2} py={1} borderRadius="4px">
+                      <HStack spacing={1} fontSize="xs" color="blue.600" bg="blue.50" px={2} py={1} borderRadius="6px" mt={1}>
                         <FiPhone size={10} />
-                        <Text fontWeight="600">
+                        <Text fontWeight="600" noOfLines={1}>
                           {riderPhone ? (
-                            `Rider: ${riderName || 'Assigned'} - ${riderPhone}`
+                            `${riderName || 'Rider'} - ${riderPhone}`
                           ) : riderName ? (
-                            `Rider: ${riderName} - Contact pending`
+                            `${riderName} - Contact pending`
                           ) : riderId ? (
                             `Rider assigned - Contact pending`
                           ) : (
-                            'Rider being assigned'
+                            'Finding rider...'
                           )}
                         </Text>
                       </HStack>
