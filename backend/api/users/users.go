@@ -329,7 +329,6 @@ func GetWalletTransactions(c *gin.Context, db *mongo.Database) {
 	}
 
 	transactionCollection := db.Collection(utils.WALLET_TRANSACTIONS)
-	orderCollection := db.Collection(utils.ORDER)
 
 	// Use aggregation to join with orders
 	pipeline := []bson.M{
