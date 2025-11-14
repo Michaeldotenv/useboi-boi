@@ -4,8 +4,9 @@ import './globals.css';
 
 export const theme = extendTheme({
   fonts: {
-    heading: `'Inter', 'Roboto', sans-serif`,
-    body: `'Inter', 'Roboto', sans-serif`,
+    heading: `var(--font-jakarta), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif`,
+    body: `var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif`,
+    mono: `var(--font-mono), 'JetBrains Mono', 'Courier New', monospace`,
   },
 
   breakpoints: {
@@ -69,7 +70,6 @@ export const theme = extendTheme({
         overflow: "hidden",
         _hover: {
           transform: "translateY(-2px)",
-          boxShadow: "0 8px 25px rgba(59, 23, 79, 0.25)",
           _before: {
             left: "100%",
           },
@@ -128,10 +128,8 @@ export const theme = extendTheme({
         gradient: {
           bg: "brand.primary",
           color: "white",
-          boxShadow: "0 4px 15px rgba(59, 23, 79, 0.3)",
           _hover: {
             bg: "brand.primaryDark",
-            boxShadow: "0 8px 25px rgba(59, 23, 79, 0.4)",
           },
         },
       },
@@ -168,7 +166,6 @@ export const theme = extendTheme({
           transition: "all 0.2s ease-in-out",
           _focus: {
             borderColor: "brand.primary",
-            boxShadow: "0 0 0 3px rgba(82, 52, 229, 0.1)",
           },
           _hover: {
             borderColor: "gray.300",
@@ -201,12 +198,10 @@ export const theme = extendTheme({
           borderColor: "rgba(255, 255, 255, 0.2)",
           bg: "rgba(255, 255, 255, 0.95)",
           backdropFilter: "blur(20px)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           position: "relative",
           overflow: "hidden",
           _hover: {
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
             transform: "translateY(-4px) scale(1.02)",
             borderColor: "rgba(59, 23, 79, 0.2)",
           },
@@ -226,7 +221,6 @@ export const theme = extendTheme({
       variants: {
         elevated: {
           container: {
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
             bg: "rgba(255, 255, 255, 0.98)",
           },
         },
@@ -235,14 +229,12 @@ export const theme = extendTheme({
             bg: "rgba(255, 255, 255, 0.1)",
             backdropFilter: "blur(20px)",
             border: "1px solid rgba(255, 255, 255, 0.3)",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
           },
         },
         gradient: {
           container: {
             bg: "#ffffff",
             border: "1px solid rgba(59, 23, 79, 0.1)",
-            boxShadow: "0 8px 25px rgba(59, 23, 79, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
           },
         },
       },
@@ -316,10 +308,10 @@ export const theme = extendTheme({
   },
 
   shadows: {
-    sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-    xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-    "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    sm: "none",
+    md: "none", 
+    lg: "none",
+    xl: "none",
+    "2xl": "none",
   },
 });

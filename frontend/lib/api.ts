@@ -98,12 +98,16 @@ export const api = {
   
   // Payment & Wallet
   createBankAccount: () => apiFetch(`/api/createBankAccount`, { method: "POST" }),
+  refreshWallet: () => apiFetch(`/api/wallet/refresh`),
   walletWithdrawals: (body: any) => apiFetch(`/api/wallet/withdrawals`, { method: "POST", body }),
   getWalletTransactions: () => apiFetch(`/api/user/wallet/transactions`),
   getPendingWithdrawals: () => apiFetch(`/api/user/wallet/withdrawalRequests`),
   
   // Enhanced Order Management
-  completeOrder: (id: string) => apiFetch(`/api/orders/${id}/complete`, { method: "POST" }),
+  completeOrder: (id: string, code: string) => apiFetch(`/api/orders/${id}/complete`, { 
+    method: "POST", 
+    body: { code } 
+  }),
   cancelOrder: (id: string) => apiFetch(`/api/orders/${id}/cancel`, { method: "PATCH" }),
   updateOrderProgress: (id: string, body: any) => apiFetch(`/api/orders/${id}/orderProgress`, { method: "PATCH", body }),
   
@@ -127,6 +131,24 @@ export const api = {
     }
   }),
   verifyCardAndAdd: (reference: string) => apiFetch(`/api/payment/cards/verify/${reference}`),
+  deleteCard: (cardId: number) => apiFetch(`/api/payment/cards/${cardId}`, { method: "DELETE" }),
+
+  // Password Reset
+  forgotPassword: (email: string) => apiFetch(`/api/auth/forgotPassword`, { 
+    method: "POST", 
+    body: { email } 
+  }),
+  resetPassword: (email: string, token: string, password: string) => apiFetch(`/api/auth/resetPassword`, { 
+    method: "POST", 
+    body: { email, token, password } 
+  }),
+
+  // Admin
+  adminLogin: (key: string) => apiFetch<{ token: string }>(`/api/auth/admin/login`, { method: "POST", body: { key } }),
+  adminStores: (token: string) => apiFetch(`/api/admin/stores`, { headers: { Authorization: `Bearer ${token}` } }),
+  adminRiders: (token: string) => apiFetch(`/api/admin/riders`, { headers: { Authorization: `Bearer ${token}` } }),
+  adminOrders: (token: string) => apiFetch(`/api/admin/orders`, { headers: { Authorization: `Bearer ${token}` } }),
+  adminDeliveryServices: (token: string) => apiFetch(`/api/admin/deliveryServices`, { headers: { Authorization: `Bearer ${token}` } }),
 };
 
 

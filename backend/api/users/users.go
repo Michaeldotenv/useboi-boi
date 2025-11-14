@@ -119,22 +119,49 @@ func EditUser(c *gin.Context, db *mongo.Database) {
 		return
 	}
 
-	var updateUser data.User
-	if err := c.ShouldBindJSON(&updateUser); err != nil {
+	// Only accept specific fields for update
+	var updateData struct {
+		FirstName   string `json:"firstName"`
+		LastName    string `json:"lastName"`
+		PhoneNumber string `json:"phoneNumber"`
+	}
+	
+	if err := c.ShouldBindJSON(&updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		slog.Info("Invalid request body", "error", err)
 		return
 	}
 
+	// Validate required fields
+	if updateData.FirstName == "" || updateData.LastName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "firstName and lastName are required"})
+		return
+	}
+
 	userCollection := db.Collection(utils.USER)
 
-	update := bson.M{"$set": updateUser}
+	// Build update fields
+	updateFields := bson.M{
+		"firstName": updateData.FirstName,
+		"lastName":  updateData.LastName,
+	}
+	
+	// Only update phone number if provided
+	if updateData.PhoneNumber != "" {
+		updateFields["phoneNumber"] = updateData.PhoneNumber
+	}
+
+	// Only update allowed fields
+	update := bson.M{
+		"$set": updateFields,
+	}
+	
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
 	var user data.User
 	if err := userCollection.FindOneAndUpdate(c, bson.M{"_id": userId}, update, options).Decode(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch user"})
-		slog.Info("Failed to fetch user", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update user"})
+		slog.Info("Failed to update user", "error", err)
 		return
 	}
 
@@ -286,6 +313,11 @@ func AddBankAccount(c *gin.Context, db *mongo.Database) {
 
 }
 
+type WalletTransactionWithOrder struct {
+	data.WalletTransactions `bson:",inline"`
+	Order                   *data.Order `json:"order,omitempty"`
+}
+
 func GetWalletTransactions(c *gin.Context, db *mongo.Database) {
 
 	userIdStr := c.GetString("userId")
@@ -298,14 +330,48 @@ func GetWalletTransactions(c *gin.Context, db *mongo.Database) {
 
 	transactionCollection := db.Collection(utils.WALLET_TRANSACTIONS)
 
-	cursor, err := transactionCollection.Find(c, bson.M{"userId": userId})
+	// Use aggregation to join with orders
+	pipeline := []bson.M{
+		{"$match": bson.M{"userId": userId}},
+		{"$sort": bson.M{"createdAt": -1}}, // Sort by newest first
+		{"$lookup": bson.M{
+			"from":         "Order",
+			"localField":   "paymentTransactionId",
+			"foreignField": "orderTransactionID",
+			"as":           "orderData",
+		}},
+		{"$addFields": bson.M{
+			"order": bson.M{
+				"$cond": bson.M{
+					"if":   bson.M{"$gt": []interface{}{bson.M{"$size": "$orderData"}, 0}},
+					"then": bson.M{"$arrayElemAt": []interface{}{"$orderData", 0}},
+					"else": nil,
+				},
+			},
+		}},
+		{"$project": bson.M{
+			"_id":                   1,
+			"paymentTransactionId":  1,
+			"userId":                1,
+			"amount":                1,
+			"type":                  1,
+			"createdAt":             1,
+			"order._id":             1,
+			"order.storeId":         1,
+			"order.price":           1,
+			"order.status":          1,
+			"order.deliveryLocation": 1,
+		}},
+	}
+
+	cursor, err := transactionCollection.Aggregate(c, pipeline)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get wallet transaction. " + err.Error()})
 		slog.Info("Failed to get wallet transaction", "error", err)
 		return
 	}
 
-	transactions := []data.WalletTransactions{}
+	transactions := []WalletTransactionWithOrder{}
 	if err := cursor.All(c, &transactions); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode transactions. " + err.Error()})
 		slog.Info("Failed to decode wallet transaction", "error", err)

@@ -810,7 +810,8 @@ type OrderData struct {
 	data.Order `bson:",inline"`
 	Store      data.Store `json:"store"`
 	Customer   data.User  `json:"customer"`
-	Cart       data.Cart  `json:"cart"`
+	Rider      *data.User `json:"rider"`
+	Cart       any        `json:"cart"`
 }
 
 func GetOrders(c *gin.Context, db *mongo.Database) {
@@ -875,6 +876,16 @@ func GetOrders(c *gin.Context, db *mongo.Database) {
 		}},
 		{"$unwind": "$customer"},
 		{"$lookup": bson.M{
+			"from":         "User",
+			"localField":   "riderId",
+			"foreignField": "_id",
+			"as":           "rider",
+		}},
+		{"$unwind": bson.M{
+			"path":                       "$rider",
+			"preserveNullAndEmptyArrays": true,
+		}},
+		{"$lookup": bson.M{
 			"from":         "Cart",
 			"localField":   "cartId",
 			"foreignField": "_id",
@@ -907,9 +918,16 @@ func GetOrders(c *gin.Context, db *mongo.Database) {
 				"image": "$store.image",
 			},
 			"customer": bson.M{
-				"_id":       "$customer._id",
-				"email":     "$customer.email",
-				"firstName": "$customer.firstName",
+				"_id":         "$customer._id",
+				"email":       "$customer.email",
+				"firstName":   "$customer.firstName",
+				"phoneNumber": "$customer.phoneNumber",
+			},
+			"rider": bson.M{
+				"_id":         "$rider._id",
+				"firstName":   "$rider.firstName",
+				"lastName":    "$rider.lastName",
+				"phoneNumber": "$rider.phoneNumber",
 			},
 			"cart": "$cart",
 		}},
@@ -964,6 +982,16 @@ func GetOrder(c *gin.Context, db *mongo.Database) {
 		}},
 		{"$unwind": "$customer"},
 		{"$lookup": bson.M{
+			"from":         "User",
+			"localField":   "riderId",
+			"foreignField": "_id",
+			"as":           "rider",
+		}},
+		{"$unwind": bson.M{
+			"path":                       "$rider",
+			"preserveNullAndEmptyArrays": true,
+		}},
+		{"$lookup": bson.M{
 			"from":         "Cart",
 			"localField":   "cartId",
 			"foreignField": "_id",
@@ -1000,6 +1028,12 @@ func GetOrder(c *gin.Context, db *mongo.Database) {
 				"email":       "$customer.email",
 				"firstName":   "$customer.firstName",
 				"phoneNumber": "$customer.phoneNumber",
+			},
+			"rider": bson.M{
+				"_id":         "$rider._id",
+				"firstName":   "$rider.firstName",
+				"lastName":    "$rider.lastName",
+				"phoneNumber": "$rider.phoneNumber",
 			},
 			"cart": "$cart",
 		}},

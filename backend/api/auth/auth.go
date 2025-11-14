@@ -293,41 +293,45 @@ func VerifySignup(c *gin.Context, db *mongo.Database) {
 	}
 	defer session.EndSession(c)
 
+	var jwtToken string
+
 	_, err = session.WithTransaction(c, func(sessCtx mongo.SessionContext) (interface{}, error) {
 
 		_, err = userCollection.InsertOne(sessCtx, newUser)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return nil, err
 		}
 
+		// Try to create virtual account, but don't fail signup if it errors
 		err = payments.CreateDedicatedVirtualAccount(c, &newUser)
 		if err != nil {
-			return nil, err
+			// Log the error but continue with signup
+			fmt.Println("Warning: Failed to create virtual account:", err.Error())
 		}
 
-		jwt, err := utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
+		jwtToken, err = utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return nil, err
 		}
-
-		c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwt})
 
 		return nil, nil
 	})
 
 	if err != nil {
-		return
-	}
-
-	payments.GetUserPayStackAccount(c, db, &newUser.ID, &newUser.Email)
-
-	err = utils.SendWelcomeMail(&newUser.Email, &newUser.FirstName)
-	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Send response after transaction completes
+	c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwtToken})
+
+	// Do async operations after response is sent
+	go func() {
+		// Wait for Paystack to process the account creation
+		time.Sleep(5 * time.Second)
+		payments.GetUserPayStackAccount(c, db, &newUser.ID, &newUser.Email)
+		utils.SendWelcomeMail(&newUser.Email, &newUser.FirstName)
+	}()
 
 	deleteFilter := bson.M{
 		"email": otpModel.Email,
@@ -414,47 +418,48 @@ func VerifyMerchantSignup(c *gin.Context, db *mongo.Database) {
 	}
 	defer session.EndSession(c)
 
+	var jwtToken string
+
 	_, err = session.WithTransaction(c, func(sessCtx mongo.SessionContext) (interface{}, error) {
 
 		_, err = userCollection.InsertOne(sessCtx, newUser)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return nil, err
 		}
 
+		// Try to create virtual account, but don't fail signup if it errors
 		err = payments.CreateDedicatedVirtualAccount(c, &newUser)
 		if err != nil {
-			return nil, err
+			// Log the error but continue with signup
+			fmt.Println("Warning: Failed to create virtual account:", err.Error())
 		}
 
-		jwt, err := utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
+		jwtToken, err = utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return nil, err
 		}
 
 		_, err = storeCollection.InsertOne(sessCtx, newStore)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Error creating store" + err.Error()})
-			return nil, err
+			return nil, fmt.Errorf("error creating store: %w", err)
 		}
-
-		c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwt})
 
 		return nil, nil
 	})
 
 	if err != nil {
-		return
-	}
-
-	payments.GetUserPayStackAccount(c, db, &newUser.ID, &newUser.Email)
-
-	err = utils.SendMerchantWelcomeMail(&newUser.Email, &newUser.FirstName)
-	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Send response after transaction completes
+	c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwtToken})
+
+	// Do async operations after response is sent
+	go func() {
+		payments.GetUserPayStackAccount(c, db, &newUser.ID, &newUser.Email)
+		utils.SendMerchantWelcomeMail(&newUser.Email, &newUser.FirstName)
+	}()
 
 	deleteFilter := bson.M{
 		"email": merchantOtpModel.Email,
@@ -541,37 +546,42 @@ func VerifyRiderSignup(c *gin.Context, db *mongo.Database) {
 	}
 	defer session.EndSession(c)
 
+	var jwtToken string
+	isPending := riderOtpModel.DeliveryServiceCode == "BBP2P"
+
 	_, err = session.WithTransaction(c, func(sessCtx mongo.SessionContext) (interface{}, error) {
 
 		_, err = userCollection.InsertOne(sessCtx, newUser)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return nil, err
 		}
 
-		if riderOtpModel.DeliveryServiceCode == "BBP2P" {
-			c.JSON(http.StatusOK, gin.H{"status": "pending"})
-		} else {
-			jwt, err := utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
+		if !isPending {
+			jwtToken, err = utils.GenerateJWT(newUser.ID.Hex(), newUser.Email)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return nil, err
 			}
-			c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwt})
 		}
 
 		return nil, nil
 	})
 
 	if err != nil {
-		return
-	}
-
-	err = utils.SendRiderWelcomeMail(&newUser.Email, &newUser.FirstName)
-	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Send response after transaction completes
+	if isPending {
+		c.JSON(http.StatusOK, gin.H{"status": "pending"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"user": newUser, "token": jwtToken})
+	}
+
+	// Do async operations after response is sent
+	go func() {
+		utils.SendRiderWelcomeMail(&newUser.Email, &newUser.FirstName)
+	}()
 
 	deleteFilter := bson.M{
 		"email": riderOtpModel.Email,

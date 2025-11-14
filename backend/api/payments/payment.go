@@ -37,7 +37,7 @@ func CreateDedicatedVirtualAccount(c *gin.Context, customer *data.User) error {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal JSON data"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to marshal JSON data: "+err.Error())
 		return err
 	}
 
@@ -45,7 +45,7 @@ func CreateDedicatedVirtualAccount(c *gin.Context, customer *data.User) error {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to create request: "+err.Error())
 		return err
 	}
 
@@ -55,20 +55,20 @@ func CreateDedicatedVirtualAccount(c *gin.Context, customer *data.User) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send request"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to send request: "+err.Error())
 		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response"})
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Failed to read response: "+err.Error())
 		return err
 	}
 
 	if resp.StatusCode >= 400 || resp.StatusCode >= 500 {
-		c.Data(resp.StatusCode, "application/json", body)
-		return fmt.Errorf("error creating dedicated virtual account for user")
+		slog.Error("CreateDedicatedVirtualAccount", "error", "Paystack error: "+string(body))
+		return fmt.Errorf("error creating dedicated virtual account for user: %s", string(body))
 	}
 
 	slog.Info("payment", "message", "successfully created virtual account"+string(body))
@@ -318,56 +318,134 @@ func GetPaystackAccountForUser(ctx context.Context, db *mongo.Database, userId *
 
 func CreateVirtualBankAccountForUser(ctx *gin.Context, db *mongo.Database) {
 	idFromAuth, exists := ctx.Get("userId")
-	if exists {
-		userId := idFromAuth.(string)
-		userCollection := db.Collection(utils.USER)
-
-		userObjectId, err := primitive.ObjectIDFromHex(userId)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting objectId from userId" + err.Error()})
-			return
-		}
-
-		var user data.User
-		result := userCollection.FindOne(ctx, bson.M{"_id": userObjectId})
-		err = result.Decode(&user)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error decoding user" + err.Error()})
-			return
-		}
-		err = CreateDedicatedVirtualAccount(ctx, &user)
-
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating dedicated virtual account" + err.Error()})
-			return
-		}
-
-		time.Sleep(2 * time.Second)
-
-		virtualAccount, error := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
-
-		if error != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting dedicated virtual account" + error.Error()})
-			return
-		}
-
-		ctx.JSON(http.StatusOK, virtualAccount)
-		return
-
-	} else {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "userId param is empty"})
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "userId param is empty"})
 		slog.Info("msg", "userId doesn't exist", "error")
 		return
 	}
+
+	userId := idFromAuth.(string)
+	userCollection := db.Collection(utils.USER)
+
+	userObjectId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting objectId from userId" + err.Error()})
+		return
+	}
+
+	var user data.User
+	result := userCollection.FindOne(ctx, bson.M{"_id": userObjectId})
+	err = result.Decode(&user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error decoding user" + err.Error()})
+		return
+	}
+
+	// Check if user already has a virtual account
+	if user.VirtualBankAccount != nil && user.VirtualBankAccount.AccountNumber != "" {
+		ctx.JSON(http.StatusOK, user.VirtualBankAccount)
+		return
+	}
+
+	// Create account on Paystack
+	err = CreateDedicatedVirtualAccount(ctx, &user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating dedicated virtual account" + err.Error()})
+		return
+	}
+
+	// Wait for Paystack to process
+	time.Sleep(3 * time.Second)
+
+	// Fetch and store the account
+	virtualAccount, error := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
+	if error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting dedicated virtual account" + error.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, virtualAccount)
+}
+
+func RefreshVirtualBankAccount(ctx *gin.Context, db *mongo.Database) {
+	idFromAuth, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	userId := idFromAuth.(string)
+	userObjectId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	userCollection := db.Collection(utils.USER)
+	var user data.User
+	if err := userCollection.FindOne(ctx, bson.M{"_id": userObjectId}).Decode(&user); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+		return
+	}
+
+	slog.Info("RefreshVirtualBankAccount", "userId", user.ID, "email", user.Email, "hasAccount", user.VirtualBankAccount != nil)
+
+	// Check if user already has account in DB
+	if user.VirtualBankAccount != nil && user.VirtualBankAccount.AccountNumber != "" {
+		slog.Info("RefreshVirtualBankAccount", "message", "account already exists in DB", "accountNumber", user.VirtualBankAccount.AccountNumber)
+		ctx.JSON(http.StatusOK, user.VirtualBankAccount)
+		return
+	}
+
+	// Try to fetch from Paystack first
+	slog.Info("RefreshVirtualBankAccount", "message", "fetching from Paystack")
+	virtualAccount, err := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
+	if err != nil {
+		slog.Error("RefreshVirtualBankAccount", "fetchError", err.Error())
+		
+		// Account doesn't exist on Paystack, create it
+		slog.Info("RefreshVirtualBankAccount", "message", "creating new account on Paystack")
+		createErr := CreateDedicatedVirtualAccount(ctx, &user)
+		if createErr != nil {
+			slog.Error("RefreshVirtualBankAccount", "createError", createErr.Error())
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to create virtual account on Paystack",
+				"details": createErr.Error(),
+			})
+			return
+		}
+
+		// Wait longer for Paystack to process
+		slog.Info("RefreshVirtualBankAccount", "message", "waiting 5 seconds for Paystack processing")
+		time.Sleep(5 * time.Second)
+		
+		// Try to fetch again
+		virtualAccount, err = GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
+		if err != nil {
+			slog.Error("RefreshVirtualBankAccount", "secondFetchError", err.Error())
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Account created but not yet available. Please refresh in a few seconds.",
+				"details": err.Error(),
+			})
+			return
+		}
+	}
+
+	slog.Info("RefreshVirtualBankAccount", "success", "account fetched", "accountNumber", virtualAccount.AccountNumber)
+	ctx.JSON(http.StatusOK, virtualAccount)
 }
 
 type FundAmount struct {
-	Amount int64 `json:"amount"`
+	Amount      float64                `json:"amount"`
+	CallbackUrl string                 `json:"callback_url"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 type InitializeTransactionRequest struct {
-	Email  string `json:"email"`
-	Amount string `json:"amount"`
+	Email       string                 `json:"email"`
+	Amount      string                 `json:"amount"`
+	CallbackUrl string                 `json:"callback_url,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
 func InitializeTransaction(ctx *gin.Context, db *mongo.Database) {
@@ -379,7 +457,7 @@ func InitializeTransaction(ctx *gin.Context, db *mongo.Database) {
 	}
 
 	var fundAmount FundAmount
-	if err := ctx.ShouldBindJSON(&fundAmount); err != nil {
+	if err := ctx.ShouldBindJSON(&fundAmount); err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error binding json " + err.Error()})
 		return
 	}
@@ -387,9 +465,14 @@ func InitializeTransaction(ctx *gin.Context, db *mongo.Database) {
 	transactionInitializeUrl := "https://api.paystack.co/transaction/initialize"
 	secretKey := os.Getenv("PAYSTACK_SECRET_KEY")
 
+	// Convert amount to kobo (multiply by 100) - Paystack expects amount in kobo
+	amountInKobo := int(fundAmount.Amount * 100)
+
 	reqBody := InitializeTransactionRequest{
-		Email:  userEmail.(string),
-		Amount: strconv.Itoa(int(fundAmount.Amount)),
+		Email:       userEmail.(string),
+		Amount:      strconv.Itoa(amountInKobo),
+		CallbackUrl: fundAmount.CallbackUrl,
+		Metadata:    fundAmount.Metadata,
 	}
 
 	jsonData, err := json.Marshal(reqBody)
@@ -473,7 +556,10 @@ func CapturePayment(ctx *gin.Context, db *mongo.Database) {
 			paymentType = "wallet"
 		}
 
-		if paymentType != "wallet" {
+		slog.Info("payment", "metadata", metaData, "paymentType", paymentType)
+
+		if paymentType != "wallet" && paymentType != "wallet_topup" {
+			slog.Info("payment", "skipping non-wallet payment", paymentType)
 			ctx.Data(http.StatusOK, "application/json", nil)
 			return
 		}
@@ -529,11 +615,16 @@ func CapturePayment(ctx *gin.Context, db *mongo.Database) {
 
 			virtualAccount.Balance = virtualAccount.Balance + requestedAmount/100
 
-			userCollection.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{
+			updateResult := userCollection.FindOneAndUpdate(sessCtx, bson.M{"_id": user.ID}, bson.M{
 				"$set": bson.M{
 					"virtualBankAccount": virtualAccount,
 				},
 			})
+
+			if updateResult.Err() != nil {
+				slog.Error("payment", "failed to update virtual account balance", updateResult.Err().Error())
+				return nil, updateResult.Err()
+			}
 
 			slog.Info("msg", "virtual account update ", virtualAccount.Balance)
 
@@ -801,6 +892,50 @@ func VerifyCardChargeAndAddCard(c *gin.Context, db *mongo.Database) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Card added successfully", "data": card})
 
+}
+
+func DeleteCard(c *gin.Context, db *mongo.Database) {
+	cardIdStr := c.Param("cardId")
+	cardId, err := strconv.ParseFloat(cardIdStr, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid card ID"})
+		return
+	}
+
+	userId, ok := c.Get("userId")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userObjectId, err := primitive.ObjectIDFromHex(userId.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	userCollection := db.Collection(utils.USER)
+
+	// Remove card from user's cards array
+	result := userCollection.FindOneAndUpdate(
+		c,
+		bson.M{"_id": userObjectId},
+		bson.M{
+			"$pull": bson.M{
+				"cards": bson.M{"id": cardId},
+			},
+		},
+	)
+
+	if result.Err() != nil {
+		slog.Error("DeleteCard: Failed to delete card", "error", result.Err().Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete card"})
+		return
+	}
+
+	slog.Info("DeleteCard: Card deleted successfully", "userId", userObjectId, "cardId", cardId)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Card deleted successfully"})
 }
 
 func WithdrawlFromWallet(c *gin.Context, db *mongo.Database) {

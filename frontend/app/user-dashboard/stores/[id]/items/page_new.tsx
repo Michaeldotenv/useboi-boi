@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { getAuthToken } from "@/lib/auth";
-import { Box, Heading, Text, VStack, HStack, Badge, Input, InputGroup, InputLeftElement, Flex, Button, Icon, Image, useToast } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack, HStack, Badge, Input, InputGroup, InputLeftElement, Flex, Button, Icon, Image, useToast, SimpleGrid } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { FaBell, FaArrowLeft } from "react-icons/fa";
 import { FiStar, FiShoppingCart } from "react-icons/fi";
@@ -170,29 +170,32 @@ export default function StoreItemsPage() {
 
         {/* Items List */}
         {filteredItems.length === 0 ? (
-          <Box bg="white" borderRadius="12px" p={6} textAlign="center" boxShadow="0px 0px 2px rgba(0,0,0,0.1)">
+          <Box bg="white" borderRadius="12px" p={6} textAlign="center">
             <Text color="#8E8E93" fontSize="14px">
               {searchQuery ? "No items match your search." : `No items found in "${selectedCategory}" category.`}
             </Text>
           </Box>
         ) : (
-          <VStack align="stretch" spacing={3}>
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
             {filteredItems.map((it: any, index: number) => (
               <Box
                 key={it.id || it._id}
                 bg="linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)"
                 borderRadius="20px"
                 overflow="hidden"
-                border="none"
-                boxShadow="0 8px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)"
+                border="1px solid"
+                borderColor="gray.200"
+                h="280px"
                 cursor="pointer"
                 transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 _hover={{
                   transform: "translateY(-4px) scale(1.02)",
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
                   bg: "linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%)"
                 }}
                 position="relative"
+                display="flex"
+                flexDirection="column"
+                role="group"
               >
                 {/* Subtle gradient overlay */}
                 <Box
@@ -206,12 +209,13 @@ export default function StoreItemsPage() {
                   zIndex={0}
                 />
 
-                <Flex gap={4} p={4} align="stretch" position="relative" zIndex={1}>
+                <Box p={4} position="relative" zIndex={1} flex="1" display="flex" flexDirection="column">
                   <Box
-                    w={{ base: "110px", sm: "120px" }}
-                    h={{ base: "90px", sm: "96px" }}
+                    w="100%"
+                    h="140px"
                     borderRadius="16px"
                     overflow="hidden"
+                    mb={3}
                     bg="linear-gradient(135deg, #6B2A8F 0%, #8B5CF6 100%)"
                     flexShrink={0}
                     display="flex"
@@ -332,10 +336,57 @@ export default function StoreItemsPage() {
                       </Button>
                     </HStack>
                   </VStack>
-                </Flex>
+                </Box>
+
+                {/* Hover Add to Cart overlay */}
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  bg="rgba(0,0,0,0.35)"
+                  opacity={0}
+                  transition="opacity 0.2s ease"
+                  _groupHover={{ opacity: 1 }}
+                  zIndex={2}
+                >
+                  <Button
+                    size="sm"
+                    bg="linear-gradient(135deg, #3B174F 0%, #6B2A8F 100%)"
+                    color="white"
+                    borderRadius="12px"
+                    px={5}
+                    h="38px"
+                    leftIcon={<Icon as={FiShoppingCart} />}
+                    fontWeight={800}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      try {
+                        const vendorId = (params?.id as string) || "";
+                        await useCartStore.getState().addItem({
+                          id: it._id || it.id,
+                          vendorId: vendorId,
+                          name: it.name || it.title || 'Item',
+                          price: Number(it.price || 0),
+                          image: it.image || it.coverImage,
+                        }, 1);
+                        toast({ title: 'Added to cart', description: (it.name || 'Item') + ' added', status: 'success', duration: 1500 });
+                      } catch (error) {
+                        console.error('Failed to add to cart:', error);
+                        toast({ title: 'Failed to add to cart', description: 'Please try again', status: 'error', duration: 2000 });
+                      }
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </Box>
               </Box>
             ))}
-          </VStack>
+            </SimpleGrid>
         )}
 
         <Box mb="5em" />

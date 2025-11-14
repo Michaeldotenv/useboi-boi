@@ -134,6 +134,9 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	authRoute.POST("/resetPassword", func(ctx *gin.Context) {
 		auth.ResetPassword(ctx, db)
 	})
+	authRoute.POST("/google", func(ctx *gin.Context) {
+		auth.GoogleAuth(ctx, db)
+	})
 
 	// Vendors and Items
 	mainRoute.GET("/vendors", func(ctx *gin.Context) {
@@ -238,6 +241,9 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	mainRoute.POST("/createBankAccount", func(ctx *gin.Context) {
 		payments.CreateVirtualBankAccountForUser(ctx, db)
 	})
+	mainRoute.GET("/wallet/refresh", func(ctx *gin.Context) {
+		payments.RefreshVirtualBankAccount(ctx, db)
+	})
 	mainRoute.POST("/wallet/initializeTransaction", func(ctx *gin.Context) {
 		payments.InitializeTransaction(ctx, db)
 	})
@@ -249,6 +255,9 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	})
 	mainRoute.GET("/payment/cards/verify/:reference", func(ctx *gin.Context) {
 		payments.VerifyCardChargeAndAddCard(ctx, db)
+	})
+	mainRoute.DELETE("/payment/cards/:cardId", func(ctx *gin.Context) {
+		payments.DeleteCard(ctx, db)
 	})
 	mainRoute.POST("/wallet/withdrawals", func(ctx *gin.Context) {
 		payments.WithdrawlFromWallet(ctx, db)

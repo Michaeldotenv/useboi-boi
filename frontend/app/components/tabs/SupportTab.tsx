@@ -5,6 +5,7 @@ import {
   Box,
   VStack,
   HStack,
+  Flex,
   Text,
   Button,
   Input,
@@ -128,48 +129,58 @@ const SupportTab: React.FC = () => {
   ];
 
   return (
-    <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+    <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
       <Wrapper>
         <Box py={4}>
-          <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="700" color="#000" mb={6} mt={4}>
-            Support
-          </Text>
+          <Flex justify="space-between" align="center" mb={6} mt={4}>
+            <HStack spacing={4}>
+              <Box
+                p={3}
+                borderRadius="12px"
+                bg="gray.50"
+              >
+                <FaHeadset color="#374151" size="20px" />
+              </Box>
+              <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="700" color="gray.900">
+                Support
+              </Text>
+            </HStack>
+          </Flex>
 
           {/* Quick Actions */}
-          <VStack spacing={{ base: 3, md: 4 }} align="stretch" mb={8}>
-            <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="600" color="#000" mb={2}>
+          <VStack spacing={4} align="stretch" mb={8}>
+            <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" color="gray.900" mb={2}>
               Quick Help
             </Text>
             {quickActions.map((action, index) => (
               <Box
                 key={index}
                 bg="white"
-                borderRadius="16px"
-                p={{ base: 3, md: 4 }}
+                borderRadius="12px"
+                p={{ base: 4, md: 5 }}
                 border="1px solid"
                 borderColor="gray.200"
                 cursor="pointer"
                 _hover={{
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+                  borderColor: "gray.300",
                 }}
-                transition="all 0.3s ease"
+                transition="all 0.2s ease"
                 onClick={action.action}
               >
-                <HStack spacing={{ base: 3, md: 4 }}>
+                <HStack spacing={4}>
                   <Box
-                    p={{ base: 2.5, md: 3 }}
-                    borderRadius="full"
-                    bg={`${action.color}.100`}
+                    p={3}
+                    borderRadius="8px"
+                    bg={`${action.color}.50`}
                     color={`${action.color}.600`}
                   >
                     <action.icon size={20} />
                   </Box>
                   <VStack align="start" spacing={1} flex={1}>
-                    <Text fontWeight="600" color="#000" noOfLines={1}>
+                    <Text fontWeight="600" color="gray.900" noOfLines={1}>
                       {action.title}
                     </Text>
-                    <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600">
+                    <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
                       {action.description}
                     </Text>
                   </VStack>
@@ -179,27 +190,28 @@ const SupportTab: React.FC = () => {
           </VStack>
 
           {/* Contact Form */}
-          <Box bg="white" borderRadius="16px" p={{ base: 4, md: 6 }} border="1px solid" borderColor="gray.200">
-            <VStack spacing={4} align="stretch">
-              <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="600" color="#000" mb={2}>
+          <Box bg="white" borderRadius="12px" p={{ base: 5, md: 6 }} border="1px solid" borderColor="gray.200">
+            <VStack spacing={5} align="stretch">
+              <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" color="gray.900" mb={2}>
                 Submit a Support Ticket
               </Text>
               
-              <VStack spacing={4} align="stretch">
+              <VStack spacing={5} align="stretch">
                 <Box>
-                  <Text fontSize={{ base: 'sm', md: 'sm' }} fontWeight="500" color="gray.700" mb={2}>
+                  <Text fontSize="14px" fontWeight="600" color="gray.700" mb={3}>
                     Category
                   </Text>
                   <Select
                     placeholder="Select a category"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    bg="white"
+                    bg="gray.50"
                     border="1px solid"
-                    borderColor="gray.300"
+                    borderColor="gray.200"
+                    borderRadius="8px"
                     _focus={{
-                      borderColor: "brand.primary",
-                      boxShadow: "0 0 0 1px #3B174F",
+                      borderColor: "gray.300",
+                      bg: "white"
                     }}
                   >
                     {supportCategories.map((category) => (
@@ -211,25 +223,26 @@ const SupportTab: React.FC = () => {
                 </Box>
 
                 <Box>
-                  <Text fontSize={{ base: 'sm', md: 'sm' }} fontWeight="500" color="gray.700" mb={2}>
+                  <Text fontSize="14px" fontWeight="600" color="gray.700" mb={3}>
                     Subject
                   </Text>
                   <Input
                     placeholder="Brief description of your issue"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    bg="white"
+                    bg="gray.50"
                     border="1px solid"
-                    borderColor="gray.300"
+                    borderColor="gray.200"
+                    borderRadius="8px"
                     _focus={{
-                      borderColor: "brand.primary",
-                      boxShadow: "0 0 0 1px #3B174F",
+                      borderColor: "gray.300",
+                      bg: "white"
                     }}
                   />
                 </Box>
 
                 <Box>
-                  <Text fontSize={{ base: 'sm', md: 'sm' }} fontWeight="500" color="gray.700" mb={2}>
+                  <Text fontSize="14px" fontWeight="600" color="gray.700" mb={3}>
                     Message
                   </Text>
                   <Textarea
@@ -237,26 +250,28 @@ const SupportTab: React.FC = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     rows={5}
-                    bg="white"
+                    bg="gray.50"
                     border="1px solid"
-                    borderColor="gray.300"
+                    borderColor="gray.200"
+                    borderRadius="8px"
                     resize="vertical"
                     _focus={{
-                      borderColor: "brand.primary",
-                      boxShadow: "0 0 0 1px #3B174F",
+                      borderColor: "gray.300",
+                      bg: "white"
                     }}
                   />
                 </Box>
 
                 <Button
-                  bg="brand.primary"
+                  bg="gray.900"
                   color="white"
-                  _hover={{ bg: "brand.primaryDark", transform: "translateY(-2px)" }}
+                  _hover={{ bg: "gray.800" }}
                   onClick={handleSubmitTicket}
                   isLoading={isSubmitting}
                   loadingText="Submitting..."
                   size={{ base: 'md', md: 'lg' }}
-                  transition="all 0.3s ease"
+                  borderRadius="8px"
+                  transition="all 0.2s ease"
                 >
                   Submit Ticket
                 </Button>
@@ -265,9 +280,9 @@ const SupportTab: React.FC = () => {
           </Box>
 
           {/* Support Information */}
-          <Box bg="white" borderRadius="16px" p={{ base: 4, md: 6 }} border="1px solid" borderColor="gray.200" mt={6}>
-            <VStack spacing={4} align="stretch">
-              <Text fontSize={{ base: "16px", md: "18px" }} fontWeight="600" color="#000" mb={2}>
+          <Box bg="white" borderRadius="12px" p={{ base: 5, md: 6 }} border="1px solid" borderColor="gray.200" mt={8}>
+            <VStack spacing={5} align="stretch">
+              <Text fontSize={{ base: "18px", md: "20px" }} fontWeight="600" color="gray.900" mb={2}>
                 Contact Information
               </Text>
               

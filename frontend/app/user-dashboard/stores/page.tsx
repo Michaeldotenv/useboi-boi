@@ -3,235 +3,187 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import NextLink from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 import { getAuthToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
-import { Box, Heading, Link, VStack, HStack, Text, Fade, ScaleFade, SlideFade, Skeleton, SkeletonText, Avatar, Icon, Image, Badge, Flex, Spacer, Button } from "@chakra-ui/react";
-import { FiArrowRight, FiStar, FiShoppingBag, FiMapPin, FiClock } from "react-icons/fi";
-import { FaBell } from "react-icons/fa";
-import { motion } from "framer-motion";
-import Card from "@/app/components/Card";
-import { getRandomStoreImage } from "@/lib/imageService";
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  SimpleGrid,
+  Image,
+  VStack,
+  HStack,
+  Icon,
+  Skeleton,
+  Badge,
+  Flex,
+} from "@chakra-ui/react";
+import { FiStar, FiClock, FiArrowLeft } from "react-icons/fi";
 
 export default function StoresPage() {
   const router = useRouter();
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [storeImages, setStoreImages] = useState<{[key: string]: string}>({});
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  let touchStartX = 0;
-  
+
   useEffect(() => {
     const token = getAuthToken();
     if (!token) router.replace("/login");
   }, [router]);
 
-  const { data, isLoading, error } = useQuery({ queryKey: ["vendors"], queryFn: api.vendors });
+  const { data, isLoading } = useQuery({
+    queryKey: ["vendors"],
+    queryFn: api.vendors,
+  });
 
-  // Load store images when data is ready
-  useEffect(() => {
-    if (!isLoading && data) {
-      const vendors = (data as any)?.data || data || [];
-      const loadImages = async () => {
-        const imagePromises = vendors.map(async (vendor: any) => {
-          try {
-            const image = await getRandomStoreImage(vendor.name);
-            return {
-              id: vendor.id || vendor._id,
-              imageUrl: image?.urls?.regular || image?.urls?.small || null
-            };
-          } catch (error) {
-            return {
-              id: vendor.id || vendor._id,
-              imageUrl: null
-            };
-          }
-        });
-        
-        const images = await Promise.all(imagePromises);
-        const imageMap: {[key: string]: string} = {};
-        images.forEach(img => {
-          if (img.imageUrl) {
-            imageMap[img.id] = img.imageUrl;
-          }
-        });
-        setStoreImages(imageMap);
-      };
-      
-      loadImages();
-      
-      const timer = setTimeout(() => setIsLoaded(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, data]);
+  const vendors = (data as any)?.data || data || [];
 
-  // Touch handlers for slider
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX = e.touches[0].clientX;
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const vendors = (data as any)?.data || data || [];
-    const touchEndX = e.touches[0].clientX;
-    const diff = touchStartX - touchEndX;
-    if (diff > 50 && activeIndex < vendors.length - 1) {
-      setActiveIndex((prev) => prev + 1);
-      touchStartX = touchEndX;
-    } else if (diff < -50 && activeIndex > 0) {
-      setActiveIndex((prev) => prev - 1);
-      touchStartX = touchEndX;
-    }
-  };
-
-  // Auto-slide
-  useEffect(() => {
-    const vendors = (data as any)?.data || data || [];
-    if (!vendors || vendors.length <= 1 || isHovered) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % vendors.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [data, isHovered]);
-
-  // Professional loading state
   if (isLoading) {
     return (
-      <Box p={4}>
-        <Skeleton height="30px" width="120px" mb={4} />
-        <VStack align="stretch" spacing={3}>
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} p={4}>
-              <HStack justify="space-between">
-                <HStack spacing={3}>
-                  <Skeleton height="40px" width="40px" borderRadius="full" />
-                  <VStack align="start" spacing={1}>
-                    <Skeleton height="16px" width="180px" />
-                    <Skeleton height="12px" width="120px" />
-                  </VStack>
-                </HStack>
-                <Skeleton height="20px" width="80px" />
-              </HStack>
-            </Card>
-          ))}
-        </VStack>
+      <Box bg="white" minH="100vh">
+        <Container maxW="6xl" py={3}>
+          <Skeleton height="28px" width="150px" mb={4} />
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Box key={i} bg="white" borderRadius="12px" overflow="hidden" boxShadow="sm">
+                <Skeleton height="140px" />
+                <Box p={3}>
+                  <Skeleton height="16px" mb={2} />
+                  <Skeleton height="12px" width="70%" />
+                </Box>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Container>
       </Box>
     );
   }
-  
-  if (error) return <Box p={4}>Failed to load stores</Box>;
 
-  const vendors = (data as any)?.data || data || [];
   return (
-    <Box bg="#F2F2F7" minH="100vh">
-      {/* Header Section */}
-      <Box bg="#6B2A8F" position="relative" w="100%" pt={4} pb={6}>
-        <Box maxW="7xl" mx="auto" px={4}>
-          <Flex justifyContent="space-between" alignItems="center" mb={4}>
-            <HStack spacing={1}>
-              <Text fontSize="15px" fontWeight="400" color="#fff">
-                University of Ibadan
-              </Text>
-              <Box as="span" color="#fff" fontSize="12px">▼</Box>
-            </HStack>
-            <Icon as={FaBell} color="#fff" fontSize="20px" />
-          </Flex>
-          
-          <Heading size="lg" color="white" fontWeight="700" mb={2}>
-            Stores
-          </Heading>
-          <Text color="whiteAlpha.900" fontSize="sm">
-            {vendors.length} stores available near you
-          </Text>
-        </Box>
+    <Box bg="white" minH="100vh" pb={16}>
+      {/* Compact Header */}
+      <Box bg="white" borderBottom="1px" borderColor="gray.100" position="sticky" top={0} zIndex={10} boxShadow="sm">
+        <Container maxW="6xl" py={3}>
+          <HStack spacing={3}>
+            <Icon
+              as={FiArrowLeft}
+              boxSize={5}
+              color="gray.600"
+              cursor="pointer"
+              onClick={() => router.back()}
+              _hover={{ color: "purple.600" }}
+            />
+            <Heading size="md" fontWeight="600" color="gray.900">
+              All Stores
+            </Heading>
+            <Text fontSize="xs" color="gray.500" ml="auto">
+              {vendors.length} stores
+            </Text>
+          </HStack>
+        </Container>
       </Box>
 
-      <Box maxW="7xl" mx="auto" px={4} mt={-4}>
+      {/* Stores Grid - Compact & Professional */}
+      <Container maxW="6xl" py={4}>
         {vendors.length === 0 ? (
-        <ScaleFade in={isLoaded} initialScale={0.9} transition={{ enter: { duration: 0.5, delay: 0.2 } }}>
-          <Card p={5} mt={3} textAlign="center" hover={false}>
-            <Text color="text.secondary">No stores found.</Text>
-          </Card>
-        </ScaleFade>
-      ) : (
-        <Box position="relative" mt={4}>
-          <Box
-            ref={carouselRef}
-            overflow="hidden"
-            w="100%"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <motion.div
-              style={{ display: "flex", width: "100%" }}
-              animate={{ x: `-${activeIndex * 100}%` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              {vendors.map((v: any) => (
+          <Box textAlign="center" py={16}>
+            <Text fontSize="md" color="gray.500">
+              No stores available
+            </Text>
+          </Box>
+        ) : (
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
+            {vendors.map((vendor: any) => {
+              const vendorId = vendor.id || vendor._id;
+              const vendorName = vendor.businessName || vendor.name || "Store";
+              const vendorImage = vendor.image || vendor.coverImage || vendor.logoUrl;
+              const rating = vendor.rating || (Math.random() * 1.5 + 3.5).toFixed(1);
+
+              return (
                 <Box
-                  key={v.id || v._id}
-                  flex="0 0 100%"
-                  px={1}
+                  key={vendorId}
+                  as={NextLink}
+                  href={`/user-dashboard/stores/${vendorId}`}
+                  display="block"
+                  bg="white"
+                  borderRadius="12px"
+                  overflow="hidden"
+                  boxShadow="sm"
+                  border="1px"
+                  borderColor="gray.100"
+                  transition="all 0.2s"
+                  _hover={{
+                    boxShadow: "md",
+                    borderColor: "purple.200",
+                    transform: "translateY(-2px)",
+                  }}
                   cursor="pointer"
-                  onClick={() => router.push(`/user-dashboard/stores/${v.id || v._id}`)}
                 >
-                  <Box bg="white" borderRadius="12px" overflow="hidden" border="1px solid" borderColor="gray.200">
-                    <Box
-                      w="100%"
-                      h="150px"
-                      bgImage={`url(${(storeImages[v.id || v._id] || "").startsWith("/") ? (storeImages[v.id || v._id] || "") : "/" + (storeImages[v.id || v._id] || "Food-item-1.jpeg")})`}
-                      bgSize="cover"
-                      bgPosition="center"
-                      position="relative"
-                      overflow="hidden"
+                  {/* Store Image - Compact */}
+                  <Box position="relative" h="140px" bg="gray.50">
+                    {vendorImage ? (
+                      <Image
+                        src={vendorImage}
+                        alt={vendorName}
+                        w="full"
+                        h="full"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <Flex h="full" align="center" justify="center">
+                        <Text fontSize="3xl">🏪</Text>
+                      </Flex>
+                    )}
+                    
+                    {/* Compact Status Badge */}
+                    <Badge
+                      position="absolute"
+                      top={2}
+                      right={2}
+                      colorScheme="green"
+                      borderRadius="md"
+                      px={2}
+                      py={0.5}
+                      fontSize="2xs"
+                      fontWeight="600"
                     >
-                      <Box position="absolute" inset={0} bgGradient="linear(to-t, rgba(0,0,0,0.3), rgba(0,0,0,0.05))" />
-                      <Badge position="absolute" bottom={2} left={2} colorScheme="green" borderRadius="full" px={2} py={0.5} fontSize="10px">Open</Badge>
-                    </Box>
-                    <Box p={3}>
-                      <Flex justifyContent="space-between" alignItems="center">
-                        <Box>
-                          <Heading size="sm" color="#000" fontWeight="600" noOfLines={1}>
-                            {v.name}
-                          </Heading>
-                          <Text fontSize="11px" color="#8E8E93" noOfLines={1}>
-                            {v.description || "Delicious food delivered fresh"}
+                      Open
+                    </Badge>
+                  </Box>
+
+                  {/* Store Info - Compact */}
+                  <Box p={3}>
+                    <VStack align="stretch" spacing={2}>
+                      <Heading size="sm" fontWeight="600" color="gray.900" noOfLines={1}>
+                        {vendorName}
+                      </Heading>
+
+                      <Text fontSize="xs" color="gray.600" noOfLines={2} h="32px">
+                        {vendor.description || "Quality products delivered fresh"}
+                      </Text>
+
+                      <Flex justify="space-between" align="center" pt={1}>
+                        <HStack spacing={1}>
+                          <Icon as={FiStar} color="orange.400" boxSize={3} />
+                          <Text fontSize="xs" fontWeight="600" color="gray.900">
+                            {rating}
                           </Text>
-                        </Box>
-                        <HStack spacing={0.5}>
-                          <Image src="/Star.png" alt="Rating" width={"14px"} height={"14px"} />
-                          <Text fontSize={"12px"} fontWeight={"600"} color="#000">4.5</Text>
+                        </HStack>
+
+                        <HStack spacing={1} color="gray.500">
+                          <Icon as={FiClock} boxSize={3} />
+                          <Text fontSize="xs" fontWeight="500">
+                            {Math.floor(Math.random() * 15 + 20)}-{Math.floor(Math.random() * 15 + 35)} min
+                          </Text>
                         </HStack>
                       </Flex>
-                    </Box>
+                    </VStack>
                   </Box>
                 </Box>
-              ))}
-            </motion.div>
-          </Box>
-
-          {/* Pagination Dots */}
-          <Flex justify="center" gap={2} mt={4}>
-            {vendors.map((_: any, index: number) => (
-              <Box
-                key={index}
-                w={activeIndex === index ? "20px" : "6px"}
-                h="6px"
-                bg={activeIndex === index ? "#000" : "#D1D1D6"}
-                borderRadius="full"
-                transition="all 0.3s"
-                cursor="pointer"
-                onClick={() => setActiveIndex(index)}
-              />
-            ))}
-          </Flex>
-        </Box>
-      )}
-      <Box mb="5em" />
-      </Box>
+              );
+            })}
+          </SimpleGrid>
+        )}
+      </Container>
     </Box>
   );
 }
-
-

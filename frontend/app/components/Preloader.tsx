@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Image, keyframes } from "@chakra-ui/react";
+import { Box, keyframes } from "@chakra-ui/react";
+import Image from "next/image";
 
 const fade = keyframes`
   0% { opacity: 0; }
@@ -11,7 +12,22 @@ const fade = keyframes`
 export default function Preloader() {
   return (
     <Box position="fixed" inset={0} display="flex" alignItems="center" justifyContent="center" bg="white" zIndex={1000}>
-      <Image src="/Boiboi (Palatinate blue).png" alt="Boiboi" w="220px" h="70px" animation={`${fade} 1.6s ease-in-out infinite`} />
+      <Box 
+        w="220px" 
+        h="70px" 
+        position="relative"
+        sx={{
+          animation: `${fade} 1.6s ease-in-out infinite`
+        }}
+      >
+        <Image 
+          src="/Boiboi (Palatinate blue).png" 
+          alt="Boiboi" 
+          fill
+          priority
+          style={{ objectFit: "contain" }}
+        />
+      </Box>
     </Box>
   );
 }

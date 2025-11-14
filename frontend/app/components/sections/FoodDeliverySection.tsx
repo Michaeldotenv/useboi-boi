@@ -28,7 +28,11 @@ export default function FoodDeliverySection() {
         delayChildren: 0.2,
       },
     },
+<<<<<<< HEAD
   }
+=======
+  };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const itemVariants = {
     hidden: { opacity: 0, x: -30, scale: 0.95 },
@@ -42,7 +46,11 @@ export default function FoodDeliverySection() {
         stiffness: 100,
       },
     },
+<<<<<<< HEAD
   }
+=======
+  };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.9, rotateY: -15 },
@@ -55,7 +63,11 @@ export default function FoodDeliverySection() {
         ease: "easeOut",
       },
     },
+<<<<<<< HEAD
   }
+=======
+  };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const features = [
     {
@@ -82,16 +94,93 @@ export default function FoodDeliverySection() {
       color: "blue.600",
       gradient: "linear(to-br, blue.400, blue.600)",
     },
+<<<<<<< HEAD
   ]
+=======
+  ];
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   return (
     <Box
       ref={containerRef}
       py={{ base: 20, md: 28 }}
+<<<<<<< HEAD
       bgGradient="linear(to-br, #faf5ff, #f3e8ff, #fae8ff)"
       position="relative"
       overflow="hidden"
     >
+=======
+      bg="white"
+      position="relative"
+      overflow="hidden"
+    >
+      {/* Animated Background Elements */}
+      <MotionBox
+        position="absolute"
+        top="5%"
+        left="-10%"
+        w={{ base: "300px", md: "500px" }}
+        h={{ base: "300px", md: "500px" }}
+        bgGradient="radial(purple.300, transparent)"
+        filter="blur(80px)"
+        opacity={0.5}
+        animate={{
+          scale: [1, 1.3, 1],
+          x: [0, 50, 0],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <MotionBox
+        position="absolute"
+        bottom="10%"
+        right="-10%"
+        w={{ base: "350px", md: "600px" }}
+        h={{ base: "350px", md: "600px" }}
+        bgGradient="radial(fuchsia.300, transparent)"
+        filter="blur(90px)"
+        opacity={0.4}
+        animate={{
+          scale: [1, 1.4, 1],
+          x: [0, -50, 0],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      {/* Floating Dots Pattern */}
+      {[...Array(15)].map((_, i) => (
+        <MotionBox
+          key={i}
+          position="absolute"
+          w="6px"
+          h="6px"
+          bg="purple.300"
+          borderRadius="full"
+          top={`${Math.random() * 100}%`}
+          left={`${Math.random() * 100}%`}
+          opacity={0.3}
+          animate={{
+            y: [0, -20, 0],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: Math.random() * 2,
+          }}
+        />
+      ))}
+
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
       <Container maxW="container.xl" px={{ base: 4, md: 6 }} position="relative" zIndex={1}>
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 12, lg: 20 }} alignItems="center">
           {/* Image Section */}
@@ -103,6 +192,88 @@ export default function FoodDeliverySection() {
             viewport={{ once: true, margin: "-100px" }}
             variants={imageVariants}
           >
+<<<<<<< HEAD
+=======
+            {/* Decorative Background Elements */}
+            <MotionBox
+              position="absolute"
+              top="-6%"
+              left="-6%"
+              right="6%"
+              bottom="6%"
+              bgGradient="linear(to-br, purple.100, pink.100)"
+              borderRadius="3xl"
+              transform="rotate(-6deg)"
+              zIndex={0}
+              animate={{
+                rotate: [-6, -8, -6],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+
+            <MotionBox
+              position="absolute"
+              top="-3%"
+              left="-3%"
+              right="3%"
+              bottom="3%"
+              bg="white"
+              borderRadius="3xl"
+              transform="rotate(-3deg)"
+              zIndex={0}
+              animate={{
+                rotate: [-3, -5, -3],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+
+            {/* Main Image */}
+            <MotionBox
+              position="relative"
+              zIndex={1}
+              borderRadius="2xl"
+              overflow="hidden"
+              border="1px solid"
+              borderColor="gray.200"
+              animate={{
+                y: [0, -15, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <Image
+                src="/trackorder.jpg"
+                alt="Food delivery tracking"
+                width="100%"
+                height="auto"
+                borderRadius="xl"
+              />
+
+              {/* Overlay gradient for better contrast */}
+              <Box
+                position="absolute"
+                bottom={0}
+                left={0}
+                right={0}
+                h="40%"
+                bgGradient="linear(to-t, blackAlpha.600, transparent)"
+                pointerEvents="none"
+              />
+            </MotionBox>
+
+            {/* Floating Stats Badges */}
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             <MotionBox
               position="absolute"
               top={{ base: "5%", md: "8%" }}
@@ -111,9 +282,14 @@ export default function FoodDeliverySection() {
               px={4}
               py={3}
               borderRadius="xl"
+<<<<<<< HEAD
               boxShadow="0 12px 40px rgba(124, 58, 237, 0.2)"
               border="2px solid"
               borderColor="purple.100"
+=======
+              border="1px solid"
+              borderColor="orange.200"
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               zIndex={2}
               animate={{
                 y: [0, -10, 0],
@@ -121,7 +297,11 @@ export default function FoodDeliverySection() {
               }}
               transition={{
                 duration: 4,
+<<<<<<< HEAD
                 repeat: Number.POSITIVE_INFINITY,
+=======
+                repeat: Infinity,
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 ease: "easeInOut",
               }}
             >
@@ -134,7 +314,10 @@ export default function FoodDeliverySection() {
                   display="grid"
                   placeItems="center"
                   color="white"
+<<<<<<< HEAD
                   boxShadow="0 4px 12px rgba(245, 158, 11, 0.3)"
+=======
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 >
                   <Icon as={FaFire} />
                 </Box>
@@ -157,9 +340,14 @@ export default function FoodDeliverySection() {
               px={4}
               py={3}
               borderRadius="xl"
+<<<<<<< HEAD
               boxShadow="0 12px 40px rgba(124, 58, 237, 0.2)"
               border="2px solid"
               borderColor="purple.100"
+=======
+              border="1px solid"
+              borderColor="purple.200"
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               zIndex={2}
               animate={{
                 y: [0, 10, 0],
@@ -167,7 +355,11 @@ export default function FoodDeliverySection() {
               }}
               transition={{
                 duration: 4.5,
+<<<<<<< HEAD
                 repeat: Number.POSITIVE_INFINITY,
+=======
+                repeat: Infinity,
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 ease: "easeInOut",
               }}
             >
@@ -180,7 +372,10 @@ export default function FoodDeliverySection() {
                   display="grid"
                   placeItems="center"
                   color="white"
+<<<<<<< HEAD
                   boxShadow="0 4px 12px rgba(124, 58, 237, 0.3)"
+=======
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 >
                   <Icon as={FaStar} />
                 </Box>
@@ -217,14 +412,23 @@ export default function FoodDeliverySection() {
                   fontSize="sm"
                   border="1px solid"
                   borderColor="purple.200"
+<<<<<<< HEAD
                   boxShadow="0 4px 14px rgba(124, 58, 237, 0.1)"
                 >
+=======
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                >
+                  <Icon as={FaUtensils} />
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   Food Delivery
                 </Badge>
               </MotionBox>
 
               {/* Heading */}
               <MotionBox variants={itemVariants}>
+<<<<<<< HEAD
                 <Text
                   fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
                   fontWeight="800"
@@ -236,6 +440,26 @@ export default function FoodDeliverySection() {
                     instantly
                   </Box>
                 </Text>
+=======
+                <HStack spacing={3} align="center" flexWrap="wrap">
+                  <Text
+                    fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
+                    fontWeight="800"
+                    color="gray.900"
+                    lineHeight="1.1"
+                  >
+                    Discover, order & track{" "}
+                    <Box
+                      as="span"
+                      bgGradient="linear(to-r, purple.600, fuchsia.500)"
+                      bgClip="text"
+                    >
+                      instantly
+                    </Box>
+                  </Text>
+                  <Icon as={FaRocket} color="purple.500" boxSize={{ base: 6, md: 8 }} />
+                </HStack>
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               </MotionBox>
 
               {/* Feature Cards */}
@@ -244,6 +468,7 @@ export default function FoodDeliverySection() {
                   <MotionBox key={i} variants={itemVariants}>
                     <MotionBox
                       p={5}
+<<<<<<< HEAD
                       bg="white"
                       borderRadius="2xl"
                       border="1px solid"
@@ -254,6 +479,15 @@ export default function FoodDeliverySection() {
                         boxShadow: "0 12px 40px rgba(124, 58, 237, 0.15)",
                         borderColor: "purple.200",
                         y: -4,
+=======
+                      bg="gray.50"
+                      borderRadius="2xl"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      whileHover={{
+                        scale: 1.02,
+                        borderColor: "purple.300",
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                       }}
                       transition={{ duration: 0.3 }}
                       cursor="pointer"
@@ -264,6 +498,7 @@ export default function FoodDeliverySection() {
                           bg={feature.bg}
                           borderRadius="xl"
                           color={feature.color}
+<<<<<<< HEAD
                           boxShadow="0 4px 12px rgba(124, 58, 237, 0.1)"
                           whileHover={{ rotate: 360, scale: 1.1 }}
                           transition={{ duration: 0.6 }}
@@ -271,6 +506,10 @@ export default function FoodDeliverySection() {
                           display="flex"
                           alignItems="center"
                           justifyContent="center"
+=======
+                          whileHover={{ rotate: 360 }}
+                          transition={{ duration: 0.6 }}
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                         >
                           <Icon as={feature.icon} w={5} h={5} />
                         </MotionBox>
@@ -288,6 +527,7 @@ export default function FoodDeliverySection() {
                 ))}
               </VStack>
 
+<<<<<<< HEAD
               {/* CTA Button */}
               <MotionBox variants={itemVariants} w={{ base: "full", sm: "auto" }}>
                 <MotionButton
@@ -314,10 +554,18 @@ export default function FoodDeliverySection() {
                   Order food online
                 </MotionButton>
               </MotionBox>
+=======
+
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             </VStack>
           </MotionBox>
         </SimpleGrid>
       </Container>
     </Box>
+<<<<<<< HEAD
   )
 }
+=======
+  );
+}
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5

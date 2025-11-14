@@ -11,6 +11,12 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { GoHeart } from "react-icons/go";
 
+const CartTab: React.FC = () => {
+  const router = useRouter();
+  const toast = useToast();
+  const { items, increment, decrement, removeItem, clearCart } = useCartStore();
+  const total = useCartStore((s) => s.subtotal());
+  const cartVendorId = useCartStore((s) => s.vendorId);
 
 const CartWithBadge = () => {
   const router =  useRouter();
@@ -40,25 +46,250 @@ const CartWithBadge = () => {
      price: `₦${(item.price || 0).toLocaleString()}`
    }));
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  
-    const carouselRef = useRef<HTMLDivElement>(null);
-    let touchStartX = 0;
-  
-    const handleTouchStart = (e: React.TouchEvent) => {
-      touchStartX = e.touches[0].clientX;
-    };
-  
-    const handleTouchMove = (e: React.TouchEvent) => {
-      const touchEndX = e.touches[0].clientX;
-      const diff = touchStartX - touchEndX;
-      
-      if (diff > 50) {
-        setActiveIndex((prev) => (prev + 1) % cards.length);
-      } else if (diff < -50) {
-        setActiveIndex((prev) => (prev - 1 + cards.length) % cards.length);
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
+
+  const { data: meData } = useQuery({ queryKey: ["me"], queryFn: api.me });
+  const meObj = ((meData as any)?.data || meData || {}) as any;
+
+  // Auto-select default card when switching to card payment
+  useEffect(() => {
+    if (checkoutType === 'card' && meObj.cards && meObj.cards.length > 0 && !selectedCardId) {
+      // Find default card or use first card
+      const defaultCard = meObj.cards.find((card: any) => card.isSelected);
+      if (defaultCard) {
+        setSelectedCardId(defaultCard.id);
+      } else {
+        setSelectedCardId(meObj.cards[0].id);
       }
-    };
+    } else if (checkoutType === 'wallet') {
+      // Clear card selection when switching to wallet
+      setSelectedCardId(null);
+    }
+  }, [checkoutType, meObj.cards, selectedCardId]);
+
+  const deliveryFee = 500; // Fixed delivery fee
+  const serviceCharge = Math.round(total * 0.05); // 5% service charge
+  const vat = Math.round((total + deliveryFee + serviceCharge) * 0.075); // 7.5% VAT
+  const couponDiscount = selectedCoupon ? (selectedCoupon.type === 'percent' ? Math.round(total * selectedCoupon.discount / 100) : selectedCoupon.discount) : 0;
+  const grandTotal = total + deliveryFee + serviceCharge + vat - couponDiscount;
+
+  // Generate 4-digit order completion code
+  const generateOrderCode = (): number => {
+    return Math.floor(1000 + Math.random() * 9000); // Generates a number between 1000-9999
+  };
+
+  const handleCheckout = async () => {
+    if (!items.length) return;
+    setIsCheckingOut(true);
+    
+    try {
+      // Ensure cart is synced with backend before checkout
+      let cartStore = useCartStore.getState();
+      
+      // Always sync with backend before checkout to ensure cart exists
+      // This handles cases where cartId might be missing or stale
+      if (!cartStore.cartId || !cartStore.vendorId || cartStore.items.length === 0) {
+        // Ensure we have vendorId before syncing
+        if (!cartStore.vendorId) {
+          throw new Error("Vendor ID is missing. Please add items to your cart.");
+        }
+        
+        // Sync with backend to create/update cart
+        await cartStore.syncWithBackend();
+        
+        // Wait a bit for state to update, then check again
+        await new Promise(resolve => setTimeout(resolve, 100));
+        cartStore = useCartStore.getState();
+      } else {
+        // Even if cartId exists, sync to ensure all items are up to date
+        await cartStore.syncWithBackend();
+        await new Promise(resolve => setTimeout(resolve, 100));
+        cartStore = useCartStore.getState();
+      }
+      
+      // Final validation - ensure we have a valid cartId
+      const finalCartId = cartStore.cartId;
+      if (!finalCartId || finalCartId.trim() === '') {
+        throw new Error("Cart ID is missing. Please refresh the page and try again.");
+      }
+
+      // Ensure we have a valid vendorId/storeId
+      if (!cartVendorId || cartVendorId.trim() === '') {
+        throw new Error("Store ID is missing. Please refresh the page and try again.");
+      }
+
+      // Determine cardId for card payments
+      let cardIdForCheckout: number | null = null;
+      if (checkoutType === 'card') {
+        // Use selected card ID, or find default, or use first card
+        if (selectedCardId) {
+          cardIdForCheckout = selectedCardId;
+        } else if (meObj.cards && meObj.cards.length > 0) {
+          const defaultCard = meObj.cards.find((card: any) => card.isSelected);
+          cardIdForCheckout = defaultCard ? defaultCard.id : meObj.cards[0].id;
+        } else {
+          throw new Error("Please select a payment card to continue.");
+        }
+      }
+      
+      // Generate 4-digit order completion code
+      const orderCode = generateOrderCode();
+      
+      const payload: any = {
+        totalPrice: grandTotal,
+        cartId: finalCartId,
+        storeId: cartVendorId,
+        deliveryLocation: deliveryLocation || null,
+        deliveryFee: deliveryFee,
+        serviceCharge: serviceCharge,
+        couponPrice: couponDiscount > 0 ? couponDiscount : null,
+        checkoutType: checkoutType,
+        deliveryInstructions: deliveryInstructions || null,
+        code: orderCode, // 4-digit code for rider to complete order
+        isErrand: false,
+      };
+
+      // Include cardId only if checkout type is card
+      if (checkoutType === 'card' && cardIdForCheckout) {
+        payload.cardId = cardIdForCheckout;
+      }
+      
+      const res: any = await api.checkout(payload);
+      const createdOrder = (res?.data || res) as any;
+
+      clearCart();
+      // Only display code if it comes back from backend
+      const backendCode = createdOrder?.code;
+      toast({ 
+        title: "Order placed successfully!", 
+        description: backendCode ? `Give this code to your rider: ${String(backendCode)}` : "Your order has been confirmed and is being processed.",
+        status: "success",
+        duration: 7000,
+        isClosable: true
+      });
+      // Navigate to orders tab
+      window.location.reload(); // This will trigger navigation context to switch to orders
+    } catch (e: any) {
+      console.error("Checkout failed:", e);
+      toast({ 
+        title: "Checkout failed", 
+        description: e.message || "Please try again or contact support.",
+        status: "error",
+        duration: 5000,
+        isClosable: true
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  // Show loading state during hydration
+  if (!isHydrated) {
+    return (
+      <Box 
+        minH="100vh" 
+        bg="gray.50"
+        pb="calc(env(safe-area-inset-bottom, 0px) + 80px)"
+      >
+        {/* Header */}
+        <Box bg="white" borderBottom="1px solid" borderColor="gray.200" px={4} py={4}>
+          <HStack justify="space-between" align="center">
+            <HStack spacing={3}>
+              <Text fontSize="20px" fontWeight="700" color="gray.900">
+                Cart
+              </Text>
+            </HStack>
+            <Text fontSize="14px" color="gray.500">
+              Loading...
+            </Text>
+          </HStack>
+        </Box>
+
+        <Box px={4} py={8} height="calc(100vh - 120px)" display="flex" alignItems="center" justifyContent="center">
+          <VStack spacing={4}>
+            <Box
+              w="40px"
+              h="40px"
+              border="4px solid"
+              borderColor="gray.200"
+              borderTopColor="gray.600"
+              borderRadius="50%"
+              animation="spin 1s linear infinite"
+            />
+            <Text fontSize="14px" color="gray.500">
+              Loading cart...
+            </Text>
+          </VStack>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Show empty state if no items
+  if (items.length === 0) {
+    return (
+      <Box 
+        minH="100vh" 
+        bg="gray.50"
+        pb="calc(env(safe-area-inset-bottom, 0px) + 80px)"
+      >
+        {/* Header */}
+        <Box bg="white" borderBottom="1px solid" borderColor="gray.200" px={4} py={4}>
+          <HStack justify="space-between" align="center">
+            <HStack spacing={3}>
+              <Text fontSize="20px" fontWeight="700" color="gray.900">
+                Cart
+              </Text>
+            </HStack>
+            <Text fontSize="14px" color="gray.500">
+              0 items
+            </Text>
+          </HStack>
+        </Box>
+
+        <Box px={4} py={8} height="calc(100vh - 120px)" display="flex" alignItems="center" justifyContent="center">
+          <VStack spacing={6} textAlign="center" maxW="300px">
+            <Box
+              w="120px"
+              h="120px"
+              bg="gray.100"
+              borderRadius="full"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <FaShoppingCart color="#9CA3AF" size="48px" />
+            </Box>
+            
+            <VStack spacing={3}>
+              <Text fontSize="20px" fontWeight="600" color="gray.900">
+                Your cart is empty
+              </Text>
+              <Text fontSize="14px" color="gray.500" lineHeight={1.5}>
+                Add some items from stores to get started with your order!
+              </Text>
+            </VStack>
+            
+            <Button
+              bg="gray.900"
+              color="white"
+              _hover={{ bg: "gray.800" }}
+              borderRadius="12px"
+              px={8}
+              py={6}
+              height="48px"
+              fontSize="16px"
+              fontWeight="600"
+              onClick={() => window.location.reload()}
+            >
+              Start Shopping
+            </Button>
+          </VStack>
+        </Box>
+      </Box>
+    );
+  }
 
   const [checkoutType, setCheckoutType] = useState<'wallet' | 'card'>('wallet');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -557,12 +788,61 @@ const CartWithBadge = () => {
          )}
       </Box>
 
-      <Box mt={"3em"} mb={"1em"}>
-         <Text fontSize="18px" fontWeight="700" mb={2} lineHeight={"24px"} letterSpacing={"0.75px"}>Coupon</Text>
-         <InputGroup>
-         <Input placeholder="GREELOGIX" borderRadius={"16px"} border={"2px solid rgba(242, 242, 247, 1)"} height={"54px"} mt={".5em"}/>
-         <InputRightElement>{<ArrowForwardIcon width={"22px"} height={"22px"} mt={"1.5em"} mr={"2em"}/>}</InputRightElement>
-         </InputGroup>
+      {/* Fixed Bottom Payment Button */}
+      <Box
+        position="fixed"
+        bottom={"calc(env(safe-area-inset-bottom, 0px) + 72px)"}
+        left={0}
+        right={0}
+        bg="white"
+        borderTop="1px solid"
+        borderColor="gray.200"
+        px={4}
+        py={4}
+        zIndex={100}
+      >
+        <Button
+          width="100%"
+          height="52px"
+          bg="gray.900"
+          color="white"
+          fontSize="16px"
+          fontWeight="600"
+          borderRadius="12px"
+          onClick={handleCheckout}
+          isLoading={isCheckingOut}
+          loadingText="Processing..."
+          disabled={
+            !items.length || 
+            !deliveryLocation.trim() || 
+            (checkoutType === 'wallet' && (meObj.virtualBankAccount?.balance || 0) < grandTotal) ||
+            (checkoutType === 'card' && (!meObj.cards || meObj.cards.length === 0 || !selectedCardId))
+          }
+          _hover={{
+            bg: "gray.800",
+          }}
+          _disabled={{
+            bg: "gray.300",
+            color: "gray.500",
+            cursor: "not-allowed"
+          }}
+          transition="all 0.2s ease"
+        >
+          {isCheckingOut ? "Processing..." : `Make a payment • ₦${grandTotal.toLocaleString()}`}
+        </Button>
+        
+        {(!deliveryLocation.trim() || 
+          (checkoutType === 'wallet' && (meObj.virtualBankAccount?.balance || 0) < grandTotal) ||
+          (checkoutType === 'card' && (!meObj.cards || meObj.cards.length === 0 || !selectedCardId))
+        ) && (
+          <Text fontSize="12px" color="red.500" textAlign="center" mt={2}>
+            {!deliveryLocation.trim() ? "Please enter delivery location to continue" :
+             checkoutType === 'wallet' && (meObj.virtualBankAccount?.balance || 0) < grandTotal ? "Insufficient wallet balance for this order" :
+             checkoutType === 'card' && (!meObj.cards || meObj.cards.length === 0) ? "Please add a payment card first" :
+             checkoutType === 'card' && !selectedCardId ? "Please select a payment card" :
+             ""}
+          </Text>
+        )}
       </Box>
 
       <Flex justifyContent={"space-between"} width={"100%"} mx={"auto"} mt={"2em"}>
@@ -621,4 +901,4 @@ const CartWithBadge = () => {
   );
 };
 
-export default CartWithBadge;
+export default CartTab;
