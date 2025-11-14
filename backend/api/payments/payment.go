@@ -388,25 +388,50 @@ func RefreshVirtualBankAccount(ctx *gin.Context, db *mongo.Database) {
 		return
 	}
 
-	// Fetch latest account info from Paystack
+	slog.Info("RefreshVirtualBankAccount", "userId", user.ID, "email", user.Email, "hasAccount", user.VirtualBankAccount != nil)
+
+	// Check if user already has account in DB
+	if user.VirtualBankAccount != nil && user.VirtualBankAccount.AccountNumber != "" {
+		slog.Info("RefreshVirtualBankAccount", "message", "account already exists in DB", "accountNumber", user.VirtualBankAccount.AccountNumber)
+		ctx.JSON(http.StatusOK, user.VirtualBankAccount)
+		return
+	}
+
+	// Try to fetch from Paystack first
+	slog.Info("RefreshVirtualBankAccount", "message", "fetching from Paystack")
 	virtualAccount, err := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
 	if err != nil {
-		// If account doesn't exist, try to create it
+		slog.Error("RefreshVirtualBankAccount", "fetchError", err.Error())
+		
+		// Account doesn't exist on Paystack, create it
+		slog.Info("RefreshVirtualBankAccount", "message", "creating new account on Paystack")
 		createErr := CreateDedicatedVirtualAccount(ctx, &user)
 		if createErr != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create/fetch virtual account: " + err.Error()})
+			slog.Error("RefreshVirtualBankAccount", "createError", createErr.Error())
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to create virtual account on Paystack",
+				"details": createErr.Error(),
+			})
 			return
 		}
 
-		// Wait and try again
-		time.Sleep(3 * time.Second)
+		// Wait longer for Paystack to process
+		slog.Info("RefreshVirtualBankAccount", "message", "waiting 5 seconds for Paystack processing")
+		time.Sleep(5 * time.Second)
+		
+		// Try to fetch again
 		virtualAccount, err = GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch virtual account after creation"})
+			slog.Error("RefreshVirtualBankAccount", "secondFetchError", err.Error())
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Account created but not yet available. Please refresh in a few seconds.",
+				"details": err.Error(),
+			})
 			return
 		}
 	}
 
+	slog.Info("RefreshVirtualBankAccount", "success", "account fetched", "accountNumber", virtualAccount.AccountNumber)
 	ctx.JSON(http.StatusOK, virtualAccount)
 }
 

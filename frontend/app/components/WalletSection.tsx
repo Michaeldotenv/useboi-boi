@@ -36,6 +36,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
   const [topupAmount, setTopupAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const toast = useToast();
 
   const walletBalance = user?.virtualBankAccount?.balance || 0;
@@ -59,12 +60,26 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
     const refreshWalletAccount = async () => {
       if (!accountNumber || accountNumber === 'Not available') {
         try {
-          await api.refreshWallet();
-          if (onBalanceUpdate) {
-            onBalanceUpdate();
-          }
-        } catch (error) {
+          console.log('Attempting to refresh wallet account...');
+          const result = await api.refreshWallet();
+          console.log('Wallet refresh result:', result);
+          
+          // Wait a bit then trigger parent refetch
+          setTimeout(() => {
+            if (onBalanceUpdate) {
+              onBalanceUpdate();
+            }
+          }, 1000);
+        } catch (error: any) {
           console.error('Failed to refresh wallet:', error);
+          
+          // If it says account is being created, retry after delay
+          if (error.message?.includes('not yet available')) {
+            console.log('Account being created, will retry in 5 seconds...');
+            setTimeout(() => {
+              refreshWalletAccount();
+            }, 5000);
+          }
         }
       }
     };
@@ -81,6 +96,38 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
       duration: 2000,
       isClosable: true,
     });
+  };
+
+  const handleCreateAccount = async () => {
+    setIsCreatingAccount(true);
+    try {
+      await api.createBankAccount();
+      toast({
+        title: "Account created!",
+        description: "Your virtual account is being set up. Please wait...",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      
+      // Wait and refresh
+      setTimeout(() => {
+        if (onBalanceUpdate) {
+          onBalanceUpdate();
+        }
+        setIsCreatingAccount(false);
+      }, 5000);
+    } catch (error: any) {
+      console.error('Create account error:', error);
+      toast({
+        title: "Failed to create account",
+        description: error.message || "Please try again later",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsCreatingAccount(false);
+    }
   };
 
   const handleTopup = async () => {
@@ -260,16 +307,31 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
               <HStack spacing={1.5}>
                 <Text fontSize="xs" fontWeight="600">Paystack Titan</Text>
               </HStack>
-              <HStack spacing={1.5}>
-                <Text fontSize="xs">Account: {accountNumber}</Text>
-                <Icon
-                  as={FiCopy}
-                  boxSize={3}
-                  cursor="pointer"
-                  onClick={handleCopyAccount}
-                  _hover={{ opacity: 1 }}
-                />
-              </HStack>
+              {accountNumber && accountNumber !== 'Not available' ? (
+                <HStack spacing={1.5}>
+                  <Text fontSize="xs">Account: {accountNumber}</Text>
+                  <Icon
+                    as={FiCopy}
+                    boxSize={3}
+                    cursor="pointer"
+                    onClick={handleCopyAccount}
+                    _hover={{ opacity: 1 }}
+                  />
+                </HStack>
+              ) : (
+                <Button
+                  size="xs"
+                  bg="whiteAlpha.300"
+                  color="white"
+                  onClick={handleCreateAccount}
+                  isLoading={isCreatingAccount}
+                  loadingText="Creating..."
+                  _hover={{ bg: "whiteAlpha.400" }}
+                  mt={1}
+                >
+                  Create Virtual Account
+                </Button>
+              )}
             </VStack>
           </Box>
 
@@ -284,6 +346,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
               fontWeight="600"
               _hover={{ bg: "whiteAlpha.900" }}
               onClick={onTopupOpen}
+              isDisabled={!accountNumber || accountNumber === 'Not available'}
             >
               Add Money
             </Button>
