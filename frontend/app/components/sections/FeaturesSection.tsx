@@ -1,21 +1,13 @@
-"use client";
+"use client"
 
-import React from "react";
-import {
-  Box,
-  Container,
-  VStack,
-  SimpleGrid,
-  HStack,
-  Text,
-  Badge,
-  Image,
-  Icon,
-} from "@chakra-ui/react";
-import { FaRocket, FaClock, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
-import { motion } from "framer-motion";
+import type React from "react"
+import { Box, Container, VStack, SimpleGrid, HStack, Text, Badge, Icon } from "@chakra-ui/react"
+import { FaRocket, FaClock, FaShieldAlt, FaCheckCircle } from "react-icons/fa"
+import { motion } from "framer-motion"
 
-// Enhanced Card Component with glassmorphism
+const MotionBox = motion(Box)
+const MotionVStack = motion(VStack)
+
 const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest }) => (
   <Box
     bg="white"
@@ -51,11 +43,7 @@ const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest })
   >
     {children}
   </Box>
-);
-
-// Framer motion components
-const MotionBox = motion(Box);
-const MotionVStack = motion(VStack);
+)
 
 export default function FeaturesSection() {
   const containerVariants = {
@@ -67,7 +55,7 @@ export default function FeaturesSection() {
         delayChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -81,7 +69,7 @@ export default function FeaturesSection() {
         stiffness: 100,
       },
     },
-  };
+  }
 
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.9, rotateY: -15 },
@@ -94,22 +82,23 @@ export default function FeaturesSection() {
         ease: "easeOut",
       },
     },
-  };
+  }
 
   const floatingAnimation = {
     y: [0, -10, 0],
     transition: {
       duration: 3,
-      repeat: Infinity,
+      repeat: Number.POSITIVE_INFINITY,
       ease: "easeInOut",
     },
-  };
+  }
 
   const features = [
     {
       icon: FaRocket,
       title: "Send Us!",
-      description: "Whether it's picking groceries, dropping packages, or running last-minute tasks — we handle it carefully and quickly.",
+      description:
+        "Whether it's picking groceries, dropping packages, or running last-minute tasks — we handle it carefully and quickly.",
       gradient: "linear(to-br, purple.50, purple.100)",
       color: "purple.600",
     },
@@ -123,11 +112,12 @@ export default function FeaturesSection() {
     {
       icon: FaShieldAlt,
       title: "Reliable & Stress-free",
-      description: "Schedule it once and relax — real-time tracking and verified couriers make every errand worry-free.",
+      description:
+        "Schedule it once and relax — real-time tracking and verified couriers make every errand worry-free.",
       gradient: "linear(to-br, fuchsia.50, purple.100)",
       color: "purple.600",
     },
-  ];
+  ]
 
   return (
     <Box
@@ -136,49 +126,6 @@ export default function FeaturesSection() {
       overflow="hidden"
       py={{ base: 16, md: 24 }}
     >
-      {/* Animated Background Shapes */}
-      <MotionBox
-        position="absolute"
-        top="10%"
-        right="-5%"
-        w="400px"
-        h="400px"
-        borderRadius="full"
-        bgGradient="radial(purple.200, transparent)"
-        opacity={0.3}
-        filter="blur(60px)"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.2, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      
-      <MotionBox
-        position="absolute"
-        bottom="20%"
-        left="-10%"
-        w="500px"
-        h="500px"
-        borderRadius="full"
-        bgGradient="radial(fuchsia.200, transparent)"
-        opacity={0.2}
-        filter="blur(70px)"
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.2, 0.15, 0.2],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
       <Container maxW="container.xl" px={{ base: 4, md: 6 }} position="relative" zIndex={1}>
         <MotionVStack
           spacing={{ base: 12, md: 20 }}
@@ -188,20 +135,14 @@ export default function FeaturesSection() {
           variants={containerVariants}
         >
           {/* Header Section */}
-          <MotionVStack
-            spacing={{ base: 4, md: 5 }}
-            textAlign="center"
-            variants={itemVariants}
-            maxW="3xl"
-            mx="auto"
-          >
+          <MotionVStack spacing={{ base: 4, md: 5 }} textAlign="center" variants={itemVariants} maxW="3xl" mx="auto">
             <MotionBox
               animate={{
                 scale: [1, 1.05, 1],
               }}
               transition={{
                 duration: 2,
-                repeat: Infinity,
+                repeat: Number.POSITIVE_INFINITY,
                 ease: "easeInOut",
               }}
             >
@@ -217,7 +158,7 @@ export default function FeaturesSection() {
                 fontWeight="600"
                 boxShadow="0 4px 14px rgba(124, 58, 237, 0.15)"
               >
-                ✨ Our Services
+                Our Services
               </Badge>
             </MotionBox>
 
@@ -229,12 +170,7 @@ export default function FeaturesSection() {
               px={{ base: 4, md: 0 }}
             >
               Errands?{" "}
-              <Box
-                as="span"
-                bgGradient="linear(to-r, purple.600, fuchsia.500)"
-                bgClip="text"
-                display="inline-block"
-              >
+              <Box as="span" bgGradient="linear(to-r, purple.600, fuchsia.500)" bgClip="text" display="inline-block">
                 We've got it handled!
               </Box>
             </Text>
@@ -246,18 +182,13 @@ export default function FeaturesSection() {
               maxW="2xl"
               px={{ base: 4, md: 0 }}
             >
-              From groceries to packages, we handle all your delivery needs with a reliable,
-              punctual, and friendly courier network — designed for busy lives.
+              From groceries to packages, we handle all your delivery needs with a reliable, punctual, and friendly
+              courier network — designed for busy lives.
             </Text>
           </MotionVStack>
 
           {/* Main Content Grid */}
-          <SimpleGrid
-            columns={{ base: 1, lg: 2 }}
-            spacing={{ base: 12, lg: 20 }}
-            alignItems="center"
-            w="full"
-          >
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 12, lg: 20 }} alignItems="center" w="full">
             {/* Left: Feature Cards */}
             <MotionVStack
               spacing={{ base: 5, md: 6 }}
@@ -284,18 +215,10 @@ export default function FeaturesSection() {
                       </MotionBox>
 
                       <VStack spacing={2} align="start" flex={1}>
-                        <Text
-                          fontSize={{ base: "lg", md: "xl" }}
-                          fontWeight="700"
-                          color="gray.900"
-                        >
+                        <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="700" color="gray.900">
                           {feature.title}
                         </Text>
-                        <Text
-                          color="gray.600"
-                          lineHeight="tall"
-                          fontSize={{ base: "sm", md: "md" }}
-                        >
+                        <Text color="gray.600" lineHeight="tall" fontSize={{ base: "sm", md: "md" }}>
                           {feature.description}
                         </Text>
                       </VStack>
@@ -315,70 +238,6 @@ export default function FeaturesSection() {
               variants={imageVariants}
               h={{ base: "400px", md: "500px", lg: "600px" }}
             >
-              {/* Animated Glow Background */}
-              <MotionBox
-                position="absolute"
-                w={{ base: "300px", md: "450px" }}
-                h={{ base: "300px", md: "450px" }}
-                bgGradient="radial(purple.300, purple.100, transparent)"
-                borderRadius="full"
-                filter="blur(50px)"
-                opacity={0.4}
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 180, 360],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                zIndex={0}
-              />
-
-              {/* Decorative Card Behind */}
-              <MotionBox
-                position="absolute"
-                w={{ base: "280px", md: "420px", lg: "500px" }}
-                h={{ base: "350px", md: "500px", lg: "580px" }}
-                bg="white"
-                borderRadius="3xl"
-                transform="rotate(4deg)"
-                zIndex={1}
-                boxShadow="0 30px 90px rgba(124, 58, 237, 0.12)"
-                border="2px solid"
-                borderColor="purple.100"
-                animate={{
-                  rotate: [4, 6, 4],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-
-              {/* Main Image */}
-              <MotionBox
-                position="relative"
-                zIndex={2}
-                borderRadius="2xl"
-                overflow="hidden"
-                boxShadow="0 25px 70px rgba(124, 58, 237, 0.2)"
-                maxW={{ base: "260px", md: "380px", lg: "460px" }}
-                border="4px solid white"
-                animate={floatingAnimation}
-              >
-                <Image
-                  src="/senderrand1.jpg"
-                  alt="Errand service"
-                  width="100%"
-                  height="100%"
-                  objectFit="cover"
-                  borderRadius="xl"
-                />
-              </MotionBox>
-
               {/* Floating Stat Badge 1 */}
               <MotionBox
                 position="absolute"
@@ -398,7 +257,7 @@ export default function FeaturesSection() {
                 }}
                 transition={{
                   duration: 4,
-                  repeat: Infinity,
+                  repeat: Number.POSITIVE_INFINITY,
                   ease: "easeInOut",
                 }}
               >
@@ -411,6 +270,7 @@ export default function FeaturesSection() {
                     placeItems="center"
                     bgGradient="linear(to-br, purple.600, fuchsia.500)"
                     color="white"
+                    boxShadow="0 4px 12px rgba(124, 58, 237, 0.3)"
                   >
                     <FaRocket size={20} />
                   </Box>
@@ -444,7 +304,7 @@ export default function FeaturesSection() {
                 }}
                 transition={{
                   duration: 4.5,
-                  repeat: Infinity,
+                  repeat: Number.POSITIVE_INFINITY,
                   ease: "easeInOut",
                 }}
               >
@@ -457,6 +317,7 @@ export default function FeaturesSection() {
                     placeItems="center"
                     bgGradient="linear(to-br, purple.600, fuchsia.500)"
                     color="white"
+                    boxShadow="0 4px 12px rgba(124, 58, 237, 0.3)"
                   >
                     <FaClock size={20} />
                   </Box>
@@ -488,7 +349,7 @@ export default function FeaturesSection() {
                 }}
                 transition={{
                   duration: 3,
-                  repeat: Infinity,
+                  repeat: Number.POSITIVE_INFINITY,
                   ease: "easeInOut",
                 }}
               >
@@ -499,5 +360,5 @@ export default function FeaturesSection() {
         </MotionVStack>
       </Container>
     </Box>
-  );
+  )
 }
