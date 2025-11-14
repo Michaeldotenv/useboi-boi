@@ -327,6 +327,8 @@ func VerifySignup(c *gin.Context, db *mongo.Database) {
 
 	// Do async operations after response is sent
 	go func() {
+		// Wait for Paystack to process the account creation
+		time.Sleep(5 * time.Second)
 		payments.GetUserPayStackAccount(c, db, &newUser.ID, &newUser.Email)
 		utils.SendWelcomeMail(&newUser.Email, &newUser.FirstName)
 	}()

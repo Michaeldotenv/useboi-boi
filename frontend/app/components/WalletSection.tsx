@@ -98,31 +98,33 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
     setIsProcessing(true);
     try {
       const response = await api.initTopup({
-        email: user.email,
-        amount: parseFloat(topupAmount), // Send as naira, backend will convert to kobo
-        callback_url: `${window.location.origin}/user-dashboard/profile`, // Redirect back to profile
+        amount: parseFloat(topupAmount),
+        callback_url: `${window.location.origin}/user-dashboard/profile`,
         metadata: {
-          userId: user.id || user._id,
           type: 'wallet_topup',
         },
       });
 
-      const authUrl = (response as any).data?.authorization_url;
+      // Handle different response structures
+      const authUrl = (response as any).data?.authorization_url || (response as any).authorization_url;
+      
       if (authUrl) {
+        // Close modal before redirect
+        onTopupClose();
         window.location.href = authUrl;
       } else {
-        throw new Error('No authorization URL received');
+        console.error('Response structure:', response);
+        throw new Error('No authorization URL received from payment provider');
       }
     } catch (error: any) {
       console.error('Top-up error:', error);
       toast({
         title: 'Top-up failed',
-        description: error.message || 'Please try again later',
+        description: error.message || 'Unable to initialize payment. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -188,19 +190,43 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
 
   return (
     <>
-      {/* Modern Wallet Card */}
+      {/* 3D Wallet Card */}
       <Box
         bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-        borderRadius="xl"
+        borderRadius="20px"
         p={{ base: 4, md: 6 }}
         color="white"
-        boxShadow="0 10px 30px rgba(102, 126, 234, 0.3)"
+        boxShadow="0 20px 60px rgba(102, 126, 234, 0.4), 0 8px 16px rgba(0, 0, 0, 0.1)"
         position="relative"
         overflow="hidden"
+        transform="perspective(1000px) rotateX(2deg)"
+        transition="all 0.3s ease"
+        _hover={{
+          transform: "perspective(1000px) rotateX(0deg) translateY(-4px)",
+          boxShadow: "0 25px 70px rgba(102, 126, 234, 0.5), 0 10px 20px rgba(0, 0, 0, 0.15)"
+        }}
       >
         {/* Decorative circles */}
         <Box position="absolute" top="-20px" right="-20px" w="100px" h="100px" borderRadius="full" bg="whiteAlpha.200" display={{ base: "none", md: "block" }} />
         <Box position="absolute" bottom="-30px" left="-30px" w="120px" h="120px" borderRadius="full" bg="whiteAlpha.100" display={{ base: "none", md: "block" }} />
+        
+        {/* Shine effect */}
+        <Box
+          position="absolute"
+          top="0"
+          left="-100%"
+          w="50%"
+          h="100%"
+          bg="linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
+          transform="skewX(-20deg)"
+          animation="shine 3s infinite"
+          sx={{
+            '@keyframes shine': {
+              '0%': { left: '-100%' },
+              '100%': { left: '200%' }
+            }
+          }}
+        />
         
         <VStack align="stretch" spacing={3} position="relative" zIndex={1}>
           {/* Header */}
