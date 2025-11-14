@@ -38,6 +38,9 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
   const [isProcessing, setIsProcessing] = useState(false);
   const toast = useToast();
 
+  const walletBalance = user?.virtualBankAccount?.balance || 0;
+  const accountNumber = user?.virtualBankAccount?.account_number || 'Not available';
+
   const { data: transactions, isLoading: transactionsLoading, refetch: refetchTransactions } = useQuery({
     queryKey: ['wallet-transactions'],
     queryFn: api.getWalletTransactions,
@@ -51,8 +54,23 @@ const WalletSection: React.FC<WalletSectionProps> = ({ user, onBalanceUpdate }) 
     }
   }, [transactions, onBalanceUpdate]);
 
-  const walletBalance = user?.virtualBankAccount?.balance || 0;
-  const accountNumber = user?.virtualBankAccount?.account_number || 'Not available';
+  // Auto-refresh wallet if account number is missing
+  React.useEffect(() => {
+    const refreshWalletAccount = async () => {
+      if (!accountNumber || accountNumber === 'Not available') {
+        try {
+          await api.refreshWallet();
+          if (onBalanceUpdate) {
+            onBalanceUpdate();
+          }
+        } catch (error) {
+          console.error('Failed to refresh wallet:', error);
+        }
+      }
+    };
+
+    refreshWalletAccount();
+  }, [accountNumber, onBalanceUpdate]);
 
   const handleCopyAccount = () => {
     navigator.clipboard.writeText(accountNumber);

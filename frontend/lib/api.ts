@@ -98,6 +98,7 @@ export const api = {
   
   // Payment & Wallet
   createBankAccount: () => apiFetch(`/api/createBankAccount`, { method: "POST" }),
+  refreshWallet: () => apiFetch(`/api/wallet/refresh`),
   walletWithdrawals: (body: any) => apiFetch(`/api/wallet/withdrawals`, { method: "POST", body }),
   getWalletTransactions: () => apiFetch(`/api/user/wallet/transactions`),
   getPendingWithdrawals: () => apiFetch(`/api/user/wallet/withdrawalRequests`),

@@ -318,47 +318,96 @@ func GetPaystackAccountForUser(ctx context.Context, db *mongo.Database, userId *
 
 func CreateVirtualBankAccountForUser(ctx *gin.Context, db *mongo.Database) {
 	idFromAuth, exists := ctx.Get("userId")
-	if exists {
-		userId := idFromAuth.(string)
-		userCollection := db.Collection(utils.USER)
-
-		userObjectId, err := primitive.ObjectIDFromHex(userId)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting objectId from userId" + err.Error()})
-			return
-		}
-
-		var user data.User
-		result := userCollection.FindOne(ctx, bson.M{"_id": userObjectId})
-		err = result.Decode(&user)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error decoding user" + err.Error()})
-			return
-		}
-		err = CreateDedicatedVirtualAccount(ctx, &user)
-
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating dedicated virtual account" + err.Error()})
-			return
-		}
-
-		time.Sleep(2 * time.Second)
-
-		virtualAccount, error := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
-
-		if error != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting dedicated virtual account" + error.Error()})
-			return
-		}
-
-		ctx.JSON(http.StatusOK, virtualAccount)
-		return
-
-	} else {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "userId param is empty"})
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "userId param is empty"})
 		slog.Info("msg", "userId doesn't exist", "error")
 		return
 	}
+
+	userId := idFromAuth.(string)
+	userCollection := db.Collection(utils.USER)
+
+	userObjectId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting objectId from userId" + err.Error()})
+		return
+	}
+
+	var user data.User
+	result := userCollection.FindOne(ctx, bson.M{"_id": userObjectId})
+	err = result.Decode(&user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error decoding user" + err.Error()})
+		return
+	}
+
+	// Check if user already has a virtual account
+	if user.VirtualBankAccount != nil && user.VirtualBankAccount.AccountNumber != "" {
+		ctx.JSON(http.StatusOK, user.VirtualBankAccount)
+		return
+	}
+
+	// Create account on Paystack
+	err = CreateDedicatedVirtualAccount(ctx, &user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating dedicated virtual account" + err.Error()})
+		return
+	}
+
+	// Wait for Paystack to process
+	time.Sleep(3 * time.Second)
+
+	// Fetch and store the account
+	virtualAccount, error := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
+	if error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting dedicated virtual account" + error.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, virtualAccount)
+}
+
+func RefreshVirtualBankAccount(ctx *gin.Context, db *mongo.Database) {
+	idFromAuth, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	userId := idFromAuth.(string)
+	userObjectId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	userCollection := db.Collection(utils.USER)
+	var user data.User
+	if err := userCollection.FindOne(ctx, bson.M{"_id": userObjectId}).Decode(&user); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+		return
+	}
+
+	// Fetch latest account info from Paystack
+	virtualAccount, err := GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
+	if err != nil {
+		// If account doesn't exist, try to create it
+		createErr := CreateDedicatedVirtualAccount(ctx, &user)
+		if createErr != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create/fetch virtual account: " + err.Error()})
+			return
+		}
+
+		// Wait and try again
+		time.Sleep(3 * time.Second)
+		virtualAccount, err = GetUserPayStackAccount(ctx, db, &user.ID, &user.Email)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch virtual account after creation"})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, virtualAccount)
 }
 
 type FundAmount struct {

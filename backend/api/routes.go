@@ -241,6 +241,9 @@ func SetupRoutes(r *gin.Engine, db *mongo.Database, fcm *messaging.Client) {
 	mainRoute.POST("/createBankAccount", func(ctx *gin.Context) {
 		payments.CreateVirtualBankAccountForUser(ctx, db)
 	})
+	mainRoute.GET("/wallet/refresh", func(ctx *gin.Context) {
+		payments.RefreshVirtualBankAccount(ctx, db)
+	})
 	mainRoute.POST("/wallet/initializeTransaction", func(ctx *gin.Context) {
 		payments.InitializeTransaction(ctx, db)
 	})
