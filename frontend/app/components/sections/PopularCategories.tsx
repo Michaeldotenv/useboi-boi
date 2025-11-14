@@ -1,25 +1,61 @@
 "use client"
-import { Container, Text, Box, SimpleGrid, VStack, Badge, Icon } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-import { FaArrowRight } from "react-icons/fa";
+import { Container, Text, Box, SimpleGrid, VStack, Badge, Icon } from "@chakra-ui/react"
+import { motion } from "framer-motion"
+import { FaArrowRight } from "react-icons/fa"
 
-const MotionBox = motion(Box);
-const MotionSimpleGrid = motion(SimpleGrid);
+const MotionBox = motion(Box)
+const MotionSimpleGrid = motion(SimpleGrid)
 
 const categoriesData = [
-  { name: 'Foods', image: '/Food.png', color: 'orange.500', emoji: '🍔', gradient: 'linear(to-br, orange.400, orange.600)' },
-  { name: 'Groceries', image: '/Groceries.png', color: 'green.500', emoji: '🛒', gradient: 'linear(to-br, green.400, green.600)' },
-  { name: 'Pharmacy', image: '/pharmacy.png', color: 'blue.500', emoji: '💊', gradient: 'linear(to-br, blue.400, blue.600)' },
-  { name: 'Errands', image: '/senderrand.jpg', color: 'purple.500', emoji: '📦', gradient: 'linear(to-br, purple.400, purple.600)' },
-  { name: 'Electronics', image: '/Electronies.png', color: 'yellow.500', emoji: '📱', gradient: 'linear(to-br, yellow.400, yellow.600)' },
-  { name: 'Fashion', image: '/Fashoin.png', color: 'pink.500', emoji: '👕', gradient: 'linear(to-br, pink.400, pink.600)' },
-  { name: 'Snacks', image: '/snacks.jpeg', color: 'red.500', emoji: '🍿', gradient: 'linear(to-br, red.400, red.600)' },
-  { name: 'More', image: '/image.webp', color: 'gray.500', emoji: '➕', gradient: 'linear(to-br, gray.400, gray.600)' },
-];
+  {
+    name: "Foods",
+    image: "/Food.png",
+    color: "orange.500",
+    emoji: "🍔",
+    gradient: "linear(to-br, orange.400, orange.600)",
+  },
+  {
+    name: "Groceries",
+    image: "/Groceries.png",
+    color: "green.500",
+    emoji: "🛒",
+    gradient: "linear(to-br, green.400, green.600)",
+  },
+  {
+    name: "Pharmacy",
+    image: "/pharmacy.png",
+    color: "blue.500",
+    emoji: "💊",
+    gradient: "linear(to-br, blue.400, blue.600)",
+  },
+  {
+    name: "Errands",
+    image: "/senderrand.jpg",
+    color: "purple.500",
+    emoji: "📦",
+    gradient: "linear(to-br, purple.400, purple.600)",
+  },
+  {
+    name: "Electronics",
+    image: "/Electronies.png",
+    color: "yellow.500",
+    emoji: "📱",
+    gradient: "linear(to-br, yellow.400, yellow.600)",
+  },
+  {
+    name: "Fashion",
+    image: "/Fashoin.png",
+    color: "pink.500",
+    emoji: "👕",
+    gradient: "linear(to-br, pink.400, pink.600)",
+  },
+  { name: "Snacks", image: "/snacks.jpeg", color: "red.500", emoji: "🍿", gradient: "linear(to-br, red.400, red.600)" },
+  { name: "More", image: "/image.webp", color: "gray.500", emoji: "➕", gradient: "linear(to-br, gray.400, gray.600)" },
+]
 
 type Props = {
-  loading: boolean;
-};
+  loading: boolean
+}
 
 export default function PopularCategories({ loading }: Props) {
   const containerVariants = {
@@ -31,7 +67,7 @@ export default function PopularCategories({ loading }: Props) {
         delayChildren: 0.2,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.9 },
@@ -45,16 +81,10 @@ export default function PopularCategories({ loading }: Props) {
         stiffness: 100,
       },
     },
-  };
+  }
 
   return (
-    <Box
-      bg="purple.600"
-      position="relative"
-      overflow="hidden"
-      py={{ base: 16, md: 24 }}
-    >
-      {/* Animated Background Effects */}
+    <Box bg="purple.600" position="relative" overflow="hidden" py={{ base: 16, md: 24 }}>
       <MotionBox
         position="absolute"
         top="-10%"
@@ -63,6 +93,7 @@ export default function PopularCategories({ loading }: Props) {
         h={{ base: "300px", md: "600px" }}
         bgGradient="radial(whiteAlpha.200, transparent)"
         filter="blur(80px)"
+        opacity={0.5}
         animate={{
           scale: [1, 1.3, 1],
           x: [0, 100, 0],
@@ -70,7 +101,7 @@ export default function PopularCategories({ loading }: Props) {
         }}
         transition={{
           duration: 20,
-          repeat: Infinity,
+          repeat: Number.POSITIVE_INFINITY,
           ease: "easeInOut",
         }}
       />
@@ -91,44 +122,10 @@ export default function PopularCategories({ loading }: Props) {
         }}
         transition={{
           duration: 18,
-          repeat: Infinity,
+          repeat: Number.POSITIVE_INFINITY,
           ease: "easeInOut",
         }}
       />
-
-      {/* Grid Pattern Overlay */}
-      <Box
-        position="absolute"
-        inset={0}
-        opacity={0.05}
-        bgImage="radial-gradient(circle, white 1px, transparent 1px)"
-        bgSize="40px 40px"
-      />
-
-      {/* Floating Particles */}
-      {[...Array(20)].map((_, i) => (
-        <MotionBox
-          key={i}
-          position="absolute"
-          w={{ base: "4px", md: "6px" }}
-          h={{ base: "4px", md: "6px" }}
-          bg="whiteAlpha.400"
-          borderRadius="full"
-          top={`${Math.random() * 100}%`}
-          left={`${Math.random() * 100}%`}
-          animate={{
-            y: [0, -30, 0],
-            opacity: [0.2, 0.5, 0.2],
-            scale: [1, 1.5, 1],
-          }}
-          transition={{
-            duration: 4 + Math.random() * 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: Math.random() * 2,
-          }}
-        />
-      ))}
 
       <Container maxW="container.xl" px={{ base: 4, md: 6 }} position="relative" zIndex={1}>
         {/* Header */}
@@ -140,7 +137,7 @@ export default function PopularCategories({ loading }: Props) {
         >
           <VStack spacing={3} mb={{ base: 10, md: 14 }} textAlign="center">
             <Badge
-              bg="whiteAlpha.300"
+              bg="whiteAlpha.3"
               color="white"
               px={5}
               py={2}
@@ -149,15 +146,16 @@ export default function PopularCategories({ loading }: Props) {
               fontSize="sm"
               backdropFilter="blur(10px)"
               border="1px solid"
-              borderColor="whiteAlpha.400"
+              borderColor="whiteAlpha.4"
               textTransform="uppercase"
               letterSpacing="wider"
+              boxShadow="0 4px 14px rgba(0, 0, 0, 0.1)"
             >
-              ✨ Browse Categories
+              Browse Categories
             </Badge>
 
             <Text
-              fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}
+              fontSize={{ base: "3xl", md: "4xl", lg: "5xl" }}
               fontWeight="800"
               color="white"
               lineHeight="1.1"
@@ -166,11 +164,7 @@ export default function PopularCategories({ loading }: Props) {
               What would you like to order?
             </Text>
 
-            <Text
-              fontSize={{ base: 'md', md: 'lg' }}
-              color="purple.100"
-              maxW="2xl"
-            >
+            <Text fontSize={{ base: "md", md: "lg" }} color="purple.100" maxW="2xl">
               Choose from our popular categories and get your favorites delivered fast
             </Text>
           </VStack>
@@ -190,11 +184,11 @@ export default function PopularCategories({ loading }: Props) {
               key={idx}
               variants={itemVariants}
               whileHover={{
-                scale: 1.05,
-                y: -8,
+                scale: 1.08,
+                y: -12,
                 transition: { duration: 0.3 },
               }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.96 }}
             >
               <Box
                 position="relative"
@@ -225,7 +219,7 @@ export default function PopularCategories({ loading }: Props) {
                       bgPosition="center"
                       transition="transform 0.5s ease"
                       _groupHover={{
-                        transform: 'scale(1.1)',
+                        transform: "scale(1.1)",
                       }}
                     />
 
@@ -240,14 +234,7 @@ export default function PopularCategories({ loading }: Props) {
                     />
 
                     {/* Color Accent at Top */}
-                    <Box
-                      position="absolute"
-                      top={0}
-                      left={0}
-                      right={0}
-                      h="4px"
-                      bgGradient={c.gradient}
-                    />
+                    <Box position="absolute" top={0} left={0} right={0} h="4px" bgGradient={c.gradient} />
 
                     {/* Content */}
                     <Box
@@ -262,7 +249,7 @@ export default function PopularCategories({ loading }: Props) {
                       {/* Emoji Badge */}
                       <Box
                         alignSelf="flex-end"
-                        bg="whiteAlpha.200"
+                        bg="whiteAlpha.2"
                         backdropFilter="blur(10px)"
                         w="48px"
                         h="48px"
@@ -271,6 +258,8 @@ export default function PopularCategories({ loading }: Props) {
                         placeItems="center"
                         fontSize="2xl"
                         boxShadow="0 4px 14px rgba(0,0,0,0.2)"
+                        border="1px solid"
+                        borderColor="whiteAlpha.3"
                       >
                         {c.emoji}
                       </Box>
@@ -287,7 +276,7 @@ export default function PopularCategories({ loading }: Props) {
                         </Text>
 
                         <Box
-                          bg="whiteAlpha.300"
+                          bg="whiteAlpha.3"
                           backdropFilter="blur(10px)"
                           w="36px"
                           h="36px"
@@ -296,31 +285,18 @@ export default function PopularCategories({ loading }: Props) {
                           placeItems="center"
                           color="white"
                           transition="all 0.3s ease"
+                          border="1px solid"
+                          borderColor="whiteAlpha.3"
                           _groupHover={{
-                            bg: 'white',
+                            bg: "white",
                             color: c.color,
-                            transform: 'translateX(4px)',
+                            transform: "translateX(4px)",
                           }}
                         >
                           <Icon as={FaArrowRight} />
                         </Box>
                       </VStack>
                     </Box>
-
-                    {/* Hover Glow Effect */}
-                    <MotionBox
-                      position="absolute"
-                      top={0}
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      bgGradient={c.gradient}
-                      opacity={0}
-                      sx={{ transition: 'opacity 0.3s ease' }}
-                      _groupHover={{
-                        opacity: 0.15,
-                      }}
-                    />
                   </>
                 )}
               </Box>
@@ -337,18 +313,15 @@ export default function PopularCategories({ loading }: Props) {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Text
-            fontSize={{ base: 'sm', md: 'md' }}
-            color="purple.100"
-            fontWeight="600"
-          >
+          <Text fontSize={{ base: "sm", md: "md" }} color="purple.100" fontWeight="600">
             Can't find what you're looking for?{" "}
             <Box
               as="span"
               color="white"
               textDecoration="underline"
               cursor="pointer"
-              _hover={{ color: 'purple.200' }}
+              _hover={{ color: "purple.200" }}
+              transition="color 0.3s ease"
             >
               Browse all stores
             </Box>
@@ -356,5 +329,5 @@ export default function PopularCategories({ loading }: Props) {
         </MotionBox>
       </Container>
     </Box>
-  );
+  )
 }

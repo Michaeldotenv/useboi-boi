@@ -4,6 +4,10 @@ import { Box, Flex, VStack, HStack, Text, Link, Divider, Image, SimpleGrid, Stac
 import { RiInstagramFill, RiTiktokFill, RiTwitterXFill } from "react-icons/ri"
 import { FaApple, FaLocationArrow } from "react-icons/fa"
 import { BiLogoPlayStore } from "react-icons/bi"
+import { motion } from "framer-motion"
+
+const MotionBox = motion(Box)
+const MotionLink = motion(Link)
 
 interface FooterProps {
   variant?: "default" | "minimal"
@@ -115,18 +119,19 @@ export default function Footer({ variant = "default" }: FooterProps) {
               w={{ base: "100%", xs: "auto" }}
               align="center"
             >
-              <Link
+              <MotionLink
                 href="https://play.google.com/store"
                 isExternal
-                _hover={{ transform: "translateY(-2px)" }}
-                transition="transform 0.2s ease"
+                _hover={{ textDecoration: "none" }}
                 w={{ base: "100%", xs: "auto" }}
                 maxW={{ base: "280px", xs: "auto" }}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.2 }}
               >
                 <Flex
                   align="center"
                   justify="center"
-                  bg="brand.primary"
+                  bgGradient="linear(to-r, purple.600, fuchsia.500)"
                   color="white"
                   px={{ base: 4, xs: 5, sm: 6 }}
                   py={{ base: 3, sm: 3 }}
@@ -134,25 +139,27 @@ export default function Footer({ variant = "default" }: FooterProps) {
                   fontWeight="600"
                   cursor="pointer"
                   _hover={{
-                    bg: "brand.primaryDark",
-                    boxShadow: "0 4px 12px rgba(82, 52, 229, 0.3)",
+                    bgGradient: "linear(to-r, purple.700, fuchsia.600)",
+                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.3)",
                   }}
                   minH={{ base: "48px", sm: "52px" }}
                   w="full"
+                  transition="all 0.3s ease"
                 >
                   <BiLogoPlayStore fontSize="20px" color="white" />
                   <Text ml={2} color="white" fontSize={{ base: "sm", xs: "md", sm: "md" }}>
                     Play Store
                   </Text>
                 </Flex>
-              </Link>
-              <Link
+              </MotionLink>
+              <MotionLink
                 href="https://apps.apple.com"
                 isExternal
-                _hover={{ transform: "translateY(-2px)" }}
-                transition="transform 0.2s ease"
+                _hover={{ textDecoration: "none" }}
                 w={{ base: "100%", xs: "auto" }}
                 maxW={{ base: "280px", xs: "auto" }}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.2 }}
               >
                 <Flex
                   align="center"
@@ -170,13 +177,14 @@ export default function Footer({ variant = "default" }: FooterProps) {
                   }}
                   minH={{ base: "48px", sm: "52px" }}
                   w="full"
+                  transition="all 0.3s ease"
                 >
                   <FaApple fontSize="20px" color="black" />
                   <Text ml={2} color="black" fontSize={{ base: "sm", xs: "md", sm: "md" }}>
                     App Store
                   </Text>
                 </Flex>
-              </Link>
+              </MotionLink>
             </Stack>
           </VStack>
 
@@ -189,7 +197,6 @@ export default function Footer({ variant = "default" }: FooterProps) {
       {/* Main Footer - Mobile Optimized Grid Layout */}
       <Box py={{ base: 8, xs: 10, sm: 12 }}>
         <Box maxW="7xl" mx="auto" px={{ base: 3, xs: 4, sm: 5, md: 6, lg: 8 }}>
-          {/* Mobile: Stacked Layout, Desktop: Grid Layout */}
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 8, md: 8, lg: 8 }} alignItems="start">
             {/* Logo and Description */}
             <VStack
@@ -221,12 +228,13 @@ export default function Footer({ variant = "default" }: FooterProps) {
                 flexWrap="wrap"
               >
                 {socialLinks.map((social) => (
-                  <Link
+                  <MotionLink
                     key={social.label}
                     href={social.href}
                     isExternal
-                    _hover={{ transform: "translateY(-2px)" }}
-                    transition="transform 0.2s ease"
+                    _hover={{ textDecoration: "none" }}
+                    whileHover={{ y: -2 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <Box
                       p={{ base: 2, xs: 3, sm: 3 }}
@@ -235,7 +243,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
                       borderRadius="full"
                       cursor="pointer"
                       _hover={{
-                        bg: "purple.600",
+                        bgGradient: "linear(to-r, purple.600, fuchsia.500)",
                         color: "white",
                         transform: "translateY(-2px)",
                       }}
@@ -248,7 +256,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
                     >
                       {social.icon}
                     </Box>
-                  </Link>
+                  </MotionLink>
                 ))}
               </HStack>
             </VStack>
@@ -274,7 +282,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
                 maxW={{ base: "300px", md: "none" }}
               >
                 {quickLinks.map((link) => (
-                  <Link
+                  <MotionLink
                     key={link.label}
                     href={link.href}
                     color="gray.400"
@@ -298,9 +306,10 @@ export default function Footer({ variant = "default" }: FooterProps) {
                     py={1}
                     px={2}
                     borderRadius="md"
+                    whileHover={{ x: 2 }}
                   >
                     {link.label}
-                  </Link>
+                  </MotionLink>
                 ))}
               </SimpleGrid>
             </VStack>
@@ -372,7 +381,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
             © Boi Technologies {currentYear}. All rights reserved.
           </Text>
           <Text color="gray.500" fontSize={{ base: "xs", xs: "sm", sm: "sm" }} order={{ base: 2, md: 2 }}>
-            Made with ❤️ for campus communities
+            Made with care for campus communities
           </Text>
         </Flex>
       </Box>

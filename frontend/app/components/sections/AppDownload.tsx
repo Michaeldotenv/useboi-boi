@@ -1,6 +1,6 @@
 "use client"
 import { Box, Container, SimpleGrid, VStack, HStack, Text, Button, Image, Icon, Badge } from "@chakra-ui/react";
-import { FaApple, FaGooglePlay, FaQrcode, FaMobileAlt, FaDownload } from "react-icons/fa";
+import { FaApple, FaGooglePlay, FaQrcode, FaMobileAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const MotionBox = motion(Box);
@@ -55,8 +55,9 @@ export default function AppDownload() {
             bg="white"
             borderRadius="3xl"
             overflow="hidden"
+            boxShadow="0 20px 80px rgba(124, 58, 237, 0.15)"
             border="1px solid"
-            borderColor="gray.200"
+            borderColor="purple.100"
             position="relative"
           >
             {/* Gradient Top Border */}
@@ -119,12 +120,8 @@ export default function AppDownload() {
                     fontWeight="700"
                     fontSize="sm"
                     backdropFilter="blur(10px)"
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
                   >
-                    <Icon as={FaDownload} />
-                    Download Now
+                    📱 Download Now
                   </Badge>
 
                   <VStack align="start" spacing={3}>
@@ -147,53 +144,57 @@ export default function AppDownload() {
 
                   {/* App Store Buttons */}
                   <VStack spacing={3} w="full" pt={2}>
-                    <Box as="a" href="#" w="full">
-                      <MotionButton
-                        size="lg"
-                        w="full"
-                        bg="white"
-                        color="gray.900"
-                        leftIcon={<Icon as={FaApple} w={6} h={6} />}
-                        borderRadius="xl"
-                        fontWeight="700"
-                        whileHover={{ 
-                          scale: 1.02
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        _hover={{
-                          bg: "gray.50"
-                        }}
-                      >
-                        <VStack spacing={0} align="start" flex={1}>
-                          <Text fontSize="xs" fontWeight="400">Download on the</Text>
-                          <Text fontSize="md" fontWeight="700">App Store</Text>
-                        </VStack>
-                      </MotionButton>
-                    </Box>
+                    <MotionButton
+                      as="a"
+                      href="#"
+                      size="lg"
+                      w="full"
+                      bg="white"
+                      color="gray.900"
+                      leftIcon={<Icon as={FaApple} w={6} h={6} />}
+                      borderRadius="xl"
+                      fontWeight="700"
+                      boxShadow="lg"
+                      whileHover={{ 
+                        scale: 1.02,
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      _hover={{
+                        bg: "gray.50"
+                      }}
+                    >
+                      <VStack spacing={0} align="start" flex={1}>
+                        <Text fontSize="xs" fontWeight="400">Download on the</Text>
+                        <Text fontSize="md" fontWeight="700">App Store</Text>
+                      </VStack>
+                    </MotionButton>
 
-                    <Box as="a" href="#" w="full">
-                      <MotionButton
-                        size="lg"
-                        w="full"
-                        bg="white"
-                        color="gray.900"
-                        leftIcon={<Icon as={FaGooglePlay} w={5} h={5} />}
-                        borderRadius="xl"
-                        fontWeight="700"
-                        whileHover={{ 
-                          scale: 1.02
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        _hover={{
-                          bg: "gray.50"
-                        }}
-                      >
-                        <VStack spacing={0} align="start" flex={1}>
-                          <Text fontSize="xs" fontWeight="400">Get it on</Text>
-                          <Text fontSize="md" fontWeight="700">Google Play</Text>
-                        </VStack>
-                      </MotionButton>
-                    </Box>
+                    <MotionButton
+                      as="a"
+                      href="#"
+                      size="lg"
+                      w="full"
+                      bg="white"
+                      color="gray.900"
+                      leftIcon={<Icon as={FaGooglePlay} w={5} h={5} />}
+                      borderRadius="xl"
+                      fontWeight="700"
+                      boxShadow="lg"
+                      whileHover={{ 
+                        scale: 1.02,
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      _hover={{
+                        bg: "gray.50"
+                      }}
+                    >
+                      <VStack spacing={0} align="start" flex={1}>
+                        <Text fontSize="xs" fontWeight="400">Get it on</Text>
+                        <Text fontSize="md" fontWeight="700">Google Play</Text>
+                      </VStack>
+                    </MotionButton>
                   </VStack>
 
                   {/* Stats */}
@@ -243,11 +244,13 @@ export default function AppDownload() {
                         bg="white"
                         p={4}
                         borderRadius="2xl"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        boxShadow="md"
+                        border="2px solid"
+                        borderColor="purple.100"
                         transition="all 0.3s ease"
                         _hover={{
-                          borderColor: "purple.400"
+                          borderColor: "purple.400",
+                          boxShadow: "0 10px 30px rgba(124, 58, 237, 0.2)"
                         }}
                       >
                         <Box
@@ -282,11 +285,13 @@ export default function AppDownload() {
                         bg="white"
                         p={4}
                         borderRadius="2xl"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        boxShadow="md"
+                        border="2px solid"
+                        borderColor="purple.100"
                         transition="all 0.3s ease"
                         _hover={{
-                          borderColor: "purple.400"
+                          borderColor: "purple.400",
+                          boxShadow: "0 10px 30px rgba(124, 58, 237, 0.2)"
                         }}
                       >
                         <Box

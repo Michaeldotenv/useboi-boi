@@ -92,15 +92,19 @@ export const theme = extendTheme({
         primary: {
           bg: "brand.primary",
           color: "white",
+          boxShadow: "0 4px 15px rgba(59, 23, 79, 0.3)",
           _hover: {
             bg: "brand.primaryDark",
+            boxShadow: "0 8px 25px rgba(59, 23, 79, 0.4)",
           },
         },
         secondary: {
           bg: "brand.secondary",
           color: "white",
+          boxShadow: "0 4px 15px rgba(107, 42, 143, 0.3)",
           _hover: {
             bg: "brand.secondaryDark",
+            boxShadow: "0 8px 25px rgba(107, 42, 143, 0.4)",
           },
         },
         outline: {

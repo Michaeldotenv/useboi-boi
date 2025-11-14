@@ -1,221 +1,118 @@
-// ==================================================
-// components/sections/FeaturedStores.tsx - PURPLE THEME
-// Modern Card-Based Design with Purple Branding
-// ==================================================
 "use client"
-import { Container, HStack, VStack, Text, Button, Box, SimpleGrid, Image, Badge, chakra } from "@chakra-ui/react";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
 
-type Vendor = { id: string; name: string; logoUrl?: string; coverImage?: string; rating?: number };
+import { motion } from "framer-motion"
+import { Star, Bike } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+
+type Vendor = {
+  id: string
+  name: string
+  logoUrl?: string
+  coverImage?: string
+  rating?: number
+}
 
 type Props = {
-  vendors: Vendor[];
-  loading: boolean;
-};
+  vendors: Vendor[]
+  loading: boolean
+}
 
 export default function FeaturedStores({ vendors, loading }: Props) {
-  const featuredStores = vendors.slice(0, 8);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", damping: 20, stiffness: 100 },
+    },
+  }
 
   return (
-    <Box bg="white" py={{ base: 12, md: 20 }}>
-      <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
-        {/* Section Header */}
-        <VStack spacing={6} mb={10}>
-          <VStack spacing={2}>
-            <Badge 
-              colorScheme="purple" 
-              variant="subtle" 
-              px={4} 
-              py={1} 
-              borderRadius="full"
-              fontSize="sm"
-              textTransform="uppercase"
-              letterSpacing="wide"
-            >
-              Top Picks
-            </Badge>
-            <Text 
-              fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }} 
-              fontWeight="800" 
-              color="gray.900"
-              textAlign="center"
-            >
-              Featured Restaurants
-            </Text>
-            <Text 
-              fontSize={{ base: 'md', md: 'lg' }} 
-              color="gray.600" 
-              textAlign="center"
-              maxW="2xl"
-            >
-              Discover the best restaurants near you. From local favorites to trending hotspots.
-            </Text>
-          </VStack>
-
-          {/* View All Button - Desktop */}
-          <Button
-            as={chakra.a}
-            href="/dashboard/stores"
-            size="lg"
-            rightIcon={<ArrowForwardIcon />}
-            colorScheme="purple"
-            borderRadius="full"
-            px={8}
-            display={{ base: 'none', md: 'flex' }}
-            _hover={{ transform: 'translateX(4px)' }}
-            transition="all 0.3s ease"
-          >
-            View All Stores
-          </Button>
-        </VStack>
+    <section className="py-20 md:py-32 bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="mb-12 text-center">
+          <p className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-3">Top Picks</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Featured Restaurants</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Discover the best restaurants near you. From local favorites to trending hotspots.
+          </p>
+        </motion.div>
 
         {/* Stores Grid */}
-        <SimpleGrid 
-          columns={{ base: 1, sm: 2, md: 3, lg: 4 }} 
-          spacing={{ base: 6, md: 8 }}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={containerVariants}
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
         >
-          {(loading ? Array.from({ length: 8 }) : featuredStores).map((vendor: any, idx: number) => (
-            <Box
+          {vendors.map((vendor, idx) => (
+            <motion.div
               key={idx}
-              bg="white"
-              borderRadius="2xl"
-              overflow="hidden"
-              boxShadow="md"
-              cursor="pointer"
-              _hover={{ 
-                transform: 'translateY(-8px)',
-                boxShadow: '2xl'
-              }}
-              transition="all 0.3s ease"
-              position="relative"
+              variants={itemVariants}
+              whileHover={{ y: -8 }}
+              className="group rounded-2xl border border-purple-100 overflow-hidden bg-white shadow-sm hover:shadow-xl hover:border-purple-300 transition-all"
             >
-              {loading ? (
-                <>
-                  <Box h="200px" bg="gray.100" />
-                  <Box p={4}>
-                    <Box h="20px" w="70%" bg="gray.100" mb={2} borderRadius="md" />
-                    <Box h="16px" w="40%" bg="gray.100" borderRadius="md" />
-                  </Box>
-                </>
-              ) : (
-                <>
-                  {/* Store Image */}
-                  <Box position="relative" h="200px" overflow="hidden">
-                    <Image
-                      src={vendor.coverImage || vendor.logoUrl || '/Food-item-1.jpeg'}
-                      alt={vendor.name}
-                      width="100%"
-                      height="100%"
-                      objectFit="cover"
-                      transition="transform 0.3s ease"
-                      _groupHover={{ transform: 'scale(1.1)' }}
-                    />
-                    
-                    {/* Overlay Gradient */}
-                    <Box
-                      position="absolute"
-                      bottom={0}
-                      left={0}
-                      right={0}
-                      h="50%"
-                      bgGradient="linear(to-t, blackAlpha.600, transparent)"
-                    />
+              <div className="relative h-48 overflow-hidden bg-gray-200">
+                <img
+                  src={vendor.coverImage || "/placeholder.svg?height=200&width=300&query=restaurant"}
+                  alt={vendor.name}
+                  className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
-                    {/* Rating Badge */}
-                    <Badge
-                      position="absolute"
-                      top={3}
-                      right={3}
-                      bg="white"
-                      color="gray.900"
-                      px={3}
-                      py={1}
-                      borderRadius="full"
-                      fontWeight="700"
-                      fontSize="sm"
-                      display="flex"
-                      alignItems="center"
-                      gap={1}
-                    >
-                      ⭐ {vendor.rating?.toFixed(1) || '4.5'}
-                    </Badge>
+                {/* Delivery Badge */}
+                <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                  <Bike className="h-3 w-3" />
+                  20-30 min
+                </div>
 
-                    {/* Delivery Time Badge */}
-                    <Badge
-                      position="absolute"
-                      top={3}
-                      left={3}
-                      bg="purple.500"
-                      color="white"
-                      px={3}
-                      py={1}
-                      borderRadius="full"
-                      fontSize="xs"
-                    >
-                      20-30 min
-                    </Badge>
-                  </Box>
+                {/* Rating Badge */}
+                <div className="absolute top-3 right-3 bg-white text-gray-900 px-3 py-1 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  {vendor.rating?.toFixed(1) || "4.5"}
+                </div>
+              </div>
 
-                  {/* Store Info */}
-                  <VStack align="start" p={4} spacing={2}>
-                    <Text 
-                      fontSize="lg" 
-                      fontWeight="700" 
-                      color="gray.900"
-                      noOfLines={1}
-                    >
-                      {vendor.name}
-                    </Text>
-                    
-                    <HStack spacing={2} fontSize="sm" color="gray.600">
-                      <Text>🍔 Fast Food</Text>
-                      <Text>•</Text>
-                      <Text>₦500 delivery</Text>
-                    </HStack>
+              <div className="p-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{vendor.name}</h3>
+                <p className="text-sm text-gray-600 mb-4 flex items-center gap-1">🍽️ Multi-Cuisine • ₦500 delivery</p>
 
-                    {/* Action Buttons */}
-                    <HStack spacing={2} pt={2} w="full">
-                      <Button
-                        size="sm"
-                        colorScheme="purple"
-                        flex={1}
-                        borderRadius="lg"
-                      >
-                        Order Now
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        colorScheme="purple"
-                        borderRadius="lg"
-                      >
-                        View Menu
-                      </Button>
-                    </HStack>
-                  </VStack>
-                </>
-              )}
-            </Box>
+                <div className="flex gap-2">
+                  <button className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold h-10">
+                    Order Now
+                  </button>
+                  <button
+                   
+                    className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 font-bold h-10 bg-transparent"
+                  >
+                    Menu
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           ))}
-        </SimpleGrid>
+        </motion.div>
 
-        {/* View All Button - Mobile */}
-        <Box mt={8} textAlign="center" display={{ base: 'block', md: 'none' }}>
-          <Button
-            as={chakra.a}
-            href="/dashboard/stores"
-            size="lg"
-            rightIcon={<ArrowForwardIcon />}
-            colorScheme="purple"
-            borderRadius="full"
-            px={8}
-            w="full"
-            maxW="400px"
-          >
-            View All Stores
-          </Button>
-        </Box>
-      </Container>
-    </Box>
-  );
+        {/* View All button */}
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center">
+          <button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold h-12 px-8">
+            View All Restaurants
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </button>
+        </motion.div>
+      </div>
+    </section>
+  )
 }

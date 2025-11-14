@@ -152,14 +152,13 @@ const OrdersTab: React.FC = () => {
     }
   }, [isLoading, data]);
 
-  // Parse orders from response
-  const orders = Array.isArray(data) ? data : (Array.isArray((data as any)?.data) ? (data as any).data : []);
+  const orders = (data as any)?.data || data || [];
   
   // Filter orders by status
   const allOrders = [...orders].sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   const activeOrders = allOrders.filter((o: any) => {
     const status = (o.status || o.orderState || "").toString().toLowerCase();
-    return status.includes("progress") || status.includes("rider") || status.includes("pend") || status.includes("ongoing");
+    return status.includes("progress") || status.includes("rider") || status.includes("pend");
   });
   const completedOrders = allOrders.filter((o: any) => {
     const status = (o.status || o.orderState || "").toString().toLowerCase();
@@ -172,77 +171,16 @@ const OrdersTab: React.FC = () => {
 
   // Render order card component
   const OrderCard = ({ order, index }: { order: any; index: number }) => {
-    // Handle different status field names from backend
-    const rawStatus = (order.status || order.orderState || "").toString().toLowerCase();
-    
-    // Convert backend status to user-friendly display status
-    const getDisplayStatus = (status: string) => {
-      if (status.includes("complete")) return "Completed";
-      if (status.includes("progress") || status.includes("rider") || status.includes("ongoing")) return "Active";
-      if (status.includes("pend")) return "Pending";
-      if (status.includes("cancel")) return "Cancelled";
-      return "Active"; // Default to Active for any other status
-    };
-    
-    const displayStatus = getDisplayStatus(rawStatus);
-    
-    const scheme = displayStatus === "Completed"
+    const status = (order.status || order.orderState || "").toString().toLowerCase();
+    const scheme = status.includes("complete")
       ? "green"
-      : displayStatus === "Active"
+      : status.includes("progress") || status.includes("rider")
       ? "orange"
-      : displayStatus === "Pending"
+      : status.includes("pend")
       ? "orange"
-      : displayStatus === "Cancelled"
+      : status.includes("cancel")
       ? "red"
       : "gray";
-
-    // Get order ID - backend returns 'id' or '_id'
-    const orderId = order.id || order._id;
-    const orderIdDisplay = orderId ? (typeof orderId === 'string' ? orderId.slice(-8) : orderId.toString().slice(-8)) : 'N/A';
-    
-    // Get store name - backend returns store object
-    const storeName = order.store?.name || order.vendorName || order.storeName || "Store";
-    
-    // Get total price - backend returns 'price' not 'total'
-    const totalPrice = order.price || order.total || 0;
-    
-    // Get detailed items - backend returns cart with cartItems or items array
-    const cartItems = order.cart?.cartItems || order.cart?.items || order.items || [];
-    const itemCount = cartItems.length;
-    
-    // Get delivery details
-    const deliveryLocation = order.deliveryLocation || "Not specified";
-    const deliveryInstructions = order.deliveryInstruction || order.deliveryInstructions || "No special instructions";
-    const deliveryFee = order.deliveryFee || 0;
-    const serviceCharge = order.serviceCharge || 0;
-    const couponPrice = order.couponPrice || 0;
-    
-    // Get order completion code strictly from backend response (no fallback)
-    const apiCode = order.code || order.orderCode || order.completionCode;
-    
-    // Debug logging to see what backend returns
-    if (typeof window !== 'undefined' && !apiCode) {
-      console.log('⚠️ Order missing code:', {
-        orderId: order.id || order._id,
-        'order.code': order.code,
-        'order.orderCode': order.orderCode,
-        'order.completionCode': order.completionCode,
-        'Full order': order,
-      });
-    }
-    
-    const orderCode = (apiCode !== undefined && apiCode !== null)
-      ? (() => {
-          const codeStr = String(apiCode).trim();
-          // Treat "0" as missing code (old orders created before code field was properly set)
-          const isValid = codeStr !== '' && codeStr !== '0' && codeStr !== 'null' && codeStr !== 'undefined';
-          if (!isValid) {
-            console.warn('⚠️ Order has invalid code:', codeStr, '- This is an old order created before codes were properly implemented');
-            return null;
-          }
-          return codeStr.padStart(4, '0');
-        })()
-      : null;
 
     return (
       <MotionBox
@@ -251,45 +189,47 @@ const OrdersTab: React.FC = () => {
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
         bg="white"
-        borderRadius="12px"
-        p={{ base: 4, md: 6 }}
+        borderRadius={{ base: "12px", md: "16px" }}
+        p={{ base: 3, md: 5 }}
         border="1px solid"
         borderColor="gray.200"
-        position="relative"
+        boxShadow="0 2px 8px rgba(0,0,0,0.05)"
         _hover={{
-          borderColor: "gray.300",
+          transform: "translateY(-2px)",
+          boxShadow: "0 8px 20px rgba(59, 23, 79, 0.15)",
         }}
+        transition="all 0.3s ease"
       >
         <VStack spacing={{ base: 2, md: 3 }} align="stretch">
           {/* Header Row */}
           <Flex justify="space-between" align="flex-start" gap={2}>
             <VStack align="start" spacing={1} flex={1}>
-              <Text fontWeight="600" color="gray.900" fontSize={{ base: 'md', md: 'lg' }} noOfLines={1}>
-                #{orderIdDisplay}
+              <Text fontWeight="700" color="#000" fontSize={{ base: 'sm', md: 'lg' }} noOfLines={1}>
+                #{order.orderId || order._id?.slice(-8)}
               </Text>
-              <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.500" noOfLines={1}>
-                {storeName}
+              <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600" noOfLines={1}>
+                {order.vendorName || order.storeName || "Store"}
               </Text>
             </VStack>
             <Badge 
               colorScheme={scheme}
-              px={3}
+              px={{ base: 2, md: 3 }}
               py={1}
-              borderRadius="6px"
-              fontSize="xs"
-              fontWeight="500"
-              textTransform="capitalize"
+              borderRadius="full"
+              fontSize={{ base: 'xs', md: 'sm' }}
+              fontWeight="600"
+              whiteSpace="nowrap"
             >
-              {displayStatus}
+              {order.status || order.orderState}
             </Badge>
           </Flex>
 
           <Divider />
 
           {/* Details Row */}
-          <Flex justify="space-between" align="center" gap={4}>
+          <Flex justify="space-between" align="center" gap={2}>
             <VStack align="start" spacing={0}>
-              <Text fontSize="sm" color="gray.600" fontWeight="500">
+              <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.600">
                 {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric', 
@@ -303,118 +243,39 @@ const OrdersTab: React.FC = () => {
                 }) : ""}
               </Text>
             </VStack>
-            <VStack align="end" spacing={2}>
-              {orderCode && (
-                <Badge colorScheme="purple" variant="subtle" borderRadius="6px" px={2} py={1} fontSize="10px" fontWeight="500">
-                  Code: {orderCode}
-                </Badge>
-              )}
-              {totalPrice > 0 && (
-                <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="700" color="gray.900">
-                  ₦{totalPrice.toLocaleString()}
-                </Text>
-              )}
-            </VStack>
+            {order.total && (
+              <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="800" color="brand.primary">
+                ₦{order.total.toLocaleString()}
+              </Text>
+            )}
           </Flex>
 
-          {/* Detailed Items Preview */}
-          {itemCount > 0 && (
-            <Box bg="gray.50" p={4} borderRadius="8px">
-              <Text fontSize="sm" color="gray.700" fontWeight="600" mb={3}>
-                Order Items ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+          {/* Items Preview */}
+          {order.items && order.items.length > 0 && (
+            <Box bg="gray.50" p={{ base: 2, md: 3 }} borderRadius="8px">
+              <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.700" fontWeight="600" mb={1}>
+                {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
               </Text>
-              {cartItems.length > 0 && (
-                <VStack align="stretch" spacing={2}>
-                  {cartItems.slice(0, 3).map((item: any, idx: number) => (
-                    <HStack key={idx} spacing={2} justify="space-between">
-                      <Text fontSize="xs" color="gray.600" noOfLines={1} flex={1}>
-                        • {item.name || item.title || item.item?.name || 'Item'}
-                      </Text>
-                      <HStack spacing={1}>
-                        <Text fontSize="xs" color="gray.500">
-                          ×{item.quantity || 1}
-                        </Text>
-                        <Text fontSize="xs" color="gray.700" fontWeight="600">
-                          ₦{((item.price || item.item?.price || 0) * (item.quantity || 1)).toLocaleString()}
-                        </Text>
-                      </HStack>
-                    </HStack>
-                  ))}
-                  {cartItems.length > 3 && (
-                    <Text fontSize="xs" color="brand.primary" fontWeight="500">
-                      + {cartItems.length - 3} more item{cartItems.length - 3 > 1 ? 's' : ''}
-                    </Text>
-                  )}
-                </VStack>
-              )}
+              <VStack align="stretch" spacing={1}>
+                {order.items.slice(0, 2).map((item: any, idx: number) => (
+                  <Text key={idx} fontSize="xs" color="gray.600" noOfLines={1}>
+                    • {item.name || item.title} <chakra.span color="gray.500">(×{item.quantity || 1})</chakra.span>
+                  </Text>
+                ))}
+                {order.items.length > 2 && (
+                  <Text fontSize="xs" color="brand.primary" fontWeight="500">
+                    + {order.items.length - 2} more item{order.items.length - 2 > 1 ? 's' : ''}
+                  </Text>
+                )}
+              </VStack>
             </Box>
           )}
-
-          {/* Order Details */}
-          <Box bg="blue.50" p={4} borderRadius="8px">
-            <Text fontSize="sm" color="blue.700" fontWeight="600" mb={3}>
-              Order Details
-            </Text>
-            <VStack align="stretch" spacing={1}>
-              {orderCode && (
-                <Box bg="purple.100" p={3} borderRadius="8px" mb={2}>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" color="purple.700" fontWeight="600">
-                      Completion Code:
-                    </Text>
-                    <Text fontSize="sm" color="purple.900" fontWeight="700" fontFamily="mono">
-                      {orderCode}
-                    </Text>
-                  </HStack>
-                  <Text fontSize="xs" color="purple.600" mt={1}>
-                    Give this code to your rider when they arrive
-                  </Text>
-                </Box>
-              )}
-              <HStack justify="space-between">
-                <Text fontSize="xs" color="gray.600">Delivery Location:</Text>
-                <Text fontSize="xs" color="gray.700" fontWeight="500" noOfLines={1}>
-                  {deliveryLocation}
-                </Text>
-              </HStack>
-              <HStack justify="space-between">
-                <Text fontSize="xs" color="gray.600">Delivery Instructions:</Text>
-                <Text fontSize="xs" color="gray.700" fontWeight="500" noOfLines={1}>
-                  {deliveryInstructions}
-                </Text>
-              </HStack>
-              {deliveryFee > 0 && (
-                <HStack justify="space-between">
-                  <Text fontSize="xs" color="gray.600">Delivery Fee:</Text>
-                  <Text fontSize="xs" color="gray.700" fontWeight="600">
-                    ₦{deliveryFee.toLocaleString()}
-                  </Text>
-                </HStack>
-              )}
-              {serviceCharge > 0 && (
-                <HStack justify="space-between">
-                  <Text fontSize="xs" color="gray.600">Service Charge:</Text>
-                  <Text fontSize="xs" color="gray.700" fontWeight="600">
-                    ₦{serviceCharge.toLocaleString()}
-                  </Text>
-                </HStack>
-              )}
-              {couponPrice > 0 && (
-                <HStack justify="space-between">
-                  <Text fontSize="xs" color="green.600">Coupon Discount:</Text>
-                  <Text fontSize="xs" color="green.600" fontWeight="600">
-                    -₦{couponPrice.toLocaleString()}
-                  </Text>
-                </HStack>
-              )}
-            </VStack>
-          </Box>
 
           {/* Actions Row */}
           <Flex justify="space-between" align="center" gap={2} pt={2}>
             <ChakraLink
               as={NextLink}
-              href={`/user-dashboard/orders/${orderId}`}
+              href={`/user-dashboard/orders/${order._id}`}
               color="brand.primary"
               fontSize={{ base: 'xs', md: 'sm' }}
               fontWeight="600"
@@ -424,18 +285,18 @@ const OrdersTab: React.FC = () => {
             </ChakraLink>
             
             <HStack spacing={2}>
-              {(displayStatus === "Pending" || displayStatus === "Active") && (
+              {status.includes("pend") && (
                 <Button
                   size={{ base: 'xs', md: 'sm' }}
                   colorScheme="red"
                   variant="outline"
-                  onClick={() => handleCancelOrder(orderId)}
+                  onClick={() => handleCancelOrder(order._id)}
                   fontSize={{ base: '10px', md: '12px' }}
                 >
                   Cancel
                 </Button>
               )}
-              {displayStatus === "Completed" && (
+              {status.includes("complete") && (
                 <Button
                   size={{ base: 'xs', md: 'sm' }}
                   bg="brand.primary"
@@ -457,7 +318,7 @@ const OrdersTab: React.FC = () => {
   // Loading skeleton
   if (isLoading) {
     return (
-      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+      <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={4}>
             <Flex justify="space-between" align="center" mb={6} mt={4}>
@@ -485,7 +346,7 @@ const OrdersTab: React.FC = () => {
 
   if (error) {
     return (
-      <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+      <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
         <Wrapper>
           <Box py={8}>
             <EmptyState
@@ -502,9 +363,9 @@ const OrdersTab: React.FC = () => {
   }
 
   return (
-    <Box minH="calc(100vh - 72px)" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
+    <Box minH="100vh" bg="#F2F2F7" pb="calc(env(safe-area-inset-bottom, 0px) + 72px)">
       <Wrapper>
-        <Box py={4} position="relative" zIndex={1}>
+        <Box py={4}>
           {/* Header with Refresh */}
           <Flex justify="space-between" align="center" mb={6} mt={4}>
             <HStack spacing={2}>
@@ -524,7 +385,6 @@ const OrdersTab: React.FC = () => {
               _hover={{ bg: "rgba(59, 23, 79, 0.1)" }}
             />
           </Flex>
-
           
           {orders.length === 0 ? (
             <EmptyState
@@ -537,91 +397,66 @@ const OrdersTab: React.FC = () => {
             />
           ) : (
             <Tabs 
-              variant="line" 
+              variant="soft-rounded" 
+              colorScheme="purple" 
               index={activeTab} 
               onChange={setActiveTab}
               isFitted={false}
-              position="relative"
             >
               <TabList 
-                mb={6} 
+                mb={4} 
                 overflowX="auto" 
                 overflowY="hidden"
                 css={{
                   '&::-webkit-scrollbar': { display: 'none' },
                   scrollbarWidth: 'none',
                 }}
-                borderBottom="1px solid"
-                borderColor="gray.200"
+                pb={2}
               >
                 <Tab 
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  fontWeight="500"
-                  px={{ base: 4, md: 6 }}
-                  py={3}
-                  color="gray.600"
-                  borderBottom="2px solid transparent"
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  px={{ base: 3, md: 4 }}
+                  minW={{ base: 'auto', md: '100px' }}
                   _selected={{ 
-                    color: 'gray.900',
-                    fontWeight: '600',
-                    borderColor: 'gray.900'
-                  }}
-                  _hover={{
-                    color: 'gray.700'
+                    bg: 'brand.primary', 
+                    color: 'white',
+                    fontWeight: '600'
                   }}
                 >
                   All ({allOrders.length})
                 </Tab>
                 <Tab 
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  fontWeight="500"
-                  px={{ base: 4, md: 6 }}
-                  py={3}
-                  color="gray.600"
-                  borderBottom="2px solid transparent"
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  px={{ base: 3, md: 4 }}
+                  minW={{ base: 'auto', md: '100px' }}
                   _selected={{ 
-                    color: 'orange.600',
-                    fontWeight: '600',
-                    borderColor: 'orange.500'
-                  }}
-                  _hover={{
-                    color: 'orange.500'
+                    bg: 'orange.500', 
+                    color: 'white',
+                    fontWeight: '600'
                   }}
                 >
                   Active ({activeOrders.length})
                 </Tab>
                 <Tab 
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  fontWeight="500"
-                  px={{ base: 4, md: 6 }}
-                  py={3}
-                  color="gray.600"
-                  borderBottom="2px solid transparent"
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  px={{ base: 3, md: 4 }}
+                  minW={{ base: 'auto', md: '100px' }}
                   _selected={{ 
-                    color: 'green.600',
-                    fontWeight: '600',
-                    borderColor: 'green.500'
-                  }}
-                  _hover={{
-                    color: 'green.500'
+                    bg: 'green.500', 
+                    color: 'white',
+                    fontWeight: '600'
                   }}
                 >
                   Completed ({completedOrders.length})
                 </Tab>
                 <Tab 
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  fontWeight="500"
-                  px={{ base: 4, md: 6 }}
-                  py={3}
-                  color="gray.600"
-                  borderBottom="2px solid transparent"
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  px={{ base: 3, md: 4 }}
+                  minW={{ base: 'auto', md: '100px' }}
                   _selected={{ 
-                    color: 'red.600',
-                    fontWeight: '600',
-                    borderColor: 'red.500'
-                  }}
-                  _hover={{
-                    color: 'red.500'
+                    bg: 'red.500', 
+                    color: 'white',
+                    fontWeight: '600'
                   }}
                 >
                   Cancelled ({cancelledOrders.length})
@@ -630,7 +465,7 @@ const OrdersTab: React.FC = () => {
 
               <TabPanels>
                 {/* All Orders */}
-                <TabPanel px={0} position="relative" zIndex={3}>
+                <TabPanel px={0}>
                   <AnimatePresence mode="wait">
                     <VStack spacing={{ base: 3, md: 4 }} align="stretch">
                       {allOrders.map((order: any, index: number) => (
@@ -641,7 +476,7 @@ const OrdersTab: React.FC = () => {
                 </TabPanel>
 
                 {/* Active Orders */}
-                <TabPanel px={0} position="relative" zIndex={3}>
+                <TabPanel px={0}>
                   <AnimatePresence mode="wait">
                     {activeOrders.length === 0 ? (
                       <EmptyState
@@ -661,7 +496,7 @@ const OrdersTab: React.FC = () => {
                 </TabPanel>
 
                 {/* Completed Orders */}
-                <TabPanel px={0} position="relative" zIndex={3}>
+                <TabPanel px={0}>
                   <AnimatePresence mode="wait">
                     {completedOrders.length === 0 ? (
                       <EmptyState
@@ -681,7 +516,7 @@ const OrdersTab: React.FC = () => {
                 </TabPanel>
 
                 {/* Cancelled Orders */}
-                <TabPanel px={0} position="relative" zIndex={3}>
+                <TabPanel px={0}>
                   <AnimatePresence mode="wait">
                     {cancelledOrders.length === 0 ? (
                       <EmptyState

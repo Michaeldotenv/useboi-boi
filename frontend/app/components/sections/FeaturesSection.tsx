@@ -1,29 +1,22 @@
-"use client";
+"use client"
 
-import React from "react";
-import {
-  Box,
-  Container,
-  VStack,
-  SimpleGrid,
-  HStack,
-  Text,
-  Badge,
-  Image,
-  Icon,
-} from "@chakra-ui/react";
-import { FaRocket, FaClock, FaShieldAlt, FaCheckCircle, FaGem } from "react-icons/fa";
-import { motion } from "framer-motion";
+import type React from "react"
+import { Box, Container, VStack, SimpleGrid, HStack, Text, Badge, Icon } from "@chakra-ui/react"
+import { FaRocket, FaClock, FaShieldAlt, FaCheckCircle } from "react-icons/fa"
+import { motion } from "framer-motion"
 
-// Enhanced Card Component with glassmorphism
+const MotionBox = motion(Box)
+const MotionVStack = motion(VStack)
+
 const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest }) => (
   <Box
-    bg="gray.50"
+    bg="white"
     backdropFilter="blur(10px)"
     borderRadius="2xl"
     p={{ base: 5, md: 7 }}
+    boxShadow="0 8px 32px rgba(124, 58, 237, 0.08)"
     border="1px solid"
-    borderColor="gray.200"
+    borderColor="rgba(124, 58, 237, 0.1)"
     transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
     position="relative"
     overflow="hidden"
@@ -40,7 +33,12 @@ const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest })
     }}
     _hover={{
       transform: "translateY(-8px)",
+<<<<<<< HEAD
+      boxShadow: "0 20px 60px rgba(124, 58, 237, 0.15)",
+      borderColor: "purple.200",
+=======
       borderColor: "purple.300",
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
       _before: {
         opacity: 1,
       },
@@ -49,11 +47,15 @@ const Card: React.FC<React.ComponentProps<typeof Box>> = ({ children, ...rest })
   >
     {children}
   </Box>
+<<<<<<< HEAD
+)
+=======
 );
 
 // Framer motion components
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
 export default function FeaturesSection() {
   const containerVariants = {
@@ -65,7 +67,11 @@ export default function FeaturesSection() {
         delayChildren: 0.1,
       },
     },
+<<<<<<< HEAD
+  }
+=======
   };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -79,7 +85,11 @@ export default function FeaturesSection() {
         stiffness: 100,
       },
     },
+<<<<<<< HEAD
+  }
+=======
   };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.9, rotateY: -15 },
@@ -92,22 +102,38 @@ export default function FeaturesSection() {
         ease: "easeOut",
       },
     },
+<<<<<<< HEAD
+  }
+=======
   };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const floatingAnimation = {
     y: [0, -10, 0],
     transition: {
       duration: 3,
+<<<<<<< HEAD
+      repeat: Number.POSITIVE_INFINITY,
+      ease: "easeInOut",
+    },
+  }
+=======
       repeat: Infinity,
       ease: "easeInOut",
     },
   };
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const features = [
     {
       icon: FaRocket,
       title: "Send Us!",
+<<<<<<< HEAD
+      description:
+        "Whether it's picking groceries, dropping packages, or running last-minute tasks — we handle it carefully and quickly.",
+=======
       description: "Whether it's picking groceries, dropping packages, or running last-minute tasks — we handle it carefully and quickly.",
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
       gradient: "linear(to-br, purple.50, purple.100)",
       color: "purple.600",
     },
@@ -121,11 +147,20 @@ export default function FeaturesSection() {
     {
       icon: FaShieldAlt,
       title: "Reliable & Stress-free",
+<<<<<<< HEAD
+      description:
+        "Schedule it once and relax — real-time tracking and verified couriers make every errand worry-free.",
+      gradient: "linear(to-br, fuchsia.50, purple.100)",
+      color: "purple.600",
+    },
+  ]
+=======
       description: "Schedule it once and relax — real-time tracking and verified couriers make every errand worry-free.",
       gradient: "linear(to-br, fuchsia.50, purple.100)",
       color: "purple.600",
     },
   ];
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   return (
     <Box
@@ -134,6 +169,8 @@ export default function FeaturesSection() {
       overflow="hidden"
       py={{ base: 16, md: 24 }}
     >
+<<<<<<< HEAD
+=======
       {/* Animated Background Shapes */}
       <MotionBox
         position="absolute"
@@ -177,6 +214,7 @@ export default function FeaturesSection() {
         }}
       />
 
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
       <Container maxW="container.xl" px={{ base: 4, md: 6 }} position="relative" zIndex={1}>
         <MotionVStack
           spacing={{ base: 12, md: 20 }}
@@ -186,6 +224,9 @@ export default function FeaturesSection() {
           variants={containerVariants}
         >
           {/* Header Section */}
+<<<<<<< HEAD
+          <MotionVStack spacing={{ base: 4, md: 5 }} textAlign="center" variants={itemVariants} maxW="3xl" mx="auto">
+=======
           <MotionVStack
             spacing={{ base: 4, md: 5 }}
             textAlign="center"
@@ -193,13 +234,18 @@ export default function FeaturesSection() {
             maxW="3xl"
             mx="auto"
           >
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             <MotionBox
               animate={{
                 scale: [1, 1.05, 1],
               }}
               transition={{
                 duration: 2,
+<<<<<<< HEAD
+                repeat: Number.POSITIVE_INFINITY,
+=======
                 repeat: Infinity,
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 ease: "easeInOut",
               }}
             >
@@ -213,11 +259,16 @@ export default function FeaturesSection() {
                 textTransform="uppercase"
                 letterSpacing="wider"
                 fontWeight="600"
+<<<<<<< HEAD
+                boxShadow="0 4px 14px rgba(124, 58, 237, 0.15)"
+              >
+=======
                 display="flex"
                 alignItems="center"
                 gap={2}
               >
                 <Icon as={FaGem} boxSize={3} />
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 Our Services
               </Badge>
             </MotionBox>
@@ -230,12 +281,16 @@ export default function FeaturesSection() {
               px={{ base: 4, md: 0 }}
             >
               Errands?{" "}
+<<<<<<< HEAD
+              <Box as="span" bgGradient="linear(to-r, purple.600, fuchsia.500)" bgClip="text" display="inline-block">
+=======
               <Box
                 as="span"
                 bgGradient="linear(to-r, purple.600, fuchsia.500)"
                 bgClip="text"
                 display="inline-block"
               >
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 We've got it handled!
               </Box>
             </Text>
@@ -247,18 +302,27 @@ export default function FeaturesSection() {
               maxW="2xl"
               px={{ base: 4, md: 0 }}
             >
+<<<<<<< HEAD
+              From groceries to packages, we handle all your delivery needs with a reliable, punctual, and friendly
+              courier network — designed for busy lives.
+=======
               From groceries to packages, we handle all your delivery needs with a reliable,
               punctual, and friendly courier network — designed for busy lives.
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             </Text>
           </MotionVStack>
 
           {/* Main Content Grid */}
+<<<<<<< HEAD
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 12, lg: 20 }} alignItems="center" w="full">
+=======
           <SimpleGrid
             columns={{ base: 1, lg: 2 }}
             spacing={{ base: 12, lg: 20 }}
             alignItems="center"
             w="full"
           >
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             {/* Left: Feature Cards */}
             <MotionVStack
               spacing={{ base: 5, md: 6 }}
@@ -277,6 +341,10 @@ export default function FeaturesSection() {
                         placeItems="center"
                         borderRadius="xl"
                         bgGradient={feature.gradient}
+<<<<<<< HEAD
+                        boxShadow="0 8px 24px rgba(124, 58, 237, 0.12)"
+=======
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                         whileHover={{ rotate: 360, scale: 1.1 }}
                         transition={{ duration: 0.6 }}
                       >
@@ -284,6 +352,12 @@ export default function FeaturesSection() {
                       </MotionBox>
 
                       <VStack spacing={2} align="start" flex={1}>
+<<<<<<< HEAD
+                        <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="700" color="gray.900">
+                          {feature.title}
+                        </Text>
+                        <Text color="gray.600" lineHeight="tall" fontSize={{ base: "sm", md: "md" }}>
+=======
                         <Text
                           fontSize={{ base: "lg", md: "xl" }}
                           fontWeight="700"
@@ -296,6 +370,7 @@ export default function FeaturesSection() {
                           lineHeight="tall"
                           fontSize={{ base: "sm", md: "md" }}
                         >
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                           {feature.description}
                         </Text>
                       </VStack>
@@ -315,6 +390,8 @@ export default function FeaturesSection() {
               variants={imageVariants}
               h={{ base: "400px", md: "500px", lg: "600px" }}
             >
+<<<<<<< HEAD
+=======
               {/* Animated Glow Background */}
               <MotionBox
                 position="absolute"
@@ -378,6 +455,7 @@ export default function FeaturesSection() {
                 />
               </MotionBox>
 
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               {/* Floating Stat Badge 1 */}
               <MotionBox
                 position="absolute"
@@ -387,8 +465,14 @@ export default function FeaturesSection() {
                 px={4}
                 py={3}
                 borderRadius="xl"
+<<<<<<< HEAD
+                boxShadow="0 12px 40px rgba(124, 58, 237, 0.15)"
+                border="1px solid"
+                borderColor="purple.100"
+=======
                 border="1px solid"
                 borderColor="purple.200"
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 zIndex={3}
                 animate={{
                   y: [0, -8, 0],
@@ -396,7 +480,11 @@ export default function FeaturesSection() {
                 }}
                 transition={{
                   duration: 4,
+<<<<<<< HEAD
+                  repeat: Number.POSITIVE_INFINITY,
+=======
                   repeat: Infinity,
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   ease: "easeInOut",
                 }}
               >
@@ -409,6 +497,10 @@ export default function FeaturesSection() {
                     placeItems="center"
                     bgGradient="linear(to-br, purple.600, fuchsia.500)"
                     color="white"
+<<<<<<< HEAD
+                    boxShadow="0 4px 12px rgba(124, 58, 237, 0.3)"
+=======
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   >
                     <FaRocket size={20} />
                   </Box>
@@ -432,8 +524,14 @@ export default function FeaturesSection() {
                 px={4}
                 py={3}
                 borderRadius="xl"
+<<<<<<< HEAD
+                boxShadow="0 12px 40px rgba(124, 58, 237, 0.15)"
+                border="1px solid"
+                borderColor="purple.100"
+=======
                 border="1px solid"
                 borderColor="purple.200"
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 zIndex={3}
                 animate={{
                   y: [0, 8, 0],
@@ -441,7 +539,11 @@ export default function FeaturesSection() {
                 }}
                 transition={{
                   duration: 4.5,
+<<<<<<< HEAD
+                  repeat: Number.POSITIVE_INFINITY,
+=======
                   repeat: Infinity,
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   ease: "easeInOut",
                 }}
               >
@@ -454,6 +556,10 @@ export default function FeaturesSection() {
                     placeItems="center"
                     bgGradient="linear(to-br, purple.600, fuchsia.500)"
                     color="white"
+<<<<<<< HEAD
+                    boxShadow="0 4px 12px rgba(124, 58, 237, 0.3)"
+=======
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   >
                     <FaClock size={20} />
                   </Box>
@@ -477,7 +583,11 @@ export default function FeaturesSection() {
                 color="white"
                 p={3}
                 borderRadius="full"
+<<<<<<< HEAD
+                boxShadow="0 8px 30px rgba(72, 187, 120, 0.3)"
+=======
                 border="2px solid white"
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 zIndex={3}
                 animate={{
                   scale: [1, 1.2, 1],
@@ -485,7 +595,11 @@ export default function FeaturesSection() {
                 }}
                 transition={{
                   duration: 3,
+<<<<<<< HEAD
+                  repeat: Number.POSITIVE_INFINITY,
+=======
                   repeat: Infinity,
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   ease: "easeInOut",
                 }}
               >
@@ -496,6 +610,11 @@ export default function FeaturesSection() {
         </MotionVStack>
       </Container>
     </Box>
+<<<<<<< HEAD
+  )
+}
+=======
   );
 }
 
+>>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
