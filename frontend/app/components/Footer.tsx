@@ -292,9 +292,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
                       bg: "gray.900",
                       color: "white",
                       textDecoration: "none",
-                      transform: "translateX(2px)",
                     }}
-                    transition="all 0.2s ease"
                     onClick={
                       link.href.startsWith("#")
                         ? (e) => {

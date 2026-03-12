@@ -16,8 +16,6 @@ import Footer from "./components/Footer";
 import DiscoverSection from "./components/sections/DiscoverSection";
 
 export default function Page() {
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
-
   const mockVendors = [
     {
       id: "1",
@@ -78,13 +76,10 @@ export default function Page() {
   ]
 
   return (
-    <>
-        <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <HeroSection />
-      {/* <FeatureSection/> */}
-      <DiscoverSection/>
-      </div>
+      <DiscoverSection />
       <PromotionalBanners />
       <PopularCategories loading={false} />
       <FeaturedStores vendors={mockVendors} loading={false} />
@@ -93,6 +88,6 @@ export default function Page() {
       <FeaturesSection />
       <HeroWithImage />
       <Footer />
-    </>
+    </div>
   )
 }

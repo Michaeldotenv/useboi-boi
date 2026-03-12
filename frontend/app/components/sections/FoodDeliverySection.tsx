@@ -1,7 +1,7 @@
 "use client"
 import { Box, Container, SimpleGrid, VStack, HStack, Text, Badge, Button, Image, Icon } from "@chakra-ui/react"
 import { ArrowForwardIcon } from "@chakra-ui/icons"
-import { FaLocationArrow, FaClock, FaShieldAlt, FaStar, FaFire } from "react-icons/fa"
+import { FaLocationArrow, FaClock, FaShieldAlt, FaStar, FaFire, FaUtensils, FaRocket } from "react-icons/fa"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
 
@@ -28,11 +28,7 @@ export default function FoodDeliverySection() {
         delayChildren: 0.2,
       },
     },
-<<<<<<< HEAD
-  }
-=======
   };
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const itemVariants = {
     hidden: { opacity: 0, x: -30, scale: 0.95 },
@@ -46,11 +42,7 @@ export default function FoodDeliverySection() {
         stiffness: 100,
       },
     },
-<<<<<<< HEAD
-  }
-=======
   };
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.9, rotateY: -15 },
@@ -63,11 +55,7 @@ export default function FoodDeliverySection() {
         ease: "easeOut",
       },
     },
-<<<<<<< HEAD
-  }
-=======
   };
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   const features = [
     {
@@ -94,22 +82,12 @@ export default function FoodDeliverySection() {
       color: "blue.600",
       gradient: "linear(to-br, blue.400, blue.600)",
     },
-<<<<<<< HEAD
-  ]
-=======
   ];
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
 
   return (
     <Box
       ref={containerRef}
       py={{ base: 20, md: 28 }}
-<<<<<<< HEAD
-      bgGradient="linear(to-br, #faf5ff, #f3e8ff, #fae8ff)"
-      position="relative"
-      overflow="hidden"
-    >
-=======
       bg="white"
       position="relative"
       overflow="hidden"
@@ -180,7 +158,6 @@ export default function FoodDeliverySection() {
         />
       ))}
 
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
       <Container maxW="container.xl" px={{ base: 4, md: 6 }} position="relative" zIndex={1}>
         <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 12, lg: 20 }} alignItems="center">
           {/* Image Section */}
@@ -192,8 +169,6 @@ export default function FoodDeliverySection() {
             viewport={{ once: true, margin: "-100px" }}
             variants={imageVariants}
           >
-<<<<<<< HEAD
-=======
             {/* Decorative Background Elements */}
             <MotionBox
               position="absolute"
@@ -273,7 +248,6 @@ export default function FoodDeliverySection() {
             </MotionBox>
 
             {/* Floating Stats Badges */}
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             <MotionBox
               position="absolute"
               top={{ base: "5%", md: "8%" }}
@@ -282,14 +256,8 @@ export default function FoodDeliverySection() {
               px={4}
               py={3}
               borderRadius="xl"
-<<<<<<< HEAD
-              boxShadow="0 12px 40px rgba(124, 58, 237, 0.2)"
-              border="2px solid"
-              borderColor="purple.100"
-=======
               border="1px solid"
               borderColor="orange.200"
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               zIndex={2}
               animate={{
                 y: [0, -10, 0],
@@ -297,11 +265,7 @@ export default function FoodDeliverySection() {
               }}
               transition={{
                 duration: 4,
-<<<<<<< HEAD
-                repeat: Number.POSITIVE_INFINITY,
-=======
                 repeat: Infinity,
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 ease: "easeInOut",
               }}
             >
@@ -314,10 +278,6 @@ export default function FoodDeliverySection() {
                   display="grid"
                   placeItems="center"
                   color="white"
-<<<<<<< HEAD
-                  boxShadow="0 4px 12px rgba(245, 158, 11, 0.3)"
-=======
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 >
                   <Icon as={FaFire} />
                 </Box>
@@ -340,14 +300,8 @@ export default function FoodDeliverySection() {
               px={4}
               py={3}
               borderRadius="xl"
-<<<<<<< HEAD
-              boxShadow="0 12px 40px rgba(124, 58, 237, 0.2)"
-              border="2px solid"
-              borderColor="purple.100"
-=======
               border="1px solid"
               borderColor="purple.200"
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               zIndex={2}
               animate={{
                 y: [0, 10, 0],
@@ -355,11 +309,7 @@ export default function FoodDeliverySection() {
               }}
               transition={{
                 duration: 4.5,
-<<<<<<< HEAD
-                repeat: Number.POSITIVE_INFINITY,
-=======
                 repeat: Infinity,
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 ease: "easeInOut",
               }}
             >
@@ -372,10 +322,6 @@ export default function FoodDeliverySection() {
                   display="grid"
                   placeItems="center"
                   color="white"
-<<<<<<< HEAD
-                  boxShadow="0 4px 12px rgba(124, 58, 237, 0.3)"
-=======
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                 >
                   <Icon as={FaStar} />
                 </Box>
@@ -412,35 +358,17 @@ export default function FoodDeliverySection() {
                   fontSize="sm"
                   border="1px solid"
                   borderColor="purple.200"
-<<<<<<< HEAD
-                  boxShadow="0 4px 14px rgba(124, 58, 237, 0.1)"
-                >
-=======
                   display="flex"
                   alignItems="center"
                   gap={2}
                 >
                   <Icon as={FaUtensils} />
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                   Food Delivery
                 </Badge>
               </MotionBox>
 
               {/* Heading */}
               <MotionBox variants={itemVariants}>
-<<<<<<< HEAD
-                <Text
-                  fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
-                  fontWeight="800"
-                  color="gray.900"
-                  lineHeight="1.1"
-                >
-                  Discover, order & track{" "}
-                  <Box as="span" bgGradient="linear(to-r, purple.600, fuchsia.500)" bgClip="text">
-                    instantly
-                  </Box>
-                </Text>
-=======
                 <HStack spacing={3} align="center" flexWrap="wrap">
                   <Text
                     fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}
@@ -459,7 +387,6 @@ export default function FoodDeliverySection() {
                   </Text>
                   <Icon as={FaRocket} color="purple.500" boxSize={{ base: 6, md: 8 }} />
                 </HStack>
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
               </MotionBox>
 
               {/* Feature Cards */}
@@ -468,18 +395,6 @@ export default function FoodDeliverySection() {
                   <MotionBox key={i} variants={itemVariants}>
                     <MotionBox
                       p={5}
-<<<<<<< HEAD
-                      bg="white"
-                      borderRadius="2xl"
-                      border="1px solid"
-                      borderColor="purple.100"
-                      boxShadow="0 4px 20px rgba(124, 58, 237, 0.08)"
-                      whileHover={{
-                        scale: 1.02,
-                        boxShadow: "0 12px 40px rgba(124, 58, 237, 0.15)",
-                        borderColor: "purple.200",
-                        y: -4,
-=======
                       bg="gray.50"
                       borderRadius="2xl"
                       border="1px solid"
@@ -487,7 +402,6 @@ export default function FoodDeliverySection() {
                       whileHover={{
                         scale: 1.02,
                         borderColor: "purple.300",
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                       }}
                       transition={{ duration: 0.3 }}
                       cursor="pointer"
@@ -498,18 +412,8 @@ export default function FoodDeliverySection() {
                           bg={feature.bg}
                           borderRadius="xl"
                           color={feature.color}
-<<<<<<< HEAD
-                          boxShadow="0 4px 12px rgba(124, 58, 237, 0.1)"
-                          whileHover={{ rotate: 360, scale: 1.1 }}
-                          transition={{ duration: 0.6 }}
-                          minW="64px"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-=======
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.6 }}
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
                         >
                           <Icon as={feature.icon} w={5} h={5} />
                         </MotionBox>
@@ -527,45 +431,10 @@ export default function FoodDeliverySection() {
                 ))}
               </VStack>
 
-<<<<<<< HEAD
-              {/* CTA Button */}
-              <MotionBox variants={itemVariants} w={{ base: "full", sm: "auto" }}>
-                <MotionButton
-                  size="lg"
-                  bgGradient="linear(to-r, purple.500, fuchsia.500)"
-                  color="white"
-                  px={10}
-                  py={7}
-                  borderRadius="xl"
-                  fontWeight="700"
-                  fontSize="lg"
-                  boxShadow="0 8px 30px rgba(124, 58, 237, 0.3)"
-                  rightIcon={<ArrowForwardIcon />}
-                  whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0 12px 40px rgba(124, 58, 237, 0.4)",
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  _hover={{
-                    bgGradient: "linear(to-r, purple.600, fuchsia.600)",
-                  }}
-                  w={{ base: "full", sm: "auto" }}
-                >
-                  Order food online
-                </MotionButton>
-              </MotionBox>
-=======
-
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5
             </VStack>
           </MotionBox>
         </SimpleGrid>
       </Container>
     </Box>
-<<<<<<< HEAD
-  )
-}
-=======
   );
 }
->>>>>>> 8d6349ed13ccba6f173e79b833b77d0c43e09dd5

@@ -198,7 +198,6 @@ const OrdersTab: React.FC = () => {
           transform: "translateY(-2px)",
           boxShadow: "0 8px 20px rgba(59, 23, 79, 0.15)",
         }}
-        transition="all 0.3s ease"
       >
         <VStack spacing={{ base: 2, md: 3 }} align="stretch">
           {/* Header Row */}

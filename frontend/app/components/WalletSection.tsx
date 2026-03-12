@@ -31,6 +31,7 @@ import { api } from '@/lib/api';
 
 interface WalletSectionProps {
   user: any;
+  onBalanceUpdate?: () => void;
 }
 
 const WalletSection: React.FC<WalletSectionProps> = ({ user }) => {

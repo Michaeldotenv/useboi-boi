@@ -145,8 +145,6 @@ export default function AppDownload() {
                   {/* App Store Buttons */}
                   <VStack spacing={3} w="full" pt={2}>
                     <MotionButton
-                      as="a"
-                      href="#"
                       size="lg"
                       w="full"
                       bg="white"
@@ -163,6 +161,7 @@ export default function AppDownload() {
                       _hover={{
                         bg: "gray.50"
                       }}
+                      onClick={() => window.open('#', '_blank')}
                     >
                       <VStack spacing={0} align="start" flex={1}>
                         <Text fontSize="xs" fontWeight="400">Download on the</Text>
@@ -171,8 +170,6 @@ export default function AppDownload() {
                     </MotionButton>
 
                     <MotionButton
-                      as="a"
-                      href="#"
                       size="lg"
                       w="full"
                       bg="white"

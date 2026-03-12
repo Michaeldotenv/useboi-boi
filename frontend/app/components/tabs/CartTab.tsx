@@ -50,6 +50,7 @@ const CartTab: React.FC = () => {
   const { data: meData } = useQuery({ queryKey: ["me"], queryFn: api.me });
   const meObj = ((meData as any)?.data || meData || {}) as any;
 
+  // Calculate totals
   const deliveryFee = 500; // Fixed delivery fee
   const serviceCharge = Math.round(total * 0.05); // 5% service charge
   const vat = Math.round((total + deliveryFee + serviceCharge) * 0.075); // 7.5% VAT
@@ -98,12 +99,6 @@ const CartTab: React.FC = () => {
       setIsCheckingOut(false);
     }
   };
-
-  // Calculate totals
-  const deliveryFee = 500;
-  const serviceCharge = Math.round(total * 0.05);
-  const vat = Math.round((total + deliveryFee + serviceCharge) * 0.075);
-  const grandTotal = total + deliveryFee + serviceCharge + vat - couponDiscount;
 
   // Show empty state if no items
   if (items.length === 0) {

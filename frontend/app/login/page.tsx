@@ -103,7 +103,7 @@ export default function Login() {
       } else if (user.role === "rider") {
         router.push("/rider-dashboard");
       } else {
-        router.push("/user-dashboard");
+        router.push("/user-dashboard/stores");
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
